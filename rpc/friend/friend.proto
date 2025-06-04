@@ -13,7 +13,18 @@ message AddFriendResponse {
   string addMessage = 1;
 }
 
+message DeleteFriendRequest{
+  string deleteEmail = 1;
+  string targetEmail = 2;
+}
+
+message DeleteFriendResponse{
+  string deleteMessage = 1;
+}
+
+
 service Friend {
   rpc AddFriend(AddFriendRequest) returns(AddFriendResponse);
+  rpc DeleteFriend(DeleteFriendRequest) returns(DeleteFriendResponse);
 }
-// goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=.
+// goctl rpc protoc friend.proto --go_out=. --go-grpc_out=. --zrpc_out=.

@@ -5,6 +5,7 @@ import (
 
 	"chatLion/api/friend/internal/svc"
 	"chatLion/api/friend/internal/types"
+	"chatLion/rpc/friend/friend"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,6 +26,12 @@ func NewAddFriendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddFrie
 
 func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.AddFriendResponse, err error) {
 	// todo: add your logic here and delete this line
-
-	return
+	addResp, err := l.svcCtx.FriendRPC.AddFriend(l.ctx, &friend.AddFriendRequest{
+		AdderEmail:  req.AdderEmail,
+		TargetEmail: req.TargetEmail,
+		Content:     req.Content,
+	})
+	return &types.AddFriendResponse{
+		AddMessage: addResp.AddMessage,
+	}, err
 }

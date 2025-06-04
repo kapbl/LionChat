@@ -125,6 +125,102 @@ func (x *AddFriendResponse) GetAddMessage() string {
 	return ""
 }
 
+type DeleteFriendRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeleteEmail   string                 `protobuf:"bytes,1,opt,name=deleteEmail,proto3" json:"deleteEmail,omitempty"`
+	TargetEmail   string                 `protobuf:"bytes,2,opt,name=targetEmail,proto3" json:"targetEmail,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteFriendRequest) Reset() {
+	*x = DeleteFriendRequest{}
+	mi := &file_friend_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteFriendRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteFriendRequest) ProtoMessage() {}
+
+func (x *DeleteFriendRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_friend_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteFriendRequest.ProtoReflect.Descriptor instead.
+func (*DeleteFriendRequest) Descriptor() ([]byte, []int) {
+	return file_friend_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DeleteFriendRequest) GetDeleteEmail() string {
+	if x != nil {
+		return x.DeleteEmail
+	}
+	return ""
+}
+
+func (x *DeleteFriendRequest) GetTargetEmail() string {
+	if x != nil {
+		return x.TargetEmail
+	}
+	return ""
+}
+
+type DeleteFriendResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeleteMessage string                 `protobuf:"bytes,1,opt,name=deleteMessage,proto3" json:"deleteMessage,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteFriendResponse) Reset() {
+	*x = DeleteFriendResponse{}
+	mi := &file_friend_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteFriendResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteFriendResponse) ProtoMessage() {}
+
+func (x *DeleteFriendResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_friend_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteFriendResponse.ProtoReflect.Descriptor instead.
+func (*DeleteFriendResponse) Descriptor() ([]byte, []int) {
+	return file_friend_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeleteFriendResponse) GetDeleteMessage() string {
+	if x != nil {
+		return x.DeleteMessage
+	}
+	return ""
+}
+
 var File_friend_proto protoreflect.FileDescriptor
 
 const file_friend_proto_rawDesc = "" +
@@ -139,9 +235,15 @@ const file_friend_proto_rawDesc = "" +
 	"\x11AddFriendResponse\x12\x1e\n" +
 	"\n" +
 	"addMessage\x18\x01 \x01(\tR\n" +
-	"addMessage2J\n" +
+	"addMessage\"Y\n" +
+	"\x13DeleteFriendRequest\x12 \n" +
+	"\vdeleteEmail\x18\x01 \x01(\tR\vdeleteEmail\x12 \n" +
+	"\vtargetEmail\x18\x02 \x01(\tR\vtargetEmail\"<\n" +
+	"\x14DeleteFriendResponse\x12$\n" +
+	"\rdeleteMessage\x18\x01 \x01(\tR\rdeleteMessage2\x95\x01\n" +
 	"\x06Friend\x12@\n" +
-	"\tAddFriend\x12\x18.friend.AddFriendRequest\x1a\x19.friend.AddFriendResponseB\n" +
+	"\tAddFriend\x12\x18.friend.AddFriendRequest\x1a\x19.friend.AddFriendResponse\x12I\n" +
+	"\fDeleteFriend\x12\x1b.friend.DeleteFriendRequest\x1a\x1c.friend.DeleteFriendResponseB\n" +
 	"Z\b./friendb\x06proto3"
 
 var (
@@ -156,16 +258,20 @@ func file_friend_proto_rawDescGZIP() []byte {
 	return file_friend_proto_rawDescData
 }
 
-var file_friend_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_friend_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_friend_proto_goTypes = []any{
-	(*AddFriendRequest)(nil),  // 0: friend.AddFriendRequest
-	(*AddFriendResponse)(nil), // 1: friend.AddFriendResponse
+	(*AddFriendRequest)(nil),     // 0: friend.AddFriendRequest
+	(*AddFriendResponse)(nil),    // 1: friend.AddFriendResponse
+	(*DeleteFriendRequest)(nil),  // 2: friend.DeleteFriendRequest
+	(*DeleteFriendResponse)(nil), // 3: friend.DeleteFriendResponse
 }
 var file_friend_proto_depIdxs = []int32{
 	0, // 0: friend.Friend.AddFriend:input_type -> friend.AddFriendRequest
-	1, // 1: friend.Friend.AddFriend:output_type -> friend.AddFriendResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: friend.Friend.DeleteFriend:input_type -> friend.DeleteFriendRequest
+	1, // 2: friend.Friend.AddFriend:output_type -> friend.AddFriendResponse
+	3, // 3: friend.Friend.DeleteFriend:output_type -> friend.DeleteFriendResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -182,7 +288,7 @@ func file_friend_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_friend_proto_rawDesc), len(file_friend_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

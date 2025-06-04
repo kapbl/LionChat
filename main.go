@@ -11,14 +11,16 @@ import (
 func main() {
 	dsn := "root:0220059cyCY@tcp(127.0.0.1:3306)/chatLion?charset=utf8mb4&parseTime=True&loc=Local"
 	db := database.InitGorm(dsn)
-	db.AutoMigrate(&model.UserModel{}, &model.Group{})
-	// 从一个组中移除一个成员
-	// group := newFunction(db)
-	// 删除一个组的步骤：将所有组员移除，接触所有外键
-	// var group model.Group
-	// db.First(&group, "name = ?", "Developers") // 查询记录
-	// db.Select("Members").Delete(&group)
+	db.AutoMigrate(&model.UserModel{}, &model.Group{}, &model.UserFriend{})
 
+	testQueryMyFriends(db)
+}
+
+func testQueryMyFriends(db *gorm.DB) {
+	var friends []model.UserFriend
+	// 查询user_id = 5的所有好友
+	db.Where("user_id = ?", 5).Find(&friends)
+	log.Println(friends)
 }
 
 func newFunction(db *gorm.DB) model.Group {

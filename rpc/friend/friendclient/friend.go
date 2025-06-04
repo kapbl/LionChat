@@ -14,11 +14,14 @@ import (
 )
 
 type (
-	AddFriendRequest  = friend.AddFriendRequest
-	AddFriendResponse = friend.AddFriendResponse
+	AddFriendRequest     = friend.AddFriendRequest
+	AddFriendResponse    = friend.AddFriendResponse
+	DeleteFriendRequest  = friend.DeleteFriendRequest
+	DeleteFriendResponse = friend.DeleteFriendResponse
 
 	Friend interface {
 		AddFriend(ctx context.Context, in *AddFriendRequest, opts ...grpc.CallOption) (*AddFriendResponse, error)
+		DeleteFriend(ctx context.Context, in *DeleteFriendRequest, opts ...grpc.CallOption) (*DeleteFriendResponse, error)
 	}
 
 	defaultFriend struct {
@@ -35,4 +38,9 @@ func NewFriend(cli zrpc.Client) Friend {
 func (m *defaultFriend) AddFriend(ctx context.Context, in *AddFriendRequest, opts ...grpc.CallOption) (*AddFriendResponse, error) {
 	client := friend.NewFriendClient(m.cli.Conn())
 	return client.AddFriend(ctx, in, opts...)
+}
+
+func (m *defaultFriend) DeleteFriend(ctx context.Context, in *DeleteFriendRequest, opts ...grpc.CallOption) (*DeleteFriendResponse, error) {
+	client := friend.NewFriendClient(m.cli.Conn())
+	return client.DeleteFriend(ctx, in, opts...)
 }

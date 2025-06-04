@@ -1,3 +1,8 @@
 Name: friend-api
 Host: 0.0.0.0
-Port: 8888
+Port: 9002
+FriendRPC:
+  Etcd:
+    Hosts:
+      - localhost:2379
+    Key: friend.rpc

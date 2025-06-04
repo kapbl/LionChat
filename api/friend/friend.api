@@ -4,15 +4,28 @@ type (
 	AddFriendRequest {
 		AdderEmail  string `json:"adder_email"`
 		TargetEmail string `json:"target_email"`
-		Content     string `json:"contnt"`
+		Content     string `json:"content"`
 	}
 	AddFriendResponse {
 		AddMessage string `json:"add_message"`
 	}
 )
 
+type (
+	DeleteFriendRequest {
+		DeleteEmail string `json:"delete_email"`
+		TargetEmail string `json:"target_email"`
+	}
+	DeleteFriendResponse {
+		DeleteMessage string `json:"delete_message"`
+	}
+)
+
 service friend-api {
 	@handler AddFriend
 	post /friend/addFriend (AddFriendRequest) returns (AddFriendResponse)
+
+	@handler DeleteFriend
+	post /friend/deleteFriend (DeleteFriendRequest) returns (DeleteFriendResponse)
 }
 

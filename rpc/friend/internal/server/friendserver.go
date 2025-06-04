@@ -27,3 +27,8 @@ func (s *FriendServer) AddFriend(ctx context.Context, in *friend.AddFriendReques
 	l := logic.NewAddFriendLogic(ctx, s.svcCtx)
 	return l.AddFriend(in)
 }
+
+func (s *FriendServer) DeleteFriend(ctx context.Context, in *friend.DeleteFriendRequest) (*friend.DeleteFriendResponse, error) {
+	l := logic.NewDeleteFriendLogic(ctx, s.svcCtx)
+	return l.DeleteFriend(in)
+}

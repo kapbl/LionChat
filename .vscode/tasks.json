@@ -48,6 +48,22 @@
                         "problemMatcher": [
                                 "$go"
                         ]
+                },
+                {
+                        "label": "friend_rpc",
+                        "type": "shell",
+                        "command": "cd rpc/friend; go run friend.go",
+                        "problemMatcher": [
+                                "$go"
+                        ]
+                },
+                {
+                        "label": "friend_api",
+                        "type": "shell",
+                        "command": "cd api/friend; go run friend.go",
+                        "problemMatcher": [
+                                "$go"
+                        ]
                 }
         ]
 }

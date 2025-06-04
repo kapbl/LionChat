@@ -19,6 +19,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/friend/addFriend",
 				Handler: AddFriendHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/friend/deleteFriend",
+				Handler: DeleteFriendHandler(serverCtx),
+			},
 		},
 	)
 }
