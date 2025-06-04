@@ -21,3 +21,16 @@ type DeleteFriendRequest struct {
 type DeleteFriendResponse struct {
 	DeleteMessage string `json:"delete_message"`
 }
+
+type FriendInfor struct {
+	Nickname string `json:"nickname"`
+	Email    string `json:"email"`
+}
+
+type GetFriendsRequest struct {
+	UserEmail string `json:"user_email"`
+}
+
+type GetFriendsResponse struct {
+	Friends []FriendInfor `json:"friend_infor"`
+}

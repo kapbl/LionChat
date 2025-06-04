@@ -14,14 +14,18 @@ import (
 )
 
 type (
-	AddFriendRequest     = friend.AddFriendRequest
-	AddFriendResponse    = friend.AddFriendResponse
-	DeleteFriendRequest  = friend.DeleteFriendRequest
-	DeleteFriendResponse = friend.DeleteFriendResponse
+	AddFriendRequest       = friend.AddFriendRequest
+	AddFriendResponse      = friend.AddFriendResponse
+	DeleteFriendRequest    = friend.DeleteFriendRequest
+	DeleteFriendResponse   = friend.DeleteFriendResponse
+	FriendInfo             = friend.FriendInfo
+	GetFriendsListRequest  = friend.GetFriendsListRequest
+	GetFriendsListResponse = friend.GetFriendsListResponse
 
 	Friend interface {
 		AddFriend(ctx context.Context, in *AddFriendRequest, opts ...grpc.CallOption) (*AddFriendResponse, error)
 		DeleteFriend(ctx context.Context, in *DeleteFriendRequest, opts ...grpc.CallOption) (*DeleteFriendResponse, error)
+		GetFriends(ctx context.Context, in *GetFriendsListRequest, opts ...grpc.CallOption) (*GetFriendsListResponse, error)
 	}
 
 	defaultFriend struct {
@@ -43,4 +47,9 @@ func (m *defaultFriend) AddFriend(ctx context.Context, in *AddFriendRequest, opt
 func (m *defaultFriend) DeleteFriend(ctx context.Context, in *DeleteFriendRequest, opts ...grpc.CallOption) (*DeleteFriendResponse, error) {
 	client := friend.NewFriendClient(m.cli.Conn())
 	return client.DeleteFriend(ctx, in, opts...)
+}
+
+func (m *defaultFriend) GetFriends(ctx context.Context, in *GetFriendsListRequest, opts ...grpc.CallOption) (*GetFriendsListResponse, error) {
+	client := friend.NewFriendClient(m.cli.Conn())
+	return client.GetFriends(ctx, in, opts...)
 }

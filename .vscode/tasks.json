@@ -64,6 +64,14 @@
                         "problemMatcher": [
                                 "$go"
                         ]
+                },
+                {
+                        "label": "websocket_api",
+                        "type": "shell",
+                        "command": "cd api/websocket; go run websocket.go",
+                        "problemMatcher": [
+                                "$go"
+                        ]
                 }
         ]
 }

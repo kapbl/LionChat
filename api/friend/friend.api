@@ -21,11 +21,29 @@ type (
 	}
 )
 
+type FriendInfor {
+	Nickname string `json:"nickname"`
+	Email    string `json:"email"`
+// 其他，如性别，简介等
+}
+
+type (
+	GetFriendsRequest {
+		UserEmail string `json:"user_email"`
+	}
+	GetFriendsResponse {
+		Friends []FriendInfor `json:"friend_infor"`
+	}
+)
+
 service friend-api {
 	@handler AddFriend
 	post /friend/addFriend (AddFriendRequest) returns (AddFriendResponse)
 
 	@handler DeleteFriend
 	post /friend/deleteFriend (DeleteFriendRequest) returns (DeleteFriendResponse)
+
+	@handler GetFriends
+	get /friend/getFriends (GetFriendsRequest) returns (GetFriendsResponse)
 }
 

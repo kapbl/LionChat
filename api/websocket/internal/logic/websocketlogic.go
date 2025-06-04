@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
@@ -69,7 +70,7 @@ func (l *WebsocketLogic) Websocket(req *types.WebSocketRequest) (resp *types.Web
 			continue
 		}
 		if currentMessage.MessageType == 0 {
-			websocketSendMessageToOne(currentMessage.To, currentMessage.Content)
+			websocketSendMessageToOne(currentMessage.From, currentMessage.To, currentMessage.Content)
 		} else if currentMessage.MessageType == 1 {
 			// 远程调用获取群成员列表
 			groupResp, err := l.svcCtx.GroupRPC.GetMembersByGroupID(l.ctx, &group.GetMembersRequest{
@@ -110,14 +111,24 @@ func websocketSendMessageToGroup(from string, to []string, message string) error
 }
 
 // 发送消息到指定的用户
-func websocketSendMessageToOne(uuid string, message string) error {
+func websocketSendMessageToOne(from, to string, message string) error {
 	// 从连接池中获取连接
-	targetConn, ok := connectionPool.Load(uuid)
+	targetConn, ok := connectionPool.Load(to)
 	if !ok {
 		return nil
 	}
 	conn := targetConn.(*websocket.Conn)
-	return conn.WriteMessage(websocket.TextMessage, []byte(message))
+	curMessage := jsoncontent.MessageContent{
+		MessageType: 0,
+		Content:     message,
+		From:        from,
+		To:          to,
+	}
+	data, err := json.Marshal(curMessage)
+	if err != nil {
+		log.Println("序列化消息失败")
+	}
+	return conn.WriteMessage(websocket.TextMessage, data)
 }
 
 func websocketClose(conn *websocket.Conn) {

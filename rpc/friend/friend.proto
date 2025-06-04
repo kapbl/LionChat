@@ -23,8 +23,24 @@ message DeleteFriendResponse{
 }
 
 
+message FriendInfo{
+  string email = 1;
+  string nickname = 2;
+}
+
+// 获取朋友列表
+message GetFriendsListRequest{
+  string UserEmail = 1;
+}
+
+message GetFriendsListResponse{
+  repeated FriendInfo friends = 1; // 结构化储存
+}
+
+
 service Friend {
   rpc AddFriend(AddFriendRequest) returns(AddFriendResponse);
   rpc DeleteFriend(DeleteFriendRequest) returns(DeleteFriendResponse);
+  rpc GetFriends(GetFriendsListRequest) returns(GetFriendsListResponse);
 }
 // goctl rpc protoc friend.proto --go_out=. --go-grpc_out=. --zrpc_out=.
