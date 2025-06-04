@@ -1,0 +1,28 @@
+type (
+	LoginRequest {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	LoginResponse {
+		JWT string `json:"jwt"`
+	}
+)
+
+type (
+	RegisterRequest {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	RegisterResponse {
+		Message string `json:"message"`
+	}
+)
+
+service auth-api {
+	@handler Login
+	post /auth/login (LoginRequest) returns (LoginResponse)
+
+	@handler register
+	post /auth/register (RegisterRequest) returns (RegisterResponse)
+}
+

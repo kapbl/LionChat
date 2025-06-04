@@ -1,0 +1,18 @@
+syntax = "v1"
+
+type modifyUserRequest {
+	// TODO: add members here and delete this comment
+	Email       string `json:"email"`
+	NewUserName string `json:"new_user_name"`
+}
+
+type modifyUserResponse {
+	// TODO: add members here and delete this comment
+	ModifyMessage string `json:"modify_message"`
+}
+
+service user-api {
+	@handler ModifyUser
+	post /user/modifyUser (modifyUserRequest) returns (modifyUserResponse)
+}
+

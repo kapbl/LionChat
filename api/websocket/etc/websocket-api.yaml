@@ -1,0 +1,8 @@
+Name: websocket-api
+Host: 0.0.0.0
+Port: 8889
+GroupRPC:
+  Etcd:
+    Hosts:
+      - localhost:2379
+    Key: group.rpc

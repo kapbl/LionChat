@@ -1,0 +1,15 @@
+type (
+	WebSocketRequest {
+		JWT  string `json"jwt"`
+		UUID string `json"uuid"`
+	}
+	WebSocketResponse {
+		Message string `json"message"`
+	}
+)
+
+service websocket-api {
+	@handler websocket
+	get /websocket (WebSocketRequest) returns (WebSocketResponse)
+}
+

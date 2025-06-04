@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package user;
+option go_package="./user";
+
+message ModifyUserRequest {
+  string email = 1;
+  string new_user_nickname = 2; // 用户昵称
+  string new_user_gender = 3; // 用户性别
+}
+
+message ModifyUserResponse {
+  string modifyMessage = 1;
+}
+
+service User {
+  rpc ModifyUser(ModifyUserRequest) returns(ModifyUserResponse);
+}
+//goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=.

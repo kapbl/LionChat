@@ -1,0 +1,56 @@
+type (
+	getMemberRequest {
+		requestUserID string `json:"request_user_id"`
+		groupID       string `json:"group_id"`
+	}
+	getMemberResponse {
+		members []string `json:"members"`
+	}
+)
+
+type (
+	deleteGroupRequest {
+		DeleteGroupName string `json:"delete_group_name"`
+		UserName        string `json:"user_name"`
+	}
+	deleteGroupResponse {
+		DeleteMessage string `json:"delete_message"`
+	}
+)
+
+type (
+	createGroupRequest {
+		CreateGroupName        string `json:"create_group_name"`
+		CreateGroupDescription string `json:"create_group_description"`
+		CreateGroupOwnerName   string `json:"create_group_owner_name"`
+	}
+	createGroupResponse {
+		CreateMessage string `json:"create_message"`
+	}
+)
+
+type (
+	joinGroupRequest {
+		JoinGroupName string `json:"join_group_name"`
+		JoinerName    string `json:"joiner_name"`
+	}
+	joinGroupResponse {
+		JoinMessage string `json:"join_message"`
+	}
+)
+
+service group-api {
+	// 根据group_id获取组内的成员
+	@handler GetMembersByGroupID
+	get /group/getMembersByGroupID (getMemberRequest) returns (getMemberResponse)
+
+	@handler DeleteGroupByGroupID
+	post /group/DeleteGroupByGroupID (deleteGroupRequest) returns (deleteGroupResponse)
+
+	@handler CreateGroup
+	post /group/createGroup (createGroupRequest) returns (createGroupResponse)
+
+	@handler JoinGroup
+	post /group/joinGroup (joinGroupRequest) returns (joinGroupResponse)
+}
+

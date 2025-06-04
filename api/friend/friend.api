@@ -1,0 +1,18 @@
+syntax = "v1"
+
+type (
+	AddFriendRequest {
+		AdderEmail  string `json:"adder_email"`
+		TargetEmail string `json:"target_email"`
+		Content     string `json:"contnt"`
+	}
+	AddFriendResponse {
+		AddMessage string `json:"add_message"`
+	}
+)
+
+service friend-api {
+	@handler AddFriend
+	post /friend/addFriend (AddFriendRequest) returns (AddFriendResponse)
+}
+
