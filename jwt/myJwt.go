@@ -16,7 +16,7 @@ func JWTEncoder(secret string, email string) string {
 	claims := JWTClaims{
 		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 1)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 12)),
 			Issuer:    "my_app",
 		},
 	}
