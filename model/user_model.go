@@ -8,6 +8,7 @@ type UserModel struct {
 	Nickname string `gorm:"size:32"`
 	// 用户邮箱是唯一的
 	Email string `gorm:"size:64;uniqueIndex"`
+	Avator int `gorm:"size:64"`
 	// 用户密码
 	Password string      `gorm:"size:128"`
 	Friends  []UserModel `gorm:"many2many:user_friends;"` // 多对多关联

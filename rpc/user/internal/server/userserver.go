@@ -27,3 +27,8 @@ func (s *UserServer) ModifyUser(ctx context.Context, in *user.ModifyUserRequest)
 	l := logic.NewModifyUserLogic(ctx, s.svcCtx)
 	return l.ModifyUser(in)
 }
+
+func (s *UserServer) ModifyUserAvator(ctx context.Context, in *user.MoifyUserAvatorRequest) (*user.MoifyUserAvatorResponse, error) {
+	l := logic.NewModifyUserAvatorLogic(ctx, s.svcCtx)
+	return l.ModifyUserAvator(in)
+}

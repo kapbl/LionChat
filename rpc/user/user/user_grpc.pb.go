@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	User_ModifyUser_FullMethodName = "/user.User/ModifyUser"
+	User_ModifyUser_FullMethodName       = "/user.User/ModifyUser"
+	User_ModifyUserAvator_FullMethodName = "/user.User/ModifyUserAvator"
 )
 
 // UserClient is the client API for User service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	ModifyUser(ctx context.Context, in *ModifyUserRequest, opts ...grpc.CallOption) (*ModifyUserResponse, error)
+	ModifyUserAvator(ctx context.Context, in *MoifyUserAvatorRequest, opts ...grpc.CallOption) (*MoifyUserAvatorResponse, error)
 }
 
 type userClient struct {
@@ -47,11 +49,22 @@ func (c *userClient) ModifyUser(ctx context.Context, in *ModifyUserRequest, opts
 	return out, nil
 }
 
+func (c *userClient) ModifyUserAvator(ctx context.Context, in *MoifyUserAvatorRequest, opts ...grpc.CallOption) (*MoifyUserAvatorResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MoifyUserAvatorResponse)
+	err := c.cc.Invoke(ctx, User_ModifyUserAvator_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
 type UserServer interface {
 	ModifyUser(context.Context, *ModifyUserRequest) (*ModifyUserResponse, error)
+	ModifyUserAvator(context.Context, *MoifyUserAvatorRequest) (*MoifyUserAvatorResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedUserServer struct{}
 
 func (UnimplementedUserServer) ModifyUser(context.Context, *ModifyUserRequest) (*ModifyUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModifyUser not implemented")
+}
+func (UnimplementedUserServer) ModifyUserAvator(context.Context, *MoifyUserAvatorRequest) (*MoifyUserAvatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyUserAvator not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 func (UnimplementedUserServer) testEmbeddedByValue()              {}
@@ -104,6 +120,24 @@ func _User_ModifyUser_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_ModifyUserAvator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MoifyUserAvatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ModifyUserAvator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_ModifyUserAvator_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ModifyUserAvator(ctx, req.(*MoifyUserAvatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ModifyUser",
 			Handler:    _User_ModifyUser_Handler,
+		},
+		{
+			MethodName: "ModifyUserAvator",
+			Handler:    _User_ModifyUserAvator_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

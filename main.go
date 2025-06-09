@@ -13,7 +13,7 @@ func main() {
 	db := database.InitGorm(dsn)
 	db.AutoMigrate(&model.UserModel{}, &model.Group{}, &model.UserFriend{})
 
-	testQueryMyFriends(db)
+	//testQueryMyFriends(db)
 }
 
 func testQueryMyFriends(db *gorm.DB) {

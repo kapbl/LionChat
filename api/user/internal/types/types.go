@@ -3,6 +3,15 @@
 
 package types
 
+type ModifyUserAvatorRequest struct {
+	Email     string `json:"email"`
+	AvatorNum int    `json:"avator_num"`
+}
+
+type ModifyUserAvatorResponse struct {
+	ModifyMessage string `json:"modify_message"`
+}
+
 type ModifyUserRequest struct {
 	Email       string `json:"email"`
 	NewUserName string `json:"new_user_name"`

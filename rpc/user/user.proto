@@ -13,7 +13,18 @@ message ModifyUserResponse {
   string modifyMessage = 1;
 }
 
+message MoifyUserAvatorRequest{
+ string email = 1;
+ int64 AvatorNum = 2; // 用户昵称
+}
+
+message MoifyUserAvatorResponse{
+ string modifyMessage = 1;
+}
+
+
 service User {
   rpc ModifyUser(ModifyUserRequest) returns(ModifyUserResponse);
+  rpc ModifyUserAvator(MoifyUserAvatorRequest) returns(MoifyUserAvatorResponse);
 }
 //goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=.

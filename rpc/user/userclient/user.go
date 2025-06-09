@@ -14,11 +14,14 @@ import (
 )
 
 type (
-	ModifyUserRequest  = user.ModifyUserRequest
-	ModifyUserResponse = user.ModifyUserResponse
+	ModifyUserRequest       = user.ModifyUserRequest
+	ModifyUserResponse      = user.ModifyUserResponse
+	MoifyUserAvatorRequest  = user.MoifyUserAvatorRequest
+	MoifyUserAvatorResponse = user.MoifyUserAvatorResponse
 
 	User interface {
 		ModifyUser(ctx context.Context, in *ModifyUserRequest, opts ...grpc.CallOption) (*ModifyUserResponse, error)
+		ModifyUserAvator(ctx context.Context, in *MoifyUserAvatorRequest, opts ...grpc.CallOption) (*MoifyUserAvatorResponse, error)
 	}
 
 	defaultUser struct {
@@ -35,4 +38,9 @@ func NewUser(cli zrpc.Client) User {
 func (m *defaultUser) ModifyUser(ctx context.Context, in *ModifyUserRequest, opts ...grpc.CallOption) (*ModifyUserResponse, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.ModifyUser(ctx, in, opts...)
+}
+
+func (m *defaultUser) ModifyUserAvator(ctx context.Context, in *MoifyUserAvatorRequest, opts ...grpc.CallOption) (*MoifyUserAvatorResponse, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.ModifyUserAvator(ctx, in, opts...)
 }

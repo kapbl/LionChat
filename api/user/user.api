@@ -11,8 +11,21 @@ type modifyUserResponse {
 	ModifyMessage string `json:"modify_message"`
 }
 
+type modifyUserAvatorRequest {
+	Email     string `json:"email"`
+	AvatorNum int    `json:"avator_num"`
+}
+
+type modifyUserAvatorResponse {
+	// TODO: add members here and delete this comment
+	ModifyMessage string `json:"modify_message"`
+}
+
 service user-api {
 	@handler ModifyUser
 	post /user/modifyUser (modifyUserRequest) returns (modifyUserResponse)
+
+	@handler ModifyUserAvator
+	post /user/modifyAvator (modifyUserAvatorRequest) returns (modifyUserAvatorResponse)
 }
 
