@@ -1,0 +1,7 @@
+MySQL:
+ dsn: "root:0220059cyCY@tcp(127.0.0.1:3306)/chat?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms"
+JWT:
+ api_secret: "chat-api"
+Server:
+ port: 8081
+ host: "127.0.0.1"
