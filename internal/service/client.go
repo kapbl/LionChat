@@ -56,6 +56,7 @@ func (c *Client) Read() {
 			}
 			c.Ws.WriteMessage(websocket.BinaryMessage, pongByte)
 		} else {
+			
 			// 将消息送入通道
 			ServerInstance.Broadcast <- message
 			// 将消息存入数据库

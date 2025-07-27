@@ -21,7 +21,8 @@ func main() {
 		log.Printf("数据库初始化成功")
 	}
 	// 自动迁移表
-	dao.DB.AutoMigrate(&model.User{}, &model.UserFriends{}, &model.Message{})
+	dao.DB.AutoMigrate(&model.User{}, &model.UserFriends{},
+		&model.Message{}, &model.Group{}, &model.GroupMember{})
 	// 初始化路由
 	router.InitWebEngine()
 	// 启动服务器

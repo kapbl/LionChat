@@ -24,6 +24,7 @@ func SearchClientByUserName(c *gin.Context) {
 		return
 	}
 	c.JSON(200, dto.Base{
+		Code: 200,
 		Data: res,
 	})
 }
@@ -40,10 +41,12 @@ func AddSearchClientByUserName(c *gin.Context) {
 	resp, err := service.AddSearchClientByUserName(&addReq, userId, uuid, username)
 	if err != nil {
 		c.JSON(400, dto.Base{
+			Code: 400,
 			Data: err.Error(),
 		})
 	}
 	c.JSON(200, dto.Base{
+		Code: 200,
 		Data: resp,
 	})
 }
@@ -58,7 +61,7 @@ func GetFriendList(c *gin.Context) {
 		return
 	}
 	c.JSON(200, dto.Base{
-		Code: "200",
+		Code: 200,
 		Data: friendList,
 	})
 }

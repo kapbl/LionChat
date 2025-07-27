@@ -1,6 +1,6 @@
 package dto
 
 type Base struct {
-	Code string `json:"code"`
+	Code int         `json:"code"`
 	Data interface{} `json:"data"`
 }
