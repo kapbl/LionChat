@@ -1,4 +1,5 @@
-your_project/
+###
+### your_project/
 ├── cmd/                    # 每个可执行程序一个子目录（main 入口）
 │   └── yourapp/            # 例如：main.go
 │       └── main.go
