@@ -2,8 +2,8 @@ package service
 
 import (
 	"cchat/pkg/protocol"
+	"fmt"
 	"log"
-	"strconv"
 	"sync"
 
 	"github.com/gogo/protobuf/proto"
@@ -34,6 +34,7 @@ func (s *Server) Start() {
 		case conn := <-s.Register:
 			log.Println("注册新连接:", conn.UUID)
 			s.Clients[conn.UUID] = conn
+			fmt.Println(s.Clients)
 		case conn := <-s.Ungister:
 			log.Println("注销连接:", conn.UUID)
 			delete(s.Clients, conn.UUID)
@@ -62,8 +63,8 @@ func (s *Server) Start() {
 						if err != nil {
 							return
 						}
-						log.Println("单聊消息给：", msg.To)
-						s.SendGroupMessage(msg.To, msgByte)
+						log.Println("群聊消息给：", msg.To)
+						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 2: // 文件消息
 					if msg.MessageType == 1 {
@@ -76,6 +77,14 @@ func (s *Server) Start() {
 							log.Println("发送文件消息给：", msg.To)
 							client.Send <- msgByte
 						}
+					} else {
+						// 群聊消息
+						msgByte, err := proto.Marshal(&msg)
+						if err != nil {
+							return
+						}
+						log.Println("群聊消息给：", msg.To)
+						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 3: // 图片消息
 					if msg.MessageType == 1 {
@@ -88,6 +97,14 @@ func (s *Server) Start() {
 							log.Println("发送图片消息给：", msg.To)
 							client.Send <- msgByte
 						}
+					} else {
+						// 群聊消息
+						msgByte, err := proto.Marshal(&msg)
+						if err != nil {
+							return
+						}
+						log.Println("群聊消息给：", msg.To)
+						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 4: // 语音消息
 					if msg.MessageType == 1 {
@@ -100,6 +117,14 @@ func (s *Server) Start() {
 							log.Println("发送语音消息给：", msg.To)
 							client.Send <- msgByte
 						}
+					} else {
+						// 群聊消息
+						msgByte, err := proto.Marshal(&msg)
+						if err != nil {
+							return
+						}
+						log.Println("群聊消息给：", msg.To)
+						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 8: // 加好友消息
 					if msg.MessageType == 1 {
@@ -115,7 +140,7 @@ func (s *Server) Start() {
 					}
 				}
 			} else {
-				log.Println("群聊消息")
+				log.Println("其他公告消息-产品升级")
 				for _, client := range s.Clients {
 					select {
 					case client.Send <- message:
@@ -133,23 +158,17 @@ func (s *Server) GetClient(uuid string) *Client {
 	return s.Clients[uuid]
 }
 
-func (s *Server) SendGroupMessage(to string, msg []byte) {
-	// 获取该群聊下的所有群成员
+func (s *Server) SendGroupMessage(fromUUID string, groupUUID string, msg []byte) {
+	// 获取该群聊下的所有群成员的UUID
 	groupService := &GroupService{}
-	// string to int
-	groupId, err := strconv.Atoi(to)
-	if err != nil {
-		log.Println("群聊ID转换失败")
-		return
-	}
-	groupMembers, err := groupService.GetGroupMember(groupId)
+	groupMembers, err := groupService.GetGroupMember(groupUUID)
 	if err != nil {
 		log.Println("获取群聊下的所有群成员失败")
 		return
 	}
 	for _, clientID := range groupMembers {
 		client, ok := s.Clients[clientID]
-		if ok {
+		if ok && clientID != fromUUID {
 			client.Send <- msg
 		}
 	}

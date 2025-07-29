@@ -10,7 +10,7 @@ import (
 )
 
 func Register(req *dto.RegisterReq) (*dto.RegisterResp, error) {
-	var searchUser model.User
+	var searchUser model.Users
 	err := dao.DB.Table("users").Where("username = ?", req.Username).First(&searchUser).Error
 	if err == nil {
 		return nil, errors.New("用户名已存在")

@@ -51,9 +51,11 @@ func AddSearchClientByUserName(c *gin.Context) {
 	})
 }
 
+// 获取好友列表
 func GetFriendList(c *gin.Context) {
+	uuid := c.GetString("userUuid")
 	userId := c.GetInt("userId")
-	friendList, err := service.GetFriendList(int(userId))
+	friendList, err := service.GetFriendList(uuid, userId)
 	if err != nil {
 		c.JSON(400, dto.Base{
 			Data: err.Error(),

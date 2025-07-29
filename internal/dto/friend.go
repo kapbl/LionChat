@@ -30,6 +30,7 @@ type FriendInfo struct {
 	FriendAvatar   string `json:"friend_avatar"`
 	FriendNickname string `json:"friend_nickname"`
 	Status         int    `json:"status"`
+	Version        int    `json:"version"`
 }
 
 // 处理好友请求

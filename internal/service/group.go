@@ -58,17 +58,17 @@ func LeaveGroup() {
 
 }
 
-func (g *GroupService) GetGroupMember(groupId int) ([]string, error) {
+func (g *GroupService) GetGroupMember(groupUUID string) ([]string, error) {
 	var groupMembers []*model.GroupMember
-	err := dao.DB.Table("group_member").Where("group_id = ?", groupId).Find(&groupMembers).Error
+	err := dao.DB.Table("group_member").Where("group_uuid = ?", groupUUID).Find(&groupMembers).Error
 	if err != nil {
 		return nil, errors.New("获取组的成员失败")
 	}
 	memberID := []string{}
 	// 在查询到的成员中，找到用户UUID
 	for _, member := range groupMembers {
-		var user model.User
-		err := dao.DB.Table("user").Where("id = ?", member.UserId).First(&user).Error
+		var user model.Users
+		err := dao.DB.Table("users").Where("id = ?", member.UserId).First(&user).Error
 		if err == nil {
 			memberID = append(memberID, user.Uuid)
 		}
@@ -82,8 +82,8 @@ func (g *GroupService) GetGroupList() ([]dto.MyGroupsResp, error) {
 	// 联合查询Group表和GroupMember表
 	var groups []dto.MyGroupsResp
 	err := dao.DB.Table("group").
-		Select("group.id as group_id, group.name as group_name").
-		Joins("JOIN group_member ON group.id = group_member.group_id").
+		Select("group.uuid as group_uuid, group.name as group_name").
+		Joins("JOIN group_member ON group.uuid = group_member.group_uuid").
 		Where("group_member.user_id = ? AND group_member.delete_at IS NULL", currentUserID).
 		Where("group.delete_at IS NULL").
 		Scan(&groups).Error
@@ -91,10 +91,5 @@ func (g *GroupService) GetGroupList() ([]dto.MyGroupsResp, error) {
 	if err != nil {
 		return nil, err
 	}
-	myGroups := make([]dto.MyGroupsResp, len(groups))
-	for i, v := range groups {
-		myGroups[i].GroupID = v.GroupID
-		myGroups[i].GroupName = v.GroupName
-	}
-	return myGroups, nil
+	return groups, nil
 }

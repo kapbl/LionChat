@@ -12,7 +12,7 @@ import (
 
 func Login(req *dto.LoginReq) (dto.LoginResp, error) {
 	// 查询这个用户
-	currentUser := model.User{}
+	currentUser := model.Users{}
 	err := dao.DB.Table(currentUser.GetTable()).Where("username = ?", req.Username).Find(&currentUser).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return dto.LoginResp{}, errors.New("用户不存在")

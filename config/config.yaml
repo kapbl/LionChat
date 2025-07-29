@@ -5,3 +5,5 @@ JWT:
 Server:
  port: 8081
  host: "127.0.0.1"
+Redis:
+ addr: "localhost:6379"

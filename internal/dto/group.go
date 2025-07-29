@@ -22,6 +22,6 @@ type CreateGroupResp struct {
 }
 
 type MyGroupsResp struct {
-	GroupID   string `json:"group_id"`   // 群组id
+	GroupUUID string `json:"group_uuid"` // 群组id
 	GroupName string `json:"group_name"` // 群组名称
 }

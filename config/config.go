@@ -17,6 +17,9 @@ type Config struct {
 		Port int    `mapstructure:"port"`
 		Host string `mapstructure:"host"`
 	}
+	Redis struct {
+		Addr string `mapstructure:"addr"`
+	}
 }
 
 var AppConfig Config

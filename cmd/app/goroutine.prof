@@ -1,0 +1,61 @@
+goroutine profile: total 13
+2 @ 0x9eae31 0x981eff 0x981bf2 0x109767b 0x9f2c01
+#	0x109767a	cchat/internal/service.(*Client).Write+0xda	b:/projects/golang/chatLion/internal/service/client.go:77
+
+2 @ 0x9eae31 0x9b12be 0x9ea15c 0xaa73ba 0xaa889b 0xaaad18 0xc96513 0xcace85 0xaf551a 0xaf58db 0x107a7e5 0x107e0bc 0x107fc07 0x1080785 0x1096c17 0x9f2c01
+#	0x9ea15b	internal/poll.runtime_pollWait+0x3b			C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0xaa73b9	internal/poll.(*pollDesc).wait+0x79			C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0xaa889a	internal/poll.execIO+0x2ba				C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0xaaad17	internal/poll.(*FD).Read+0x4b7				C:/Program Files/Go/src/internal/poll/fd_windows.go:438
+#	0xc96512	net.(*netFD).Read+0x72					C:/Program Files/Go/src/net/fd_posix.go:55
+#	0xcace84	net.(*conn).Read+0xa4					C:/Program Files/Go/src/net/net.go:194
+#	0xaf5519	bufio.(*Reader).fill+0x259				C:/Program Files/Go/src/bufio/bufio.go:113
+#	0xaf58da	bufio.(*Reader).Peek+0x15a				C:/Program Files/Go/src/bufio/bufio.go:152
+#	0x107a7e4	github.com/gorilla/websocket.(*Conn).read+0x84		C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:371
+#	0x107e0bb	github.com/gorilla/websocket.(*Conn).advanceFrame+0x17b	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:809
+#	0x107fc06	github.com/gorilla/websocket.(*Conn).NextReader+0x126	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:1009
+#	0x1080784	github.com/gorilla/websocket.(*Conn).ReadMessage+0x64	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:1093
+#	0x1096c16	cchat/internal/service.(*Client).Read+0xf6		b:/projects/golang/chatLion/internal/service/client.go:34
+
+2 @ 0x9eae31 0x9cb4ea 0xe97571 0x9f2c01
+#	0xe97570	github.com/go-sql-driver/mysql.(*mysqlConn).startWatcher.func1+0xf0	C:/Users/caoyan/go/pkg/mod/github.com/go-sql-driver/mysql@v1.8.1/connection.go:628
+
+1 @ 0x987e31 0x9ecd49 0x156f757 0x9f2c01
+#	0x9ecd48	os/signal.signal_recv+0x28	C:/Program Files/Go/src/runtime/sigqueue.go:152
+#	0x156f756	os/signal.loop+0x16		C:/Program Files/Go/src/os/signal/signal_unix.go:23
+
+1 @ 0x9acbf1 0x9e9d7d 0x1577ee3 0x1577b26 0x1572e18 0x158f58e 0x9f2c01
+#	0x1577ee2	runtime/pprof.writeRuntimeProfile+0x182	C:/Program Files/Go/src/runtime/pprof/pprof.go:796
+#	0x1577b25	runtime/pprof.writeGoroutine+0x85	C:/Program Files/Go/src/runtime/pprof/pprof.go:755
+#	0x1572e17	runtime/pprof.(*Profile).WriteTo+0x97	C:/Program Files/Go/src/runtime/pprof/pprof.go:377
+#	0x158f58d	main.monitorGoroutines+0x16d		b:/projects/golang/chatLion/cmd/app/main.go:50
+
+1 @ 0x9eae31 0x981eff 0x981bd2 0x158f7a5 0x9f2c01
+#	0x158f7a4	main.setupGracefulShutdown.func1+0x24	b:/projects/golang/chatLion/cmd/app/main.go:62
+
+1 @ 0x9eae31 0x9b12be 0x9ea15c 0xaa73ba 0xaa889b 0xaad46d 0xaadbc5 0xc9850f 0xcbade5 0xcb8d65 0xdf740b 0xdf6ddc 0xdf8550 0x1557f73 0x156d8bb 0x158f38f 0x9ba4e7 0x9f2c01
+#	0x9ea15b	internal/poll.runtime_pollWait+0x3b		C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0xaa73b9	internal/poll.(*pollDesc).wait+0x79		C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0xaa889a	internal/poll.execIO+0x2ba			C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0xaad46c	internal/poll.(*FD).acceptOne+0x10c		C:/Program Files/Go/src/internal/poll/fd_windows.go:946
+#	0xaadbc4	internal/poll.(*FD).Accept+0x444		C:/Program Files/Go/src/internal/poll/fd_windows.go:980
+#	0xc9850e	net.(*netFD).accept+0xce			C:/Program Files/Go/src/net/fd_windows.go:182
+#	0xcbade4	net.(*TCPListener).accept+0x64			C:/Program Files/Go/src/net/tcpsock_posix.go:159
+#	0xcb8d64	net.(*TCPListener).Accept+0x64			C:/Program Files/Go/src/net/tcpsock.go:380
+#	0xdf740a	net/http.(*Server).Serve+0x50a			C:/Program Files/Go/src/net/http/server.go:3424
+#	0xdf6ddb	net/http.(*Server).ListenAndServe+0x17b		C:/Program Files/Go/src/net/http/server.go:3350
+#	0xdf854f	net/http.ListenAndServe+0x10f			C:/Program Files/Go/src/net/http/server.go:3665
+#	0x1557f72	github.com/gin-gonic/gin.(*Engine).Run+0x1f2	C:/Users/caoyan/go/pkg/mod/github.com/gin-gonic/gin@v1.10.1/gin.go:402
+#	0x156d8ba	cchat/internal/router.RunEngine+0x7a		b:/projects/golang/chatLion/internal/router/router.go:29
+#	0x158f38e	main.main+0x70e					b:/projects/golang/chatLion/cmd/app/main.go:40
+#	0x9ba4e6	runtime.main+0x226				C:/Program Files/Go/src/runtime/proc.go:283
+
+1 @ 0x9eae31 0x9cb4ea 0x109e514 0x9f2c01
+#	0x109e513	cchat/internal/service.(*Server).Start+0x153	b:/projects/golang/chatLion/internal/service/server.go:32
+
+1 @ 0x9eae31 0x9cb4ea 0xe7749e 0x9f2c01
+#	0xe7749d	database/sql.(*DB).connectionOpener+0xbd	C:/Program Files/Go/src/database/sql/sql.go:1261
+
+1 @ 0x9eae31 0x9cb4ea 0xfce905 0x9f2c01
+#	0xfce904	github.com/go-redis/redis/v8/internal/pool.(*ConnPool).reaper+0x164	C:/Users/caoyan/go/pkg/mod/github.com/go-redis/redis/v8@v8.11.5/internal/pool/pool.go:485
+
