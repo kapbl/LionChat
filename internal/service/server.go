@@ -26,6 +26,14 @@ var ServerInstance = &Server{
 	Ungister:  make(chan *Client),
 }
 
+type Message interface {
+	Send([]byte) error
+}
+
+func Send(msg []byte) error {
+
+	return nil
+}
 func (s *Server) Start() {
 	for {
 		select {
@@ -95,16 +103,16 @@ func (s *Server) Start() {
 								continue
 							}
 							logger.Info("发送单聊文本消息", zap.String("to", msg.To))
-
-							// 发送消息到Kafka
+							// 发送消息 Kafka路径
 							if dao.KafkaProducerInstance != nil {
-								if err := dao.KafkaProducerInstance.SendChatMessage(msg.From, &msg); err != nil {
+								if err := dao.KafkaProducerInstance.SendChatMessage(msg.To, msgByte); err != nil {
 									logger.Error("发送消息到Kafka失败", zap.Error(err))
 								}
+							} else {
+								// 发送消息 websockt 路径
+								s.SendMessageToClient(client.(*Client), msgByte)
 							}
-
 							s.mutex.Unlock()
-							s.SendMessageToClient(client.(*Client), msgByte)
 						} else {
 							s.mutex.Unlock()
 						}
@@ -120,13 +128,14 @@ func (s *Server) Start() {
 
 						// 发送群聊消息到Kafka
 						if dao.KafkaProducerInstance != nil {
-							if err := dao.KafkaProducerInstance.SendGroupMessage(msg.To, msg.From, &msg); err != nil {
+							if err := dao.KafkaProducerInstance.SendGroupMessage(msg.To, msg.From, msgByte); err != nil {
 								logger.Error("发送群聊消息到Kafka失败", zap.Error(err))
 							}
+						} else {
+							s.SendGroupMessage(msg.From, msg.To, msgByte)
 						}
 
 						s.mutex.Unlock()
-						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 2: // 文件消息
 					if msg.MessageType == 1 {

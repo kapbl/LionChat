@@ -51,7 +51,6 @@ func main() {
 	router.InitWebEngine()
 
 	// 启动Kafka消费者服务
-	// var kafkaConsumerService *service.KafkaConsumerService
 	if dao.KafkaConsumerInstance != nil {
 		kafkaConsumerService, err := service.NewKafkaConsumerService(&appConfig)
 		if err != nil {
@@ -69,7 +68,7 @@ func main() {
 	setupGracefulShutdown()
 
 	// 启动路由
-	router.RunEngine()
+	router.RunEngine(&appConfig)
 }
 
 func monitorGoroutines() {

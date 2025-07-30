@@ -161,7 +161,7 @@ func (kcs *KafkaConsumerService) handleMessage(message *sarama.ConsumerMessage) 
 	return nil
 }
 
-// handleChatMessage 处理聊天消息
+// handleChatMessage 处理单聊聊天消息
 func (kcs *KafkaConsumerService) handleChatMessage(event *dao.MessageEvent) error {
 	logger.Info("处理聊天消息事件",
 		zap.String("user_id", event.UserID),
@@ -169,20 +169,10 @@ func (kcs *KafkaConsumerService) handleChatMessage(event *dao.MessageEvent) erro
 
 	// 将消息发送给目标用户
 	if ServerInstance != nil {
-		// receiverID, ok := event.Metadata["receiver_id"].(string)
-		// if !ok {
-		// 	logger.Warn("聊天消息缺少 receiver_id")
-		// 	return nil
-		// }
 		client := ServerInstance.GetClient(event.UserID)
 		if client != nil {
 			// 转换为 []byte 类型
-			messageData, ok := event.MessageData.([]byte)
-			if !ok {
-				logger.Warn("聊天消息数据类型错误")
-				return nil
-			}
-			ServerInstance.SendMessageToClient(client, messageData)
+			ServerInstance.SendMessageToClient(client, event.MessageData)
 		}
 	}
 
@@ -211,7 +201,7 @@ func (kcs *KafkaConsumerService) handleUserEvent(event *dao.MessageEvent) error 
 	return nil
 }
 
-// handleGroupMessage 处理群组消息
+// handleGroupMessage 处理群组聊天消息
 func (kcs *KafkaConsumerService) handleGroupMessage(event *dao.MessageEvent) error {
 	groupID, ok := event.Metadata["group_id"].(string)
 	if !ok {
@@ -222,8 +212,9 @@ func (kcs *KafkaConsumerService) handleGroupMessage(event *dao.MessageEvent) err
 	logger.Info("处理群组消息事件",
 		zap.String("group_id", groupID),
 		zap.String("event_type", event.EventType))
-	// 这里可以添加群组消息相关的处理逻辑
-	// 例如：消息持久化、成员通知等
-
+	// 发送群组消息到所有成员
+	if ServerInstance != nil {
+		ServerInstance.SendGroupMessage(event.UserID, groupID, event.MessageData)
+	}
 	return nil
 }

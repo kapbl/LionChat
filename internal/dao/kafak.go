@@ -24,11 +24,11 @@ type KafkaConsumer struct {
 
 // MessageEvent 消息事件结构
 type MessageEvent struct {
-	EventType   string      `json:"event_type"`   // message, user_online, user_offline, group_join, group_leave
-	Timestamp   int64       `json:"timestamp"`
-	UserID      string      `json:"user_id"`
-	MessageData interface{} `json:"message_data,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	EventType   string                 `json:"event_type"` // message, user_online, user_offline, group_join, group_leave
+	Timestamp   int64                  `json:"timestamp"`
+	UserID      string                 `json:"user_id"`
+	MessageData []byte                 `json:"message_data,omitempty"` // 消息数据，二进制
+	Metadata    map[string]interface{} `json:"metadata,omitempty"` 
 }
 
 var (
@@ -111,11 +111,11 @@ func (kp *KafkaProducer) SendMessage(topic string, key string, message interface
 		logger.Error("序列化消息失败", zap.Error(err))
 		return err
 	}
-
+	
 	msg := &sarama.ProducerMessage{
-		Topic: topic,
-		Key:   sarama.StringEncoder(key),
-		Value: sarama.ByteEncoder(msgBytes),
+		Topic:     topic,
+		Key:       sarama.StringEncoder(key),
+		Value:     sarama.ByteEncoder(msgBytes),
 		Timestamp: time.Now(),
 	}
 
@@ -138,7 +138,7 @@ func (kp *KafkaProducer) SendMessage(topic string, key string, message interface
 }
 
 // SendChatMessage 发送聊天消息事件
-func (kp *KafkaProducer) SendChatMessage(userID string, messageData interface{}) error {
+func (kp *KafkaProducer) SendChatMessage(userID string, messageData []byte) error {
 	event := MessageEvent{
 		EventType:   "message",
 		Timestamp:   time.Now().Unix(),
@@ -162,7 +162,7 @@ func (kp *KafkaProducer) SendUserEvent(eventType, userID string, metadata map[st
 }
 
 // SendGroupMessage 发送群组消息事件
-func (kp *KafkaProducer) SendGroupMessage(groupID, userID string, messageData interface{}) error {
+func (kp *KafkaProducer) SendGroupMessage(groupID, userID string, messageData []byte) error {
 	event := MessageEvent{
 		EventType:   "group_message",
 		Timestamp:   time.Now().Unix(),

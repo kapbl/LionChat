@@ -3,7 +3,9 @@ package router
 import (
 	"cchat/api"
 	"cchat/internal/middlewares"
+	"cchat/pkg/config"
 	"cchat/pkg/logger"
+	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,10 +28,10 @@ func InitWebEngine() {
 	logger.Info("Web引擎初始化完成")
 }
 
-func RunEngine() {
+func RunEngine(c *config.Config) {
 	// 启动路由
-	logger.Info("启动Web服务器", zap.String("addr", ":8081"))
-	if err := webEngine.Run(":8081"); err != nil {
+	logger.Info("启动Web服务器", zap.String("addr", ":"+strconv.Itoa(c.Server.Port)))
+	if err := webEngine.Run(":" + strconv.Itoa(c.Server.Port)); err != nil {
 		logger.Fatal("启动Web服务器失败", zap.Error(err))
 	}
 }
@@ -70,7 +72,7 @@ func InitMiddleware() {
 	// AppRouterGroups["webSocket"].Use(middlewares.JwtMiddleware())
 	AppRouterGroups["friend"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["group"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
-	logger.Info("JWT中间件配置完成", 
+	logger.Info("JWT中间件配置完成",
 		zap.Strings("protected_groups", []string{"friend", "group"}))
 }
 
