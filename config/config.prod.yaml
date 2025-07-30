@@ -1,0 +1,54 @@
+# 生产环境配置
+mysql:
+  dsn: "root:password@tcp(localhost:3306)/chat?charset=utf8mb4&parseTime=True&loc=Local"
+  max_idle_conns: 20
+  max_open_conns: 200
+  conn_max_lifetime: 3600
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
+  pool_size: 200
+  min_idle_conns: 20
+
+jwt:
+  signing_key: "chat-prod-key-change-this"
+  expires_time: 604800
+  buffer_time: 86400
+  issuer: "chat"
+
+server:
+  port: 8080
+  mode: "release"
+  cors_origins:
+    - "https://yourdomain.com"
+
+log:
+  level: "info"
+  format: "json"
+  output: "file"
+  file_path: "logs/chat.log"
+  max_size: 100
+  max_age: 30
+  max_backups: 10
+  compress: true
+
+kafka:
+  brokers:
+    - "kafka1:9092"
+    - "kafka2:9092"
+    - "kafka3:9092"
+  topics:
+    chat_messages: "chat-messages"
+    user_events: "user-events"
+    group_messages: "group-messages"
+  consumer:
+    group_id: "chat-consumer-group"
+    auto_offset_reset: "latest"
+  producer:
+    acks: "all"
+    retries: 5
+    batch_size: 32768
+    linger_ms: 5
+    buffer_memory: 67108864

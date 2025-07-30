@@ -1,41 +1,73 @@
 package main
 
 import (
-	"cchat/config"
 	"cchat/internal/dao"
 	"cchat/internal/dao/model"
 	"cchat/internal/router"
 	"cchat/internal/service"
+	"cchat/pkg/config"
+	"cchat/pkg/logger"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"runtime/pprof"
 	"syscall"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 func main() {
 	fmt.Printf("%s", "服务启动")
+	// 初始化日志
+	logger.InitLogger()
+
 	// 加载配置
 	appConfig := config.LoadConfig()
+
 	// 初始化数据库
-	if err := dao.InitDB(appConfig.MySQL.DSN); err != nil {
-		log.Fatalf("数据库初始化失败，错误信息：%v", err)
+	if err := dao.InitDB(appConfig.MySQL.DSN, appConfig.MySQL.MaxIdleConns, appConfig.MySQL.MaxOpenConns, time.Duration(appConfig.MySQL.ConnMaxLifetime)); err != nil {
+		logger.Fatal("数据库初始化失败", zap.Error(err))
 	} else {
-		log.Printf("数据库初始化成功")
+		logger.Info("数据库初始化成功")
 	}
-	dao.InitRedis()
+
+	// 初始化Redis
+	dao.InitRedis(appConfig.Redis.Addr, appConfig.Redis.Password, appConfig.Redis.DB, appConfig.Redis.PoolSize, appConfig.Redis.MinIdleConns)
+
+	// 初始化Kafka
+	if err := dao.InitKafka(&appConfig); err != nil {
+		logger.Error("Kafka初始化失败", zap.Error(err))
+		// Kafka初始化失败不影响主服务启动，只记录错误
+	} else {
+		logger.Info("Kafka初始化成功")
+	}
+
 	// 自动迁移表
 	dao.DB.AutoMigrate(&model.Users{}, &model.UserFriends{},
 		&model.Message{}, &model.Group{}, &model.GroupMember{})
+
 	// 初始化路由
 	router.InitWebEngine()
+
+	// 启动Kafka消费者服务
+	// var kafkaConsumerService *service.KafkaConsumerService
+	if dao.KafkaConsumerInstance != nil {
+		kafkaConsumerService, err := service.NewKafkaConsumerService(&appConfig)
+		if err != nil {
+			logger.Error("创建Kafka消费者服务失败", zap.Error(err))
+		} else {
+			go kafkaConsumerService.Start()
+			logger.Info("Kafka消费者服务启动成功")
+		}
+	}
+
 	// 启动服务器
 	go service.ServerInstance.Start()
-	//go monitorGoroutines()
+
 	// 优雅关闭处理
 	setupGracefulShutdown()
+
 	// 启动路由
 	router.RunEngine()
 }
@@ -53,15 +85,44 @@ func monitorGoroutines() {
 	}
 }
 
-// 新增优雅关闭处理
+// setupGracefulShutdown 优雅关闭处理
 func setupGracefulShutdown() {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		<-sigChan
-		log.Println("接收到关闭信号，正在清理资源...")
-		// 这里可以添加数据库关闭等清理操作
+		logger.Info("接收到关闭信号，正在清理资源...")
+
+		// 关闭Kafka连接
+		if dao.KafkaProducerInstance != nil {
+			if err := dao.KafkaProducerInstance.Close(); err != nil {
+				logger.Error("关闭Kafka生产者失败", zap.Error(err))
+			} else {
+				logger.Info("Kafka生产者已关闭")
+			}
+		}
+
+		if dao.KafkaConsumerInstance != nil {
+			if err := dao.KafkaConsumerInstance.Close(); err != nil {
+				logger.Error("关闭Kafka消费者失败", zap.Error(err))
+			} else {
+				logger.Info("Kafka消费者已关闭")
+			}
+		}
+
+		// 关闭数据库连接
+		if sqlDB, err := dao.DB.DB(); err == nil {
+			sqlDB.Close()
+		}
+
+		// 关闭Redis连接
+		if dao.REDIS != nil {
+			dao.REDIS.Close()
+		}
+
+		// 等待一段时间确保资源清理完成
+		time.Sleep(time.Second * 2)
 		os.Exit(0)
 	}()
 }

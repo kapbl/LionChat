@@ -1,161 +1,235 @@
 package service
 
 import (
+	"cchat/internal/dao"
+	"cchat/pkg/logger"
 	"cchat/pkg/protocol"
-	"fmt"
-	"log"
 	"sync"
 
 	"github.com/gogo/protobuf/proto"
+	"go.uber.org/zap"
 )
 
 type Server struct {
-	Clients   map[string]*Client
+	Clients   sync.Map
 	mutex     *sync.Mutex
 	Broadcast chan []byte
-	Register  chan *Client
-	Ungister  chan *Client
+	Register  chan *Client // 注册消息通道
+	Ungister  chan *Client // 注销消息通道
 }
 
-func NewServer() *Server {
-	return &Server{
-		Clients:   make(map[string]*Client),
-		Broadcast: make(chan []byte), // 无缓冲
-		Register:  make(chan *Client),
-		Ungister:  make(chan *Client),
-	}
+var ServerInstance = &Server{
+	Clients:   sync.Map{},
+	mutex:     &sync.Mutex{},
+	Broadcast: make(chan []byte), // 无缓冲
+	Register:  make(chan *Client),
+	Ungister:  make(chan *Client),
 }
-
-var ServerInstance = NewServer()
 
 func (s *Server) Start() {
 	for {
 		select {
 		case conn := <-s.Register:
-			log.Println("注册新连接:", conn.UUID)
-			s.Clients[conn.UUID] = conn
-			fmt.Println(s.Clients)
+			s.mutex.Lock()
+			logger.Info("注册新连接", zap.String("uuid", conn.UUID))
+			s.Clients.Store(conn.UUID, conn)
+			logger.Debug("当前在线客户端", zap.Any("clients", s.Clients))
+
+			// 发送用户上线事件到Kafka
+			if dao.KafkaProducerInstance != nil {
+				metadata := map[string]interface{}{
+					"connection_time": conn.ConnTime,
+					"client_ip":       conn.RemoteAddr,
+				}
+				if err := dao.KafkaProducerInstance.SendUserEvent("user_online", conn.UUID, metadata); err != nil {
+					logger.Error("发送用户上线事件到Kafka失败", zap.Error(err))
+				}
+			}
+
+			s.mutex.Unlock()
+
 		case conn := <-s.Ungister:
-			log.Println("注销连接:", conn.UUID)
-			delete(s.Clients, conn.UUID)
+			s.mutex.Lock()
+			logger.Info("注销连接", zap.String("uuid", conn.UUID))
+			s.Clients.Delete(conn.UUID)
+			close(conn.Send)
+
+			// 发送用户下线事件到Kafka
+			if dao.KafkaProducerInstance != nil {
+				metadata := map[string]interface{}{
+					"disconnect_time": conn.ConnTime,
+					"client_ip":       conn.RemoteAddr,
+				}
+				if err := dao.KafkaProducerInstance.SendUserEvent("user_offline", conn.UUID, metadata); err != nil {
+					logger.Error("发送用户下线事件到Kafka失败", zap.Error(err))
+				}
+			}
+
+			s.mutex.Unlock()
+
 		case message := <-s.Broadcast:
-			log.Println("收发消息:")
 			msg := protocol.Message{}
-			proto.Unmarshal(message, &msg)
+			if err := proto.Unmarshal(message, &msg); err != nil {
+				logger.Error("解析消息失败", zap.Error(err))
+				continue
+			}
+
 			// 表示有意向的消息
 			if msg.To != "" {
-				log.Println("单聊消息")
+				logger.Info("处理定向消息",
+					zap.String("from", msg.From),
+					zap.String("to", msg.To),
+					zap.Int32("contentType", msg.ContentType),
+					zap.Int32("messageType", msg.MessageType))
+				s.mutex.Lock()
+
 				switch msg.ContentType {
 				case 1: //Text消息
 					if msg.MessageType == 1 {
-						client, ok := s.Clients[msg.To]
+						client, ok := s.Clients.Load(msg.To)
 						if ok {
 							msgByte, err := proto.Marshal(&msg)
 							if err != nil {
-								return
+								logger.Error("消息序列化失败", zap.Error(err))
+								s.mutex.Unlock()
+								continue
 							}
-							log.Println("单聊消息给：", msg.To)
-							client.Send <- msgByte
+							logger.Info("发送单聊文本消息", zap.String("to", msg.To))
+
+							// 发送消息到Kafka
+							if dao.KafkaProducerInstance != nil {
+								if err := dao.KafkaProducerInstance.SendChatMessage(msg.From, &msg); err != nil {
+									logger.Error("发送消息到Kafka失败", zap.Error(err))
+								}
+							}
+
+							s.mutex.Unlock()
+							s.SendMessageToClient(client.(*Client), msgByte)
+						} else {
+							s.mutex.Unlock()
 						}
 					} else {
 						// 群聊消息
 						msgByte, err := proto.Marshal(&msg)
 						if err != nil {
-							return
+							logger.Error("消息序列化失败", zap.Error(err))
+							s.mutex.Unlock()
+							continue
 						}
-						log.Println("群聊消息给：", msg.To)
+						logger.Info("发送群聊文本消息", zap.String("groupId", msg.To))
+
+						// 发送群聊消息到Kafka
+						if dao.KafkaProducerInstance != nil {
+							if err := dao.KafkaProducerInstance.SendGroupMessage(msg.To, msg.From, &msg); err != nil {
+								logger.Error("发送群聊消息到Kafka失败", zap.Error(err))
+							}
+						}
+
+						s.mutex.Unlock()
 						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 2: // 文件消息
 					if msg.MessageType == 1 {
-						client, ok := s.Clients[msg.To]
+						client, ok := s.Clients.Load(msg.To)
 						if ok {
 							msgByte, err := proto.Marshal(&msg)
 							if err != nil {
+								logger.Error("消息序列化失败", zap.Error(err))
 								return
 							}
-							log.Println("发送文件消息给：", msg.To)
-							client.Send <- msgByte
+							logger.Info("发送单聊文件消息", zap.String("to", msg.To))
+							s.SendMessageToClient(client.(*Client), msgByte)
 						}
 					} else {
 						// 群聊消息
 						msgByte, err := proto.Marshal(&msg)
 						if err != nil {
+							logger.Error("消息序列化失败", zap.Error(err))
 							return
 						}
-						log.Println("群聊消息给：", msg.To)
+						logger.Info("发送群聊文件消息", zap.String("groupId", msg.To))
 						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 3: // 图片消息
 					if msg.MessageType == 1 {
-						client, ok := s.Clients[msg.To]
+						client, ok := s.Clients.Load(msg.To)
 						if ok {
 							msgByte, err := proto.Marshal(&msg)
 							if err != nil {
+								logger.Error("消息序列化失败", zap.Error(err))
 								return
 							}
-							log.Println("发送图片消息给：", msg.To)
-							client.Send <- msgByte
+							logger.Info("发送单聊图片消息", zap.String("to", msg.To))
+							s.SendMessageToClient(client.(*Client), msgByte)
 						}
 					} else {
 						// 群聊消息
 						msgByte, err := proto.Marshal(&msg)
 						if err != nil {
+							logger.Error("消息序列化失败", zap.Error(err))
 							return
 						}
-						log.Println("群聊消息给：", msg.To)
+						logger.Info("发送群聊图片消息", zap.String("groupId", msg.To))
 						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 4: // 语音消息
 					if msg.MessageType == 1 {
-						client, ok := s.Clients[msg.To]
+						client, ok := s.Clients.Load(msg.To)
 						if ok {
 							msgByte, err := proto.Marshal(&msg)
 							if err != nil {
+								logger.Error("消息序列化失败", zap.Error(err))
 								return
 							}
-							log.Println("发送语音消息给：", msg.To)
-							client.Send <- msgByte
+							logger.Info("发送单聊语音消息", zap.String("to", msg.To))
+							s.SendMessageToClient(client.(*Client), msgByte)
 						}
 					} else {
 						// 群聊消息
 						msgByte, err := proto.Marshal(&msg)
 						if err != nil {
+							logger.Error("消息序列化失败", zap.Error(err))
 							return
 						}
-						log.Println("群聊消息给：", msg.To)
+						logger.Info("发送群聊语音消息", zap.String("groupId", msg.To))
 						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 8: // 加好友消息
 					if msg.MessageType == 1 {
-						client, ok := s.Clients[msg.To]
+						client, ok := s.Clients.Load(msg.To)
 						if ok {
 							msgByte, err := proto.Marshal(&msg)
 							if err != nil {
+								logger.Error("消息序列化失败", zap.Error(err))
 								return
 							}
-							log.Println("发送好友消息给：", msg.To)
-							client.Send <- msgByte
+							logger.Info("发送好友请求消息", zap.String("to", msg.To))
+							s.SendMessageToClient(client.(*Client), msgByte)
 						}
 					}
 				}
 			} else {
-				log.Println("其他公告消息-产品升级")
-				for _, client := range s.Clients {
-					select {
-					case client.Send <- message:
-					default:
-						close(client.Send)
-						delete(s.Clients, client.UUID)
-					}
-				}
+				logger.Info("发送系统公告消息")
+				s.mutex.Lock()
+				s.Clients.Range(func(key, value interface{}) bool {
+					client := value.(*Client)
+					s.SendMessageToClient(client, message)
+					return true
+				})
+				s.mutex.Unlock()
 			}
 		}
 	}
 }
 
 func (s *Server) GetClient(uuid string) *Client {
-	return s.Clients[uuid]
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	client, ok := s.Clients.Load(uuid)
+	if ok {
+		return client.(*Client)
+	}
+	return nil
 }
 
 func (s *Server) SendGroupMessage(fromUUID string, groupUUID string, msg []byte) {
@@ -163,13 +237,41 @@ func (s *Server) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 	groupService := &GroupService{}
 	groupMembers, err := groupService.GetGroupMember(groupUUID)
 	if err != nil {
-		log.Println("获取群聊下的所有群成员失败")
+		logger.Error("获取群成员失败", zap.Error(err), zap.String("groupId", groupUUID))
 		return
 	}
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	for _, clientID := range groupMembers {
-		client, ok := s.Clients[clientID]
-		if ok && clientID != fromUUID {
-			client.Send <- msg
+		if clientID == fromUUID {
+			continue
+		}
+		client, ok := s.Clients.Load(clientID)
+		if ok {
+			s.SendMessageToClient(client.(*Client), msg)
 		}
 	}
+}
+
+func (s *Server) SendMessageToClient(client *Client, msg []byte) {
+	// 先检查客户端是否存在，避免在发送消息时才发现客户端已断开
+	select {
+	case client.Send <- msg:
+		logger.Debug("消息发送成功", zap.String("to", client.UUID))
+	case <-client.done:
+		logger.Info("客户端已关闭", zap.String("uuid", client.UUID))
+		s.handleClientDisconnect(client)
+	default:
+		logger.Warn("消息发送失败，客户端可能已断开", zap.String("uuid", client.UUID))
+		s.handleClientDisconnect(client)
+	}
+}
+
+func (s *Server) handleClientDisconnect(client *Client) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	close(client.Send)
+	s.Clients.Delete(client.UUID)
 }

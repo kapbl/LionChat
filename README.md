@@ -1,3 +1,17 @@
+# ChatLion
+
+一个基于Go语言开发的实时聊天系统，集成了Apache Kafka消息队列，支持高并发、高可用的实时通信。
+
+## 🚀 新特性
+
+- ✅ **Kafka集成**: 支持消息队列处理，提高系统可扩展性
+- ✅ **事件驱动架构**: 用户上线/下线、消息发送等事件异步处理
+- ✅ **消息持久化**: 通过Kafka确保消息可靠性
+- ✅ **水平扩展**: 支持多实例部署和负载均衡
+
+## 📁 项目结构
+
+```
 your_project/
 ├── cmd/                    # 每个可执行程序一个子目录（main 入口）
 │   └── yourapp/            # 例如：main.go
@@ -34,3 +48,114 @@ your_project/
 ├── .env                    # 环境变量文件（如数据库配置）
 ├── .gitignore
 └── README.md
+```
+
+## 🔧 Kafka集成使用方法
+
+### 环境要求
+
+- Go 1.19+
+- Apache Kafka 2.8+
+- Zookeeper (如果使用Kafka 2.8以下版本)
+
+### 快速开始
+
+1. **启动Kafka服务**
+   ```bash
+   # 使用Docker Compose启动Kafka
+   docker-compose up -d kafka zookeeper
+   ```
+
+2. **配置Kafka连接**
+   
+   在 `config/config.yaml` 中配置Kafka连接信息：
+   ```yaml
+   kafka:
+     brokers:
+       - "localhost:9092"
+     topics:
+       chat_messages: "chat-messages"
+       user_events: "user-events"
+     consumer_group: "chatlion-group"
+   ```
+
+3. **运行应用**
+   ```bash
+   go run cmd/yourapp/main.go
+   ```
+
+### Kafka主题说明
+
+| 主题名称 | 用途 | 消息格式 |
+|---------|------|----------|
+| `chat-messages` | 聊天消息传递 | JSON格式的消息对象 |
+| `user-events` | 用户上线/下线事件 | JSON格式的用户事件 |
+
+### 消息格式示例
+
+**聊天消息格式：**
+```json
+{
+  "id": "msg_123",
+  "from_user_id": "user_456",
+  "to_user_id": "user_789",
+  "content": "Hello, World!",
+  "timestamp": "2024-01-01T12:00:00Z",
+  "message_type": "text"
+}
+```
+
+**用户事件格式：**
+```json
+{
+  "user_id": "user_456",
+  "event_type": "online",
+  "timestamp": "2024-01-01T12:00:00Z",
+  "metadata": {
+    "ip_address": "192.168.1.100"
+  }
+}
+```
+
+### 部署配置
+
+**生产环境Kafka配置建议：**
+
+```yaml
+kafka:
+  brokers:
+    - "kafka-1:9092"
+    - "kafka-2:9092"
+    - "kafka-3:9092"
+  producer:
+    acks: "all"
+    retries: 3
+    batch_size: 16384
+  consumer:
+    auto_offset_reset: "earliest"
+    enable_auto_commit: false
+```
+
+### 监控和运维
+
+- **查看Kafka主题：**
+  ```bash
+  kafka-topics.sh --bootstrap-server localhost:9092 --list
+  ```
+
+- **查看消费者组状态：**
+  ```bash
+  kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group chatlion-group
+  ```
+
+## 🛠️ 开发指南
+
+### 添加新的消息类型
+
+1. 在 `internal/service/` 中定义新的消息处理逻辑
+2. 在 `pkg/kafka/` 中添加对应的生产者/消费者
+3. 更新配置文件中的主题配置
+
+### 扩展事件类型
+
+参考 `internal/handler/` 中的事件处理器实现，添加新的事件类型处理逻辑。

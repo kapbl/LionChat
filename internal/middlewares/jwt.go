@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"cchat/config"
+	"cchat/pkg/config"
 	"cchat/pkg/token"
 	"net/http"
 	"strings"

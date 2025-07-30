@@ -1,8 +1,8 @@
 package token
 
 import (
-	"cchat/config"
 	"cchat/internal/dao/model"
+	"cchat/pkg/config"
 	"errors"
 	"time"
 

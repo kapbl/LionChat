@@ -3,10 +3,11 @@ package router
 import (
 	"cchat/api"
 	"cchat/internal/middlewares"
-	"log"
+	"cchat/pkg/logger"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 var webEngine *gin.Engine
@@ -22,11 +23,15 @@ func InitWebEngine() {
 	InitRouterGroups()
 	InitMiddleware()
 	InitRouter()
+	logger.Info("Web引擎初始化完成")
 }
 
 func RunEngine() {
 	// 启动路由
-	webEngine.Run(":8081")
+	logger.Info("启动Web服务器", zap.String("addr", ":8081"))
+	if err := webEngine.Run(":8081"); err != nil {
+		logger.Fatal("启动Web服务器失败", zap.Error(err))
+	}
 }
 
 func InitRouterGroups() {
@@ -37,7 +42,17 @@ func InitRouterGroups() {
 	AppRouterGroups["message"] = webEngine.Group("v1/api/message")
 	AppRouterGroups["group"] = webEngine.Group("v1/api/group")
 
-	log.Printf("初始化了路由组: %d 个", len(AppRouterGroups))
+	logger.Info("路由组初始化完成",
+		zap.Int("groupCount", len(AppRouterGroups)),
+		zap.Strings("groups", getRouterGroupNames()))
+}
+
+func getRouterGroupNames() []string {
+	names := make([]string, 0, len(AppRouterGroups))
+	for name := range AppRouterGroups {
+		names = append(names, name)
+	}
+	return names
 }
 
 func InitCors() {
@@ -48,12 +63,17 @@ func InitCors() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+	logger.Info("CORS中间件配置完成")
 }
+
 func InitMiddleware() {
 	// AppRouterGroups["webSocket"].Use(middlewares.JwtMiddleware())
 	AppRouterGroups["friend"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["group"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+	logger.Info("JWT中间件配置完成", 
+		zap.Strings("protected_groups", []string{"friend", "group"}))
 }
+
 func InitRouter() {
 	// *** 用户相关的路由
 	// todo 用户获取
@@ -83,4 +103,6 @@ func InitRouter() {
 	// AppRouterGroups["group"].POST("/changeGroupInfo", api.ChangeGroupInfo)
 	// AppRouterGroups["group"].POST("/changeGroupAvatar", api.ChangeGroupAvatar)
 	// AppRouterGroups["group"].POST("/changeGroupOwner", api.ChangeGroupOwner)
+
+	logger.Info("API路由注册完成")
 }
