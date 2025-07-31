@@ -7,7 +7,6 @@ import (
 	"cchat/internal/service"
 	"cchat/pkg/config"
 	"cchat/pkg/logger"
-	"fmt"
 	"os"
 	"os/signal"
 	"runtime/pprof"
@@ -18,9 +17,9 @@ import (
 )
 
 func main() {
-	fmt.Printf("%s", "服务启动")
 	// 初始化日志
 	logger.InitLogger()
+	logger.Info("服务启动")
 
 	// 加载配置
 	appConfig := config.LoadConfig()
@@ -66,7 +65,7 @@ func main() {
 
 	// 优雅关闭处理
 	setupGracefulShutdown()
-
+	go monitorGoroutines()
 	// 启动路由
 	router.RunEngine(&appConfig)
 }

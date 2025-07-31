@@ -21,9 +21,9 @@ type Server struct {
 var ServerInstance = &Server{
 	Clients:   sync.Map{},
 	mutex:     &sync.Mutex{},
-	Broadcast: make(chan []byte), // 无缓冲
-	Register:  make(chan *Client),
-	Ungister:  make(chan *Client),
+	Broadcast: make(chan []byte, 1000), // 无缓冲
+	Register:  make(chan *Client, 100),
+	Ungister:  make(chan *Client, 100),
 }
 
 type Message interface {
@@ -39,10 +39,8 @@ func (s *Server) Start() {
 		select {
 		case conn := <-s.Register:
 			s.mutex.Lock()
-			logger.Info("注册新连接", zap.String("uuid", conn.UUID))
+			logger.Info("注册连接", zap.String("uuid", conn.UUID))
 			s.Clients.Store(conn.UUID, conn)
-			logger.Debug("当前在线客户端", zap.Any("clients", s.Clients))
-
 			// 发送用户上线事件到Kafka
 			if dao.KafkaProducerInstance != nil {
 				metadata := map[string]interface{}{
@@ -72,7 +70,6 @@ func (s *Server) Start() {
 					logger.Error("发送用户下线事件到Kafka失败", zap.Error(err))
 				}
 			}
-
 			s.mutex.Unlock()
 
 		case message := <-s.Broadcast:
@@ -81,7 +78,6 @@ func (s *Server) Start() {
 				logger.Error("解析消息失败", zap.Error(err))
 				continue
 			}
-
 			// 表示有意向的消息
 			if msg.To != "" {
 				logger.Info("处理定向消息",
@@ -90,7 +86,6 @@ func (s *Server) Start() {
 					zap.Int32("contentType", msg.ContentType),
 					zap.Int32("messageType", msg.MessageType))
 				s.mutex.Lock()
-
 				switch msg.ContentType {
 				case 1: //Text消息
 					if msg.MessageType == 1 {

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"cchat/internal/dao"
+	"cchat/internal/dao/model"
 	"cchat/internal/dto"
 	"cchat/internal/service"
 	"net/http"
@@ -83,7 +85,46 @@ func JoinGroup(c *gin.Context) {
 }
 
 func LeaveGroup(c *gin.Context) {
+	// 获取用户ID
+	userUuid, exists := c.Get("userUuid")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "用户未认证"})
+		return
+	}
 
+	// 绑定请求参数
+	var req dto.LeaveGroupReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误: " + err.Error()})
+		return
+	}
+
+	// 参数验证
+	if req.GroupName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "群组名称不能为空"})
+		return
+	}
+
+	// 获取用户信息
+	var user model.Users
+	err := dao.DB.Table("users").Where("uuid = ?", userUuid).First(&user).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取用户信息失败"})
+		return
+	}
+
+	// 调用service层离开群组
+	groupService := &service.GroupService{UserId: int(user.Id)}
+	resp, err := groupService.LeaveGroup(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": resp.Message,
+		"data":    resp,
+	})
 }
 
 func GetGroupList(c *gin.Context) {
@@ -102,4 +143,12 @@ func GetGroupList(c *gin.Context) {
 		Code: 0,
 		Data: res,
 	})
+}
+
+func GetGroupInfo(c *gin.Context) {
+
+}
+
+func ChangeGroupInfo(c *gin.Context) {
+
 }

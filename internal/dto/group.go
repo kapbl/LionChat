@@ -25,3 +25,11 @@ type MyGroupsResp struct {
 	GroupUUID string `json:"group_uuid"` // 群组id
 	GroupName string `json:"group_name"` // 群组名称
 }
+
+type LeaveGroupReq struct {
+	GroupName string `json:"group_name"` // 群组名称
+}
+
+type LeaveGroupResp struct {
+	Message string `json:"message"` // 操作结果消息
+}

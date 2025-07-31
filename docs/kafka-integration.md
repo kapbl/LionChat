@@ -196,74 +196,6 @@ kafka-console-consumer --bootstrap-server localhost:9092 --topic chat-messages -
 kafka-console-consumer --bootstrap-server localhost:9092 --topic user-events --from-beginning
 ```
 
-### 性能监控
-
-建议使用以下工具监控Kafka性能：
-
-- **Kafka Manager**: Web界面管理工具
-- **Prometheus + Grafana**: 监控指标收集和可视化
-- **Kafka Exporter**: 导出Kafka指标到Prometheus
-
-## 最佳实践
-
-### 1. 消息分区策略
-
-- 聊天消息按用户ID分区，确保同一用户的消息有序
-- 群组消息按群组ID分区，确保同一群组的消息有序
-- 用户事件按用户ID分区
-
-### 2. 错误处理
-
-- Kafka连接失败不应影响主服务运行
-- 实现消息重试机制
-- 记录详细的错误日志
-
-### 3. 性能优化
-
-- 合理设置批处理大小和延迟时间
-- 根据业务需求调整分区数量
-- 监控消费者延迟，及时扩容
-
-### 4. 安全考虑
-
-- 生产环境启用SSL/TLS加密
-- 配置SASL认证
-- 限制网络访问权限
-
-## 故障排除
-
-### 常见问题
-
-1. **连接失败**
-   - 检查Kafka服务是否运行
-   - 验证网络连接和端口
-   - 检查配置文件中的broker地址
-
-2. **消息丢失**
-   - 确保acks设置为"all"
-   - 检查副本因子配置
-   - 验证生产者重试配置
-
-3. **消费延迟**
-   - 增加消费者实例数量
-   - 优化消息处理逻辑
-   - 调整批处理参数
-
-### 日志分析
-
-查看应用日志中的Kafka相关信息：
-
-```bash
-# 查看Kafka初始化日志
-grep "Kafka" logs/chat.log
-
-# 查看消息发送日志
-grep "发送.*Kafka" logs/chat.log
-
-# 查看消费者日志
-grep "消费" logs/chat.log
-```
-
 ## 扩展功能
 
 ### 1. 消息持久化
@@ -318,7 +250,3 @@ func (kcs *KafkaConsumerService) handleChatMessage(event *dao.MessageEvent) erro
     return nil
 }
 ```
-
-## 总结
-
-Kafka的集成为聊天系统提供了强大的消息处理能力，支持高并发、高可用的消息传递。通过合理的配置和监控，可以构建一个稳定可靠的实时通信系统。

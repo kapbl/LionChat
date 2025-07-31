@@ -5,7 +5,9 @@ import (
 	"cchat/internal/middlewares"
 	"cchat/pkg/config"
 	"cchat/pkg/logger"
+	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -29,9 +31,15 @@ func InitWebEngine() {
 }
 
 func RunEngine(c *config.Config) {
-	// 启动路由
-	logger.Info("启动Web服务器", zap.String("addr", ":"+strconv.Itoa(c.Server.Port)))
-	if err := webEngine.Run(":" + strconv.Itoa(c.Server.Port)); err != nil {
+	server := &http.Server{
+		Addr:         "localhost:" + strconv.Itoa(c.Server.Port),
+		Handler:      webEngine,
+		ReadTimeout:  time.Duration(c.Server.ReadTimeout) * time.Second,
+		WriteTimeout: time.Duration(c.Server.WriteTimeout) * time.Second,
+	}
+
+	logger.Info("启动Web服务器", zap.String("addr", server.Addr))
+	if err := server.ListenAndServe(); err != nil {
 		logger.Fatal("启动Web服务器失败", zap.Error(err))
 	}
 }
@@ -43,6 +51,8 @@ func InitRouterGroups() {
 	AppRouterGroups["friend"] = webEngine.Group("v1/api/friend")
 	AppRouterGroups["message"] = webEngine.Group("v1/api/message")
 	AppRouterGroups["group"] = webEngine.Group("v1/api/group")
+	AppRouterGroups["monitor"] = webEngine.Group("v1/api/monitor")
+	AppRouterGroups["profile"] = webEngine.Group("v1/api/profile")
 
 	logger.Info("路由组初始化完成",
 		zap.Int("groupCount", len(AppRouterGroups)),
@@ -72,39 +82,46 @@ func InitMiddleware() {
 	// AppRouterGroups["webSocket"].Use(middlewares.JwtMiddleware())
 	AppRouterGroups["friend"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["group"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+	AppRouterGroups["profile"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+	// AppRouterGroups["monitor"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	logger.Info("JWT中间件配置完成",
-		zap.Strings("protected_groups", []string{"friend", "group"}))
+		zap.Strings("protected_groups", []string{"friend", "group", "monitor"}))
 }
 
 func InitRouter() {
 	// *** 用户相关的路由
-	// todo 用户获取
 	AppRouterGroups["user"].POST("/login", api.Login)
 	AppRouterGroups["user"].POST("/register", api.Register)
-	// todo 用户登出
 	AppRouterGroups["user"].POST("/logout", api.Logout)
-	// AppRouterGroups["user"].GET("/getUserInfo", api.GetUserInfo)
-	// AppRouterGroups["user"].POST("/updateprofile", api.UpdateProfile)
-	// AppRouterGroups["user"].POST("/changePassword", api.ChangePassword)
+	AppRouterGroups["profile"].GET("/getProfileInfo", api.GetUserInfor)
+	AppRouterGroups["profile"].PUT("/updateProfile", api.UpdateUserInfor)
 
 	// ***  socket相关的路由
 	AppRouterGroups["webSocket"].GET("/connect", api.WebSocketConnect)
+
 	//*** 好友相关的路由
 	AppRouterGroups["friend"].GET("/search", api.SearchClientByUserName)
 	AppRouterGroups["friend"].POST("/addFriend", api.AddSearchClientByUserName)
 	AppRouterGroups["friend"].POST("/handleRequest", api.ReceiveFriendRequest)
 	AppRouterGroups["friend"].POST("/handleResponse", api.HandleFriendRequest)
 	AppRouterGroups["friend"].GET("/getFriendList", api.GetFriendList)
+
 	//*** 消息相关的路由
 	AppRouterGroups["message"].GET("/getUnreadMessage", api.GetUnreadMessage)
+
 	//*** 群组相关的路由
 	AppRouterGroups["group"].POST("/createGroup", api.CreateGroup)
 	AppRouterGroups["group"].POST("/joinGroup", api.JoinGroup)
 	AppRouterGroups["group"].POST("/leaveGroup", api.LeaveGroup)
 	AppRouterGroups["group"].GET("/getGroupList", api.GetGroupList)
-	// AppRouterGroups["group"].POST("/changeGroupInfo", api.ChangeGroupInfo)
-	// AppRouterGroups["group"].POST("/changeGroupAvatar", api.ChangeGroupAvatar)
-	// AppRouterGroups["group"].POST("/changeGroupOwner", api.ChangeGroupOwner)
+	// todo
+	AppRouterGroups["group"].GET("/getGroupInfo", api.GetGroupInfo)
+	// todo
+	AppRouterGroups["group"].PUT("/changeGroupInfo", api.ChangeGroupInfo)
+
+	// *** 监控相关的路由
+	AppRouterGroups["monitor"].GET("/clients", api.GetClients)
+	AppRouterGroups["monitor"].GET("/serverInfo", api.GetServerInfor)
 
 	logger.Info("API路由注册完成")
 }

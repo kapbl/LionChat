@@ -28,7 +28,7 @@ func (g *GroupService) JoinGroup(req *dto.JoinGroupReq) (dto.JoinGroupResp, erro
 	}
 	// 检查用户是否已经加入组
 	var userGroup model.GroupMember
-	err = dao.DB.Table("group_member").Where("user_id = ? AND group_id = ?", g.UserId, group.Id).First(&userGroup).Error
+	err = dao.DB.Table("group_member").Where("user_id = ? AND group_id = ? AND delete_at IS NULL", g.UserId, group.Id).First(&userGroup).Error
 	if err == nil {
 		return dto.JoinGroupResp{}, errors.New("用户已经加入组")
 	}
@@ -47,6 +47,11 @@ func (g *GroupService) JoinGroup(req *dto.JoinGroupReq) (dto.JoinGroupResp, erro
 	if err != nil {
 		return dto.JoinGroupResp{}, errors.New("更新组的成员数量失败")
 	}
+	// 更新用户的group_version
+	err = dao.DB.Table("users").Where("id = ?", g.UserId).Update("group_version", gorm.Expr("group_version + ?", 1)).Error
+	if err != nil {
+		return dto.JoinGroupResp{}, errors.New("更新用户的group_version失败")
+	}
 	return dto.JoinGroupResp{
 		GroupID:     group.Id,
 		GroupName:   group.Name,
@@ -54,8 +59,126 @@ func (g *GroupService) JoinGroup(req *dto.JoinGroupReq) (dto.JoinGroupResp, erro
 	}, nil
 }
 
-func LeaveGroup() {
+// LeaveGroup 离开群组，如果是群主则解散群组
+func (g *GroupService) LeaveGroup(req *dto.LeaveGroupReq) (dto.LeaveGroupResp, error) {
+	// 查找群组
+	var group model.Group
+	err := dao.DB.Table("group").Where("name = ?", req.GroupName).First(&group).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return dto.LeaveGroupResp{}, errors.New("群组不存在")
+	}
+	if err != nil {
+		return dto.LeaveGroupResp{}, errors.New("查询群组失败")
+	}
 
+	// 检查用户是否在群组中
+	var groupMember model.GroupMember
+	err = dao.DB.Table("group_member").Where("user_id = ? AND group_id = ? AND delete_at IS NULL", g.UserId, group.Id).First(&groupMember).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return dto.LeaveGroupResp{}, errors.New("您不在该群组中")
+	}
+	if err != nil {
+		return dto.LeaveGroupResp{}, errors.New("查询群成员失败")
+	}
+
+	// 检查是否为群主
+	if group.OwnerId == g.UserId {
+		// 群主离开，解散群组
+		return g.dissolveGroup(group.Id)
+	} else {
+		// 普通成员离开群组
+		return g.leaveMemberGroup(group.Id, group.MemberCount)
+	}
+}
+
+// dissolveGroup 解散群组
+func (g *GroupService) dissolveGroup(groupId int) (dto.LeaveGroupResp, error) {
+	// 开启事务
+	tx := dao.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// 删除所有群成员
+	err := tx.Table("group_member").Where("group_id = ?", groupId).Update("delete_at", time.Now()).Error
+	if err != nil {
+		tx.Rollback()
+		return dto.LeaveGroupResp{}, errors.New("删除群成员失败")
+	}
+
+	// 删除群组
+	err = tx.Table("group").Where("id = ?", groupId).Update("delete_at", time.Now()).Error
+	if err != nil {
+		tx.Rollback()
+		return dto.LeaveGroupResp{}, errors.New("删除群组失败")
+	}
+	// 查询操作用户
+	user := model.Users{}
+	err = tx.Table("users").Where("id = ?", g.UserId).First(&user).Error
+	if err != nil {
+		tx.Rollback()
+		return dto.LeaveGroupResp{}, errors.New("查询用户失败")
+	}
+	// 更新自己的群组操作状态，用于Redis
+	tx.Table("users").Where("id = ?", g.UserId).Update("group_version", gorm.Expr("group_version + ?", 1))
+	// 提交事务
+	err = tx.Commit().Error
+	if err != nil {
+		return dto.LeaveGroupResp{}, errors.New("提交事务失败")
+	}
+
+	return dto.LeaveGroupResp{
+		Message: "群组已解散",
+	}, nil
+}
+
+// leaveMemberGroup 普通成员离开群组
+func (g *GroupService) leaveMemberGroup(groupId int, memberCount int) (dto.LeaveGroupResp, error) {
+	// 开启事务
+	tx := dao.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// 删除群成员记录
+	err := tx.Table("group_member").Where("user_id = ? AND group_id = ?", g.UserId, groupId).Update("delete_at", time.Now()).Error
+	if err != nil {
+		tx.Rollback()
+		return dto.LeaveGroupResp{}, errors.New("离开群组失败")
+	}
+
+	// 更新群组成员数量
+	newMemberCount := memberCount - 1
+	if newMemberCount < 0 {
+		newMemberCount = 0
+	}
+	err = tx.Table("group").Where("id = ?", groupId).Update("member_count", newMemberCount).Error
+	if err != nil {
+		tx.Rollback()
+		return dto.LeaveGroupResp{}, errors.New("更新群组成员数量失败")
+	}
+	// 查询操作用户
+	user := model.Users{}
+	err = tx.Table("users").Where("id = ?", g.UserId).First(&user).Error
+	if err != nil {
+		tx.Rollback()
+		return dto.LeaveGroupResp{}, errors.New("查询用户失败")
+	}
+	// 更新自己的群组操作状态，用于Redis
+	tx.Table("users").Where("id = ?", g.UserId).Update("group_version", user.GroupVersion+1)
+	// 提交事务
+	err = tx.Commit().Error
+	if err != nil {
+		return dto.LeaveGroupResp{}, errors.New("提交事务失败")
+	}
+
+	return dto.LeaveGroupResp{
+		Message: "已成功离开群组",
+	}, nil
 }
 
 func (g *GroupService) GetGroupMember(groupUUID string) ([]string, error) {
