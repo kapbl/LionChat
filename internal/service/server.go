@@ -11,9 +11,9 @@ import (
 )
 
 type Server struct {
-	Clients   sync.Map
-	mutex     *sync.Mutex
-	Broadcast chan []byte
+	Clients   sync.Map     // 存储所有客户端连接
+	mutex     *sync.Mutex  // 保护clients的并发访问
+	Broadcast chan []byte  // 广播通道
 	Register  chan *Client // 注册消息通道
 	Ungister  chan *Client // 注销消息通道
 }
@@ -21,19 +21,12 @@ type Server struct {
 var ServerInstance = &Server{
 	Clients:   sync.Map{},
 	mutex:     &sync.Mutex{},
-	Broadcast: make(chan []byte, 1000), // 无缓冲
+	Broadcast: make(chan []byte, 1000), // 1000缓冲大小
 	Register:  make(chan *Client, 100),
 	Ungister:  make(chan *Client, 100),
 }
 
-type Message interface {
-	Send([]byte) error
-}
-
-func Send(msg []byte) error {
-
-	return nil
-}
+// 服务启动入口
 func (s *Server) Start() {
 	for {
 		select {
@@ -51,15 +44,12 @@ func (s *Server) Start() {
 					logger.Error("发送用户上线事件到Kafka失败", zap.Error(err))
 				}
 			}
-
 			s.mutex.Unlock()
-
 		case conn := <-s.Ungister:
 			s.mutex.Lock()
 			logger.Info("注销连接", zap.String("uuid", conn.UUID))
 			s.Clients.Delete(conn.UUID)
 			close(conn.Send)
-
 			// 发送用户下线事件到Kafka
 			if dao.KafkaProducerInstance != nil {
 				metadata := map[string]interface{}{
@@ -71,7 +61,6 @@ func (s *Server) Start() {
 				}
 			}
 			s.mutex.Unlock()
-
 		case message := <-s.Broadcast:
 			msg := protocol.Message{}
 			if err := proto.Unmarshal(message, &msg); err != nil {
@@ -89,6 +78,7 @@ func (s *Server) Start() {
 				switch msg.ContentType {
 				case 1: //Text消息
 					if msg.MessageType == 1 {
+						// 查找这个客户端
 						client, ok := s.Clients.Load(msg.To)
 						if ok {
 							msgByte, err := proto.Marshal(&msg)
@@ -103,8 +93,7 @@ func (s *Server) Start() {
 								if err := dao.KafkaProducerInstance.SendChatMessage(msg.To, msgByte); err != nil {
 									logger.Error("发送消息到Kafka失败", zap.Error(err))
 								}
-							} else {
-								// 发送消息 websockt 路径
+							} else { // 发送消息 websockt 路径
 								s.SendMessageToClient(client.(*Client), msgByte)
 							}
 							s.mutex.Unlock()
@@ -226,6 +215,7 @@ func (s *Server) Start() {
 	}
 }
 
+// 使用 uuid 获取客户端
 func (s *Server) GetClient(uuid string) *Client {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -236,6 +226,7 @@ func (s *Server) GetClient(uuid string) *Client {
 	return nil
 }
 
+// 发送群聊消息
 func (s *Server) SendGroupMessage(fromUUID string, groupUUID string, msg []byte) {
 	// 获取该群聊下的所有群成员的UUID
 	groupService := &GroupService{}
@@ -244,7 +235,6 @@ func (s *Server) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 		logger.Error("获取群成员失败", zap.Error(err), zap.String("groupId", groupUUID))
 		return
 	}
-
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -259,6 +249,7 @@ func (s *Server) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 	}
 }
 
+// 发送单个消息
 func (s *Server) SendMessageToClient(client *Client, msg []byte) {
 	// 先检查客户端是否存在，避免在发送消息时才发现客户端已断开
 	select {

@@ -4,6 +4,7 @@ import (
 	"cchat/internal/dao"
 	"cchat/internal/dao/model"
 	"cchat/internal/dto"
+	"cchat/pkg/token"
 	"errors"
 	"time"
 
@@ -17,6 +18,37 @@ type GroupService struct {
 }
 
 func (g *GroupService) CreateGroup(req *dto.CreateGroupReq) error {
+	// 检查该群组是否存在
+	// 如果存在，则加入该群组
+	// 如果不存在，则创建该群组
+	// 将用户的group_version 加一
+	var newGroup model.Group
+	err := dao.DB.Table("group").Where("name=?", req.GroupName).First(&newGroup).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		newGroup := model.Group{
+			UUID:        token.GenUUID(req.GroupName),
+			Name:        req.GroupName,
+			Desc:        "",
+			MemberCount: 1,
+			OwnerId:     g.UserId,
+			CreateAt:    time.Now(),
+			UpdateAt:    time.Now(),
+		}
+		err = dao.DB.Table("group").Create(&newGroup).Error
+		if err != nil {
+			return errors.New("创建组失败")
+		}
+		user := model.Users{}
+		err = dao.DB.Table("users").Where("id = ?", g.UserId).First(&user).Error
+		if err != nil {
+			return errors.New("用户不存在")
+		}
+		user.GroupVersion++
+		err = dao.DB.Table("users").Where("id = ?", g.UserId).Updates(&user).Error
+		if err != nil {
+			return errors.New("更新用户的group_version失败")
+		}
+	}
 	return nil
 }
 
@@ -70,7 +102,6 @@ func (g *GroupService) LeaveGroup(req *dto.LeaveGroupReq) (dto.LeaveGroupResp, e
 	if err != nil {
 		return dto.LeaveGroupResp{}, errors.New("查询群组失败")
 	}
-
 	// 检查用户是否在群组中
 	var groupMember model.GroupMember
 	err = dao.DB.Table("group_member").Where("user_id = ? AND group_id = ? AND delete_at IS NULL", g.UserId, group.Id).First(&groupMember).Error
@@ -80,7 +111,6 @@ func (g *GroupService) LeaveGroup(req *dto.LeaveGroupReq) (dto.LeaveGroupResp, e
 	if err != nil {
 		return dto.LeaveGroupResp{}, errors.New("查询群成员失败")
 	}
-
 	// 检查是否为群主
 	if group.OwnerId == g.UserId {
 		// 群主离开，解散群组
@@ -100,14 +130,12 @@ func (g *GroupService) dissolveGroup(groupId int) (dto.LeaveGroupResp, error) {
 			tx.Rollback()
 		}
 	}()
-
 	// 删除所有群成员
 	err := tx.Table("group_member").Where("group_id = ?", groupId).Update("delete_at", time.Now()).Error
 	if err != nil {
 		tx.Rollback()
 		return dto.LeaveGroupResp{}, errors.New("删除群成员失败")
 	}
-
 	// 删除群组
 	err = tx.Table("group").Where("id = ?", groupId).Update("delete_at", time.Now()).Error
 	if err != nil {
@@ -128,7 +156,6 @@ func (g *GroupService) dissolveGroup(groupId int) (dto.LeaveGroupResp, error) {
 	if err != nil {
 		return dto.LeaveGroupResp{}, errors.New("提交事务失败")
 	}
-
 	return dto.LeaveGroupResp{
 		Message: "群组已解散",
 	}, nil
@@ -143,14 +170,12 @@ func (g *GroupService) leaveMemberGroup(groupId int, memberCount int) (dto.Leave
 			tx.Rollback()
 		}
 	}()
-
 	// 删除群成员记录
 	err := tx.Table("group_member").Where("user_id = ? AND group_id = ?", g.UserId, groupId).Update("delete_at", time.Now()).Error
 	if err != nil {
 		tx.Rollback()
 		return dto.LeaveGroupResp{}, errors.New("离开群组失败")
 	}
-
 	// 更新群组成员数量
 	newMemberCount := memberCount - 1
 	if newMemberCount < 0 {
@@ -175,7 +200,6 @@ func (g *GroupService) leaveMemberGroup(groupId int, memberCount int) (dto.Leave
 	if err != nil {
 		return dto.LeaveGroupResp{}, errors.New("提交事务失败")
 	}
-
 	return dto.LeaveGroupResp{
 		Message: "已成功离开群组",
 	}, nil
@@ -210,7 +234,6 @@ func (g *GroupService) GetGroupList() ([]dto.MyGroupsResp, error) {
 		Where("group_member.user_id = ? AND group_member.delete_at IS NULL", currentUserID).
 		Where("group.delete_at IS NULL").
 		Scan(&groups).Error
-
 	if err != nil {
 		return nil, err
 	}

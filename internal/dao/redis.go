@@ -12,7 +12,7 @@ import (
 var REDIS *redis.Client
 
 // InitRedis 初始化Redis连接
-func InitRedis(addr, password string, db, poolSize, minIdleConns int) {
+func InitRedis(addr, password string, db, poolSize, minIdleConns int) error {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:         addr,
 		Password:     password,
@@ -20,11 +20,11 @@ func InitRedis(addr, password string, db, poolSize, minIdleConns int) {
 		PoolSize:     poolSize,
 		MinIdleConns: minIdleConns,
 		// 连接池超时配置
-		DialTimeout:  5 * time.Second,  // 连接超时
-		ReadTimeout:  3 * time.Second,  // 读取超时
-		WriteTimeout: 3 * time.Second,  // 写入超时
-		PoolTimeout:  4 * time.Second,  // 池超时
-		IdleTimeout:  5 * time.Minute,  // 空闲连接超时
+		DialTimeout:  5 * time.Second, // 连接超时
+		ReadTimeout:  3 * time.Second, // 读取超时
+		WriteTimeout: 3 * time.Second, // 写入超时
+		PoolTimeout:  4 * time.Second, // 池超时
+		IdleTimeout:  5 * time.Minute, // 空闲连接超时
 	})
 
 	REDIS = rdb
@@ -38,6 +38,7 @@ func InitRedis(addr, password string, db, poolSize, minIdleConns int) {
 			zap.Error(err),
 			zap.String("addr", addr),
 			zap.Int("db", db))
+		return err
 	}
 
 	logger.Info("Redis连接成功",
@@ -45,6 +46,7 @@ func InitRedis(addr, password string, db, poolSize, minIdleConns int) {
 		zap.Int("db", db),
 		zap.Int("pool_size", poolSize),
 		zap.Int("min_idle_conns", minIdleConns))
+	return nil
 }
 
 // DeleteCache 删除缓存

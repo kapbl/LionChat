@@ -53,6 +53,10 @@ func InitRouterGroups() {
 	AppRouterGroups["group"] = webEngine.Group("v1/api/group")
 	AppRouterGroups["monitor"] = webEngine.Group("v1/api/monitor")
 	AppRouterGroups["profile"] = webEngine.Group("v1/api/profile")
+	// 服务器统计和管理相关的路由组
+	AppRouterGroups["server"] = webEngine.Group("v1/api/server")
+	AppRouterGroups["health"] = webEngine.Group("v1/api/health")
+	AppRouterGroups["stats"] = webEngine.Group("v1/api/stats")
 
 	logger.Info("路由组初始化完成",
 		zap.Int("groupCount", len(AppRouterGroups)),
@@ -94,7 +98,7 @@ func InitRouter() {
 	AppRouterGroups["user"].POST("/register", api.Register)
 	AppRouterGroups["user"].POST("/logout", api.Logout)
 	AppRouterGroups["profile"].GET("/getProfileInfo", api.GetUserInfor)
-	AppRouterGroups["profile"].PUT("/updateProfile", api.UpdateUserInfor)
+	AppRouterGroups["profile"].POST("/updateProfile", api.UpdateUserInfor)
 
 	// ***  socket相关的路由
 	AppRouterGroups["webSocket"].GET("/connect", api.WebSocketConnect)

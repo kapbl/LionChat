@@ -65,7 +65,7 @@ func AddSearchClientByUserName(req *dto.AddFriendReq, userId int, uuid string, u
 			FriendID: int(targetUser.Id),
 			Status:   0,
 		}
-		err := dao.DB.Table(friendTable.GetTable()).Create(&friendTable).Error
+		err = dao.DB.Table(friendTable.GetTable()).Create(&friendTable).Error
 		dao.DB.Table("users").Where("id = ?", userId).
 			Update("group_version", gorm.Expr("group_version + ?", 1))
 		if err != nil {

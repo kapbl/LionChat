@@ -13,6 +13,7 @@ func Login(c *gin.Context) {
 		c.JSON(400, dto.Base{
 			Data: "格式错误",
 		})
+		return
 	}
 	currentUser, err := service.Login(&req)
 	if err != nil {

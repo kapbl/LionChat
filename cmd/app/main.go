@@ -19,21 +19,20 @@ import (
 func main() {
 	// 初始化日志
 	logger.InitLogger()
-	logger.Info("服务启动")
-
 	// 加载配置
 	appConfig := config.LoadConfig()
-
 	// 初始化数据库
 	if err := dao.InitDB(appConfig.MySQL.DSN, appConfig.MySQL.MaxIdleConns, appConfig.MySQL.MaxOpenConns, time.Duration(appConfig.MySQL.ConnMaxLifetime)); err != nil {
 		logger.Fatal("数据库初始化失败", zap.Error(err))
 	} else {
 		logger.Info("数据库初始化成功")
 	}
-
 	// 初始化Redis
-	dao.InitRedis(appConfig.Redis.Addr, appConfig.Redis.Password, appConfig.Redis.DB, appConfig.Redis.PoolSize, appConfig.Redis.MinIdleConns)
-
+	if err := dao.InitRedis(appConfig.Redis.Addr, appConfig.Redis.Password, appConfig.Redis.DB, appConfig.Redis.PoolSize, appConfig.Redis.MinIdleConns); err != nil {
+		logger.Fatal("Redis初始化失败", zap.Error(err))
+	} else {
+		logger.Info("Redis初始化成功")
+	}
 	// 初始化Kafka
 	if err := dao.InitKafka(&appConfig); err != nil {
 		logger.Error("Kafka初始化失败", zap.Error(err))
@@ -41,14 +40,11 @@ func main() {
 	} else {
 		logger.Info("Kafka初始化成功")
 	}
-
 	// 自动迁移表
 	dao.DB.AutoMigrate(&model.Users{}, &model.UserFriends{},
 		&model.Message{}, &model.Group{}, &model.GroupMember{})
-
 	// 初始化路由
 	router.InitWebEngine()
-
 	// 启动Kafka消费者服务
 	if dao.KafkaConsumerInstance != nil {
 		kafkaConsumerService, err := service.NewKafkaConsumerService(&appConfig)
@@ -59,13 +55,10 @@ func main() {
 			logger.Info("Kafka消费者服务启动成功")
 		}
 	}
-
 	// 启动服务器
 	go service.ServerInstance.Start()
-
 	// 优雅关闭处理
 	setupGracefulShutdown()
-	go monitorGoroutines()
 	// 启动路由
 	router.RunEngine(&appConfig)
 }

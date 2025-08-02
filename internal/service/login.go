@@ -4,6 +4,7 @@ import (
 	"cchat/internal/dao"
 	"cchat/internal/dao/model"
 	"cchat/internal/dto"
+	"cchat/pkg/hash"
 	"cchat/pkg/token"
 	"errors"
 
@@ -17,8 +18,9 @@ func Login(req *dto.LoginReq) (dto.LoginResp, error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return dto.LoginResp{}, errors.New("用户不存在")
 	}
-	if currentUser.Password != req.Password {
-		return dto.LoginResp{}, errors.New("用户或者密码不对")
+	// 验证密码
+	if !hash.VerifyPassword(currentUser.Password, req.Password) {
+		return dto.LoginResp{}, errors.New("用户名或密码错误")
 	}
 	// todo 生成token
 	token, err := token.GEnToken(&currentUser)
