@@ -70,7 +70,9 @@ func monitorGoroutines() {
 		select {
 		case <-ticker.C:
 			f, _ := os.Create("goroutine.prof")
-			pprof.Lookup("goroutine").WriteTo(f, 1)
+			if err := pprof.Lookup("goroutine").WriteTo(f, 1); err != nil {
+				logger.Error("写入goroutine性能分析文件失败", zap.Error(err))
+			}
 			f.Close()
 		}
 	}
