@@ -57,7 +57,7 @@ func main() {
 	}
 	// 启动服务器
 	go service.ServerInstance.Start()
-	// 优雅关闭处理
+	// 关闭处理
 	setupGracefulShutdown()
 	// 启动goroutine监控
 	go monitorGoroutines()
