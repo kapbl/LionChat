@@ -1,11 +1,6 @@
-# chat-lion
+# chat-lion (under development)
 
   <img align="right" width="260" src="resources/logo/lion.png">
-
-
-[![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
-[![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/go-admin-team/go-admin)
 
 English | [简体中文]()
 
