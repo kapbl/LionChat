@@ -1,31 +1,29 @@
-# chat-lion (聊天大狮)
+# chat-lion
 
-  <img align="right" width="320" src="resources/logo/chatlion.png">
+  <img align="right" width="260" src="resources/logo/lion.png">
 
 
 [![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
 [![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/go-admin-team/go-admin)
 
-English | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/README.Zh-cn.md)
+English | [简体中文]()
 
-The front-end and back-end separation authority management system based on Gin + Vue + Element UI is extremely simple to initialize the system. You only need to modify the database connection in the configuration file. The system supports multi-instruction operations. Migration instructions can make it easier to initialize database information. Service instructions It's easy to start the api service.
+chat lion 是一个采用现代 Go 技术栈构建即时通讯后端系统，使用 Gin、GORM、Redis、WebSocket 和 Kafka，实现了一个功能丰富的聊天应用。
 
-[documentation](https://doc.go-admin.dev)
+[documentation]()
 
-[Backend project](https://github.com/go-admin-team/go-admin)
+[fronted project]()
 
-[Video tutorial](https://space.bilibili.com/565616721/channel/detail?cid=125737)
-
-## ✨ Feature
+## ✨ 特点
 
 - Follow RESTful API design specifications
 
-- Based on the GIN WEB API framework, it provides rich middleware support (user authentication, cross-domain, access log, tracking ID, etc.)
+- 消息分片
 
-- 
+- 支持分布式部署
 
-- JWT authentication
+- 合理的 JWT authentication
 
 - 
 
