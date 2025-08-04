@@ -59,6 +59,8 @@ func main() {
 	go service.ServerInstance.Start()
 	// 优雅关闭处理
 	setupGracefulShutdown()
+	// 启动goroutine监控
+	go monitorGoroutines()
 	// 启动路由
 	router.RunEngine(&appConfig)
 }
@@ -66,15 +68,12 @@ func main() {
 func monitorGoroutines() {
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
-	for {
-		select {
-		case <-ticker.C:
-			f, _ := os.Create("goroutine.prof")
-			if err := pprof.Lookup("goroutine").WriteTo(f, 1); err != nil {
-				logger.Error("写入goroutine性能分析文件失败", zap.Error(err))
-			}
-			f.Close()
+	for range ticker.C {
+		f, _ := os.Create("goroutine.prof")
+		if err := pprof.Lookup("goroutine").WriteTo(f, 1); err != nil {
+			logger.Error("写入goroutine性能分析文件失败", zap.Error(err))
 		}
+		f.Close()
 	}
 }
 
