@@ -1,4 +1,4 @@
-# go-admin
+# lion-chat
 
   <img align="right" width="320" src="https://gitee.com/mydearzwj/image/raw/master/img/go-admin.svg">
 
