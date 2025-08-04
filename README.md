@@ -40,11 +40,11 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Environmental requirements
 
-go 1.17 
+go 1.24.5
 
-nodejs: v18+
+nodejs: 22.15.1
 
-npm: 6.14.11
+npm: 10.9.2
 
 ### Development directory creation
 
