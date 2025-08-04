@@ -1,6 +1,6 @@
 # chat-lion (聊天大狮)
 
-  <img align="right" width="320" src="https://github.com/kapbl/LionChat/blob/main/resources/logo/logo.webp">
+  <img align="right" width="320" src="resources/logo/chatlion.png">
 
 
 [![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
