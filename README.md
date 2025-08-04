@@ -1,4 +1,4 @@
-# lion-chat
+# chat-lion (聊天大狮)
 
   <img align="right" width="320" src="https://gitee.com/mydearzwj/image/raw/master/img/go-admin.svg">
 
