@@ -48,21 +48,6 @@ func (s *Server) Start() {
 			}
 			s.mutex.Unlock()
 		case conn := <-s.Ungister:
-			// s.mutex.Lock()
-			// logger.Info("注销连接", zap.String("uuid", conn.UUID))
-			// s.Clients.Delete(conn.UUID)
-			// close(conn.Send)
-			// // 发送用户下线事件到Kafka
-			// if dao.KafkaProducerInstance != nil {
-			// 	metadata := map[string]interface{}{
-			// 		"disconnect_time": conn.ConnTime,
-			// 		"client_ip":       conn.RemoteAddr,
-			// 	}
-			// 	if err := dao.KafkaProducerInstance.SendUserEvent("user_offline", conn.UUID, metadata); err != nil {
-			// 		logger.Error("发送用户下线事件到Kafka失败", zap.Error(err))
-			// 	}
-			// }
-			// s.mutex.Unlock()
 			s.handleClientDisconnect(conn) // 统一使用清理函数
 		case message := <-s.Broadcast:
 			msg := protocol.Message{}
