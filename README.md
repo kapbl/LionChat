@@ -8,7 +8,7 @@ chat lion 是一个采用 Go 技术栈构建即时通讯后端系统，使用 Gi
 
 [documentation]()
 
-[fronted project]()
+[fronted project](https://github.com/kapbl/LionChat-Fronted)
 
 ## ✨ 特点
 
