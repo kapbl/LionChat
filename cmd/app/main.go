@@ -56,9 +56,9 @@ func main() {
 		}
 	}
 	// 启动服务器
-	go service.ServerInstance.Start()
+	go service.ServerInstance.Run()
 	// 关闭处理
-	setupGracefulShutdown()
+	setupShutdown()
 	// 启动goroutine监控
 	go monitorGoroutines()
 	// 启动路由
@@ -77,8 +77,8 @@ func monitorGoroutines() {
 	}
 }
 
-// setupGracefulShutdown 优雅关闭处理
-func setupGracefulShutdown() {
+// 优雅关闭处理
+func setupShutdown() {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 

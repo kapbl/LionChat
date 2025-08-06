@@ -91,17 +91,11 @@ func (fm *FragmentManager) FragmentMessage(msg *protocol.Message) ([]*protocol.M
 
 	// 计算需要的分片数量
 	totalSize := len(originalBytes)
-	logger.Info("原始消息大小", zap.Int("totalSize", totalSize))
 	totalFragments := (totalSize + MaxFragmentSize - 1) / MaxFragmentSize
 
 	if totalFragments > MaxFragments {
 		return nil, fmt.Errorf("消息过大，分片数量超过限制: %d > %d", totalFragments, MaxFragments)
 	}
-
-	logger.Info("开始分片消息",
-		zap.String("messageId", messageID),
-		zap.Int("totalSize", totalSize),
-		zap.Int("totalFragments", totalFragments))
 
 	fragments := make([]*protocol.Message, 0, totalFragments)
 

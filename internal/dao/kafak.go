@@ -28,7 +28,8 @@ type MessageEvent struct {
 	Timestamp   int64                  `json:"timestamp"`
 	UserID      string                 `json:"user_id"`
 	MessageData []byte                 `json:"message_data,omitempty"` // 消息数据，二进制
-	Metadata    map[string]interface{} `json:"metadata,omitempty"` 
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	WorkerID    int                    `json:"worker_id"`
 }
 
 var (
@@ -111,7 +112,7 @@ func (kp *KafkaProducer) SendMessage(topic string, key string, message interface
 		logger.Error("序列化消息失败", zap.Error(err))
 		return err
 	}
-	
+
 	msg := &sarama.ProducerMessage{
 		Topic:     topic,
 		Key:       sarama.StringEncoder(key),
@@ -138,24 +139,28 @@ func (kp *KafkaProducer) SendMessage(topic string, key string, message interface
 }
 
 // SendChatMessage 发送聊天消息事件
-func (kp *KafkaProducer) SendChatMessage(userID string, messageData []byte) error {
+func (kp *KafkaProducer) SendChatMessage(userID string, messageData []byte, workerID int) error {
+
 	event := MessageEvent{
 		EventType:   "message",
 		Timestamp:   time.Now().Unix(),
 		UserID:      userID,
 		MessageData: messageData,
+		WorkerID:    workerID,
 	}
 
 	return kp.SendMessage(kp.config.Kafka.Topics.ChatMessages, userID, event)
 }
 
 // SendUserEvent 发送用户事件（上线/下线等）
-func (kp *KafkaProducer) SendUserEvent(eventType, userID string, metadata map[string]interface{}) error {
+func (kp *KafkaProducer) SendUserEvent(eventType, userID string, workerID int, metadata map[string]interface{}) error {
 	event := MessageEvent{
 		EventType: eventType,
 		Timestamp: time.Now().Unix(),
 		UserID:    userID,
 		Metadata:  metadata,
+		WorkerID:  workerID,
+
 	}
 
 	return kp.SendMessage(kp.config.Kafka.Topics.UserEvents, userID, event)

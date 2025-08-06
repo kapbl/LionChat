@@ -11,15 +11,13 @@ import (
 )
 
 type Client struct {
-	Ws              *websocket.Conn // 客户端连接
-	UUID            string          // 客户端唯一标识
-	Send            chan []byte     // 客户端发送消息通道
-	done            chan struct{}
-	ConnTime        int64
-	LoginTime       int64
-	Heartbeat       int64
-	RemoteAddr      string
-	FragmentManager *FragmentManager // 客户端分片管理器
+	Ws              *websocket.Conn  // 客户端连接
+	UUID            string           // 客户端唯一标识
+	Send            chan []byte      // 客户端发送消息通道
+	done            chan struct{}    // 是否表示客户端已断开
+	ConnTime        int64            // 连接那一时间戳
+	RemoteAddr      string           // 远程地址
+	workerID        int              // 服务自己的worker id
 }
 
 func NewClient(ws *websocket.Conn, uuid string) *Client {
@@ -29,17 +27,19 @@ func NewClient(ws *websocket.Conn, uuid string) *Client {
 		Send:            make(chan []byte),
 		done:            make(chan struct{}),
 		ConnTime:        time.Now().Unix(),
-		LoginTime:       time.Now().Unix(),
-		Heartbeat:       time.Now().Unix(),
 		RemoteAddr:      ws.RemoteAddr().String(),
-		FragmentManager: NewFragmentManager(),
 	}
 }
 
 func (c *Client) Read() {
 	defer func() {
 		close(c.done)
-		ServerInstance.Ungister <- c
+		worker := ServerInstance.WorkerHouse.GetWorkerByID(c.workerID)
+		if worker == nil {
+			logger.Error("worker not found")
+			return
+		}
+		worker.Unregister <- c
 		c.Ws.Close()
 	}()
 	for {
@@ -50,6 +50,7 @@ func (c *Client) Read() {
 			} else {
 				logger.Info("client disconnected normally", zap.String("uuid", c.UUID), zap.Error(err))
 			}
+
 			return
 		}
 		msg := &protocol.Message{}
@@ -65,18 +66,28 @@ func (c *Client) Read() {
 			}
 			c.Ws.WriteMessage(websocket.BinaryMessage, pongByte)
 		} else {
-			if ServerInstance.Broadcast == nil {
-				logger.Error("server instance is nil")
+			// 应该向服务自己的工作者告诉我读到了一个消息，请帮我转发
+			worker := ServerInstance.WorkerHouse.GetWorkerByID(c.workerID)
+			if worker == nil {
+				logger.Error("worker not found")
 				return
 			}
-			ServerInstance.Broadcast <- message
+			worker.Broadcast <- message
 		}
 	}
 }
 
+// 客户端写入消息
 func (c *Client) Write() {
 	defer func() {
 		c.Ws.Close()
+		worker := ServerInstance.WorkerHouse.GetWorkerByID(c.workerID)
+		if worker == nil {
+			logger.Error("worker not found")
+			return
+		}
+		worker.Unregister <- c
+
 	}()
 	for message := range c.Send {
 		err := c.Ws.WriteMessage(websocket.BinaryMessage, message)

@@ -43,9 +43,16 @@ func WebSocketConnect(c *gin.Context) {
 	}
 	// 在服务器中注册成为一个客户端
 	client := service.NewClient(ws, uuid)
-	// 通知服务器，有一个客户端连接了
-	service.ServerInstance.Register <- client
-	// 启动客户端的读取和写入 goroutine
-	go client.Read()
-	go client.Write()
+	// 选择作坊里手中任务最少的那个工作者进行分配任务
+	worker := service.ServerInstance.WorkerHouse.GetWorker()
+
+	if worker == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": 1,
+			"msg":  "连接失败",
+		})
+		return
+	}
+	worker.Register <- client
+
 }

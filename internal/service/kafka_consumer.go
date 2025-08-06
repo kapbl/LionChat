@@ -166,13 +166,14 @@ func (kcs *KafkaConsumerService) handleChatMessage(event *dao.MessageEvent) erro
 	logger.Info("处理聊天消息事件",
 		zap.String("user_id", event.UserID),
 		zap.String("event_type", event.EventType))
-
+	// 应该发给指定worker的用户
 	// 将消息发送给目标用户
-	if ServerInstance != nil {
-		client := ServerInstance.GetClient(event.UserID)
+	worker := kcs.GetWorker(event.WorkerID)
+	if worker != nil {
+		client := worker.GetClient(event.UserID)
 		if client != nil {
 			// 转换为 []byte 类型
-			ServerInstance.SendMessageToClient(client, event.MessageData)
+			worker.SendMessageToClient(client, event.MessageData)
 		}
 	}
 
@@ -213,8 +214,13 @@ func (kcs *KafkaConsumerService) handleGroupMessage(event *dao.MessageEvent) err
 		zap.String("group_id", groupID),
 		zap.String("event_type", event.EventType))
 	// 发送群组消息到所有成员
-	if ServerInstance != nil {
-		ServerInstance.SendGroupMessage(event.UserID, groupID, event.MessageData)
+	worker := kcs.GetWorker(event.WorkerID)
+	if worker != nil {
+		worker.SendGroupMessage(event.UserID, groupID, event.MessageData)
 	}
 	return nil
+}
+
+func (kcs *KafkaConsumerService) GetWorker(workerID int) *Worker {
+	return ServerInstance.WorkerHouse.GetWorkerByID(workerID)
 }

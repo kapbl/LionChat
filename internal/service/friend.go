@@ -85,21 +85,23 @@ func AddSearchClientByUserName(req *dto.AddFriendReq, userId int, uuid string, u
 
 func SendFriendRequest(targetUUID string, userId int, uuid string, userName string, content string, contentType int) error {
 	// 向对方发起好友通知
-	if client := ServerInstance.GetClient(targetUUID); client != nil {
-		// 编码成protoc
-		notification := protocol.Message{
-			FromUsername: userName,
-			From:         uuid,
-			To:           targetUUID,
-			Content:      content,
-			ContentType:  int32(contentType),
-			MessageType:  1,
+	for _, worker := range ServerInstance.WorkerHouse.Workers {
+		if client := worker.GetClient(targetUUID); client != nil {
+			// 编码成protoc
+			notification := protocol.Message{
+				FromUsername: userName,
+				From:         uuid,
+				To:           targetUUID,
+				Content:      content,
+				ContentType:  int32(contentType),
+				MessageType:  1,
+			}
+			notiByte, err := proto.Marshal(&notification)
+			if err != nil {
+				return err
+			}
+			client.Send <- notiByte
 		}
-		notiByte, err := proto.Marshal(&notification)
-		if err != nil {
-			return err
-		}
-		client.Send <- notiByte
 	}
 	return nil
 }

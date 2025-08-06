@@ -26,8 +26,8 @@ func GetClients(c *gin.Context) {
 		clients = append(clients, ClientInfo{
 			UUID:       client.UUID,
 			RemoteAddr: client.RemoteAddr,
-			LoginTime:  client.LoginTime,
-			Heartbeat:  client.Heartbeat,
+			LoginTime:  client.ConnTime,
+			Heartbeat:  client.ConnTime,
 			ConnTime:   client.ConnTime,
 		})
 		return true
