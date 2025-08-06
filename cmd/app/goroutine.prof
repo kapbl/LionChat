@@ -1,4 +1,4 @@
-goroutine profile: total 76
+goroutine profile: total 80
 11 @ 0x2ab111 0x28b5ca 0xbce90d 0x2b2ee1
 #	0xbce90c	cchat/internal/service.(*FragmentManager).cleanupExpiredFragments+0xcc	b:/projects/golang/chatLion/internal/service/fragment_manager.go:243
 
@@ -45,6 +45,24 @@ goroutine profile: total 76
 2 @ 0x2ab111 0x241f5f 0x241c52 0xa47fd8 0xae3ff9 0x2b2ee1
 #	0xa47fd7	github.com/IBM/sarama.(*partitionProducer).dispatch+0x397	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:645
 #	0xae3ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+
+2 @ 0x2ab111 0x241f5f 0x241c52 0xbcd5fd 0x2b2ee1
+#	0xbcd5fc	cchat/internal/service.(*Client).Write+0xdc	b:/projects/golang/chatLion/internal/service/client.go:94
+
+2 @ 0x2ab111 0x27131e 0x2aa43c 0x31f07a 0x32055b 0x3229d8 0x4b5cb3 0x4d2a85 0x3b10da 0x3b149b 0xbaa405 0xbadcdc 0xbaf827 0xbb03a5 0xbcc917 0x2b2ee1
+#	0x2aa43b	internal/poll.runtime_pollWait+0x3b			C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0x31f079	internal/poll.(*pollDesc).wait+0x79			C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0x32055a	internal/poll.execIO+0x2ba				C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0x3229d7	internal/poll.(*FD).Read+0x4b7				C:/Program Files/Go/src/internal/poll/fd_windows.go:438
+#	0x4b5cb2	net.(*netFD).Read+0x72					C:/Program Files/Go/src/net/fd_posix.go:55
+#	0x4d2a84	net.(*conn).Read+0xa4					C:/Program Files/Go/src/net/net.go:194
+#	0x3b10d9	bufio.(*Reader).fill+0x259				C:/Program Files/Go/src/bufio/bufio.go:113
+#	0x3b149a	bufio.(*Reader).Peek+0x15a				C:/Program Files/Go/src/bufio/bufio.go:152
+#	0xbaa404	github.com/gorilla/websocket.(*Conn).read+0x84		C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:371
+#	0xbadcdb	github.com/gorilla/websocket.(*Conn).advanceFrame+0x17b	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:809
+#	0xbaf826	github.com/gorilla/websocket.(*Conn).NextReader+0x126	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:1009
+#	0xbb03a4	github.com/gorilla/websocket.(*Conn).ReadMessage+0x64	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:1093
+#	0xbcc916	cchat/internal/service.(*Client).Read+0xd6		b:/projects/golang/chatLion/internal/service/client.go:48
 
 1 @ 0x247e91 0x2ad029 0x10863f7 0x2b2ee1
 #	0x2ad028	os/signal.signal_recv+0x28	C:/Program Files/Go/src/runtime/sigqueue.go:152
