@@ -1,157 +1,175 @@
-goroutine profile: total 57
-5 @ 0x8db111 0x871f5f 0x871c52 0x1092547 0x1113ff9 0x8e2ee1
-#	0x1092546	github.com/IBM/sarama.(*Broker).responseReceiver+0x66	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:1164
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+goroutine profile: total 79
+11 @ 0x99b111 0x97b5ca 0x12be90d 0x9a2ee1
+#	0x12be90c	cchat/internal/service.(*FragmentManager).cleanupExpiredFragments+0xcc	b:/projects/golang/chatLion/internal/service/fragment_manager.go:243
 
-3 @ 0x8db111 0x871f5f 0x871c52 0x10add45 0x1113ff9 0x8e2ee1
-#	0x10add44	github.com/IBM/sarama.(*partitionConsumer).dispatcher+0x44	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:444
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+10 @ 0x99b111 0x97b5ca 0x12ce494 0x9a2ee1
+#	0x12ce493	cchat/internal/service.(*Worker).Do+0x153	b:/projects/golang/chatLion/internal/service/worker.go:119
 
-3 @ 0x8db111 0x871f5f 0x871c52 0x10aeda6 0x1113ff9 0x8e2ee1
-#	0x10aeda5	github.com/IBM/sarama.(*partitionConsumer).responseFeeder+0xa5	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:574
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+4 @ 0x99b111 0x931f5f 0x931c52 0x1152547 0x11d3ff9 0x9a2ee1
+#	0x1152546	github.com/IBM/sarama.(*Broker).responseReceiver+0x66	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:1164
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-3 @ 0x8db111 0x871f5f 0x871c52 0x10bd1ff 0x8e2ee1
-#	0x10bd1fe	github.com/IBM/sarama.newConsumerGroupSession.func1+0x7e	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:851
+3 @ 0x99b111 0x931f5f 0x931c52 0x116dd45 0x11d3ff9 0x9a2ee1
+#	0x116dd44	github.com/IBM/sarama.(*partitionConsumer).dispatcher+0x44	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:444
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-3 @ 0x8db111 0x871f5f 0x871c52 0x10bdd25 0x8e2ee1
-#	0x10bdd24	github.com/IBM/sarama.(*consumerGroupSession).consume.func1+0x84	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:937
+3 @ 0x99b111 0x931f5f 0x931c52 0x116eda6 0x11d3ff9 0x9a2ee1
+#	0x116eda5	github.com/IBM/sarama.(*partitionConsumer).responseFeeder+0xa5	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:574
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-3 @ 0x8db111 0x871f5f 0x871c52 0x10bf3af 0x8e2ee1
-#	0x10bf3ae	github.com/IBM/sarama.newConsumerGroupClaim.func1+0x8e	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:1132
+3 @ 0x99b111 0x931f5f 0x931c52 0x117d1ff 0x9a2ee1
+#	0x117d1fe	github.com/IBM/sarama.newConsumerGroupSession.func1+0x7e	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:851
 
-3 @ 0x8db111 0x8bb5ca 0x10a08ee 0x1113ff9 0x8e2ee1
-#	0x10a08ed	github.com/IBM/sarama.(*client).backgroundMetadataUpdater+0x22d	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/client.go:957
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+3 @ 0x99b111 0x931f5f 0x931c52 0x117dd25 0x9a2ee1
+#	0x117dd24	github.com/IBM/sarama.(*consumerGroupSession).consume.func1+0x84	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:937
 
-3 @ 0x8db111 0x8bb5ca 0x10bdc5b 0x8e2ee1
-#	0x10bdc5a	github.com/IBM/sarama.(*consumerGroupSession).consume.func2+0xba	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:944
+3 @ 0x99b111 0x931f5f 0x931c52 0x117f3af 0x9a2ee1
+#	0x117f3ae	github.com/IBM/sarama.newConsumerGroupClaim.func1+0x8e	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:1132
 
-3 @ 0x8db111 0x8bb5ca 0x1208fcd 0x10bda03 0x10bd039 0x8e2ee1
-#	0x1208fcc	cchat/internal/service.(*KafkaConsumerService).ConsumeClaim+0x12c	b:/projects/golang/chatLion/internal/service/kafka_consumer.go:112
-#	0x10bda02	github.com/IBM/sarama.(*consumerGroupSession).consume+0x482		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:952
-#	0x10bd038	github.com/IBM/sarama.newConsumerGroupSession.func2+0xf8		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:877
+3 @ 0x99b111 0x97b5ca 0x11608ee 0x11d3ff9 0x9a2ee1
+#	0x11608ed	github.com/IBM/sarama.(*client).backgroundMetadataUpdater+0x22d	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/client.go:957
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-2 @ 0x8db111 0x871f5f 0x871c52 0x1076bd0 0x1113ff9 0x8e2ee1
-#	0x1076bcf	github.com/IBM/sarama.(*topicProducer).dispatch+0x4f	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:500
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+3 @ 0x99b111 0x97b5ca 0x117dc5b 0x9a2ee1
+#	0x117dc5a	github.com/IBM/sarama.(*consumerGroupSession).consume.func2+0xba	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:944
 
-2 @ 0x8db111 0x871f5f 0x871c52 0x1077fd8 0x1113ff9 0x8e2ee1
-#	0x1077fd7	github.com/IBM/sarama.(*partitionProducer).dispatch+0x397	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:645
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+3 @ 0x99b111 0x97b5ca 0x12c88cd 0x117da03 0x117d039 0x9a2ee1
+#	0x12c88cc	cchat/internal/service.(*KafkaConsumerService).ConsumeClaim+0x12c	b:/projects/golang/chatLion/internal/service/kafka_consumer.go:112
+#	0x117da02	github.com/IBM/sarama.(*consumerGroupSession).consume+0x482		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:952
+#	0x117d038	github.com/IBM/sarama.newConsumerGroupSession.func2+0xf8		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:877
 
-1 @ 0x877e91 0x8dd029 0x16b9017 0x8e2ee1
-#	0x8dd028	os/signal.signal_recv+0x28	C:/Program Files/Go/src/runtime/sigqueue.go:152
-#	0x16b9016	os/signal.loop+0x16		C:/Program Files/Go/src/os/signal/signal_unix.go:23
+2 @ 0x99b111 0x931f5f 0x931c52 0x1136bd0 0x11d3ff9 0x9a2ee1
+#	0x1136bcf	github.com/IBM/sarama.(*topicProducer).dispatch+0x4f	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:500
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x89cc51 0x8da05d 0xf174a3 0xf170e6 0xf123d8 0x16ba1ca 0x8e2ee1
-#	0xf174a2	runtime/pprof.writeRuntimeProfile+0x182	C:/Program Files/Go/src/runtime/pprof/pprof.go:796
-#	0xf170e5	runtime/pprof.writeGoroutine+0x85	C:/Program Files/Go/src/runtime/pprof/pprof.go:755
-#	0xf123d7	runtime/pprof.(*Profile).WriteTo+0x97	C:/Program Files/Go/src/runtime/pprof/pprof.go:377
-#	0x16ba1c9	main.monitorGoroutines+0x1c9		b:/projects/golang/chatLion/cmd/app/main.go:73
+2 @ 0x99b111 0x931f5f 0x931c52 0x1137fd8 0x11d3ff9 0x9a2ee1
+#	0x1137fd7	github.com/IBM/sarama.(*partitionProducer).dispatch+0x397	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:645
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x871f5f 0x871c32 0x107e565 0x1113ff9 0x8e2ee1
-#	0x107e564	github.com/IBM/sarama.(*asyncProducer).retryHandler+0x84	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:1215
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+2 @ 0x99b111 0x931f5f 0x931c52 0x12bd5fd 0x9a2ee1
+#	0x12bd5fc	cchat/internal/service.(*Client).Write+0xdc	b:/projects/golang/chatLion/internal/service/client.go:92
 
-1 @ 0x8db111 0x871f5f 0x871c32 0x16ba54d 0x8e2ee1
-#	0x16ba54c	main.setupGracefulShutdown.func1+0x2c	b:/projects/golang/chatLion/cmd/app/main.go:86
+2 @ 0x99b111 0x96131e 0x99a43c 0xa0f07a 0xa1055b 0xa129d8 0xba5cb3 0xbc2a85 0xaa10da 0xaa149b 0x129a405 0x129dcdc 0x129f827 0x12a03a5 0x12bc917 0x9a2ee1
+#	0x99a43b	internal/poll.runtime_pollWait+0x3b			C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0xa0f079	internal/poll.(*pollDesc).wait+0x79			C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0xa1055a	internal/poll.execIO+0x2ba				C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0xa129d7	internal/poll.(*FD).Read+0x4b7				C:/Program Files/Go/src/internal/poll/fd_windows.go:438
+#	0xba5cb2	net.(*netFD).Read+0x72					C:/Program Files/Go/src/net/fd_posix.go:55
+#	0xbc2a84	net.(*conn).Read+0xa4					C:/Program Files/Go/src/net/net.go:194
+#	0xaa10d9	bufio.(*Reader).fill+0x259				C:/Program Files/Go/src/bufio/bufio.go:113
+#	0xaa149a	bufio.(*Reader).Peek+0x15a				C:/Program Files/Go/src/bufio/bufio.go:152
+#	0x129a404	github.com/gorilla/websocket.(*Conn).read+0x84		C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:371
+#	0x129dcdb	github.com/gorilla/websocket.(*Conn).advanceFrame+0x17b	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:809
+#	0x129f826	github.com/gorilla/websocket.(*Conn).NextReader+0x126	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:1009
+#	0x12a03a4	github.com/gorilla/websocket.(*Conn).ReadMessage+0x64	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:1093
+#	0x12bc916	cchat/internal/service.(*Client).Read+0xd6		b:/projects/golang/chatLion/internal/service/client.go:46
 
-1 @ 0x8db111 0x871f5f 0x871c32 0xf30a53 0x8e2ee1
-#	0xf30a52	github.com/rcrowley/go-metrics.(*meterArbiter).tick+0x32	C:/Users/caoyan/go/pkg/mod/github.com/rcrowley/go-metrics@v0.0.0-20201227073835-cf1acfcdf475/meter.go:239
+1 @ 0x937e91 0x99d029 0x1776377 0x9a2ee1
+#	0x99d028	os/signal.signal_recv+0x28	C:/Program Files/Go/src/runtime/sigqueue.go:152
+#	0x1776376	os/signal.loop+0x16		C:/Program Files/Go/src/os/signal/signal_unix.go:23
 
-1 @ 0x8db111 0x871f5f 0x871c52 0x1075cca 0x1113ff9 0x8e2ee1
-#	0x1075cc9	github.com/IBM/sarama.(*asyncProducer).dispatcher+0x149	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:393
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x95cc51 0x99a05d 0xfd74a3 0xfd70e6 0xfd23d8 0x177752a 0x9a2ee1
+#	0xfd74a2	runtime/pprof.writeRuntimeProfile+0x182	C:/Program Files/Go/src/runtime/pprof/pprof.go:796
+#	0xfd70e5	runtime/pprof.writeGoroutine+0x85	C:/Program Files/Go/src/runtime/pprof/pprof.go:755
+#	0xfd23d7	runtime/pprof.(*Profile).WriteTo+0x97	C:/Program Files/Go/src/runtime/pprof/pprof.go:377
+#	0x1777529	main.monitorGoroutines+0x1c9		b:/projects/golang/chatLion/cmd/app/main.go:73
 
-1 @ 0x8db111 0x871f5f 0x871c52 0x107a232 0x1113ff9 0x8e2ee1
-#	0x107a231	github.com/IBM/sarama.(*asyncProducer).newBrokerProducer.func2+0x71	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:854
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38					C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x931f5f 0x931c32 0x113e565 0x11d3ff9 0x9a2ee1
+#	0x113e564	github.com/IBM/sarama.(*asyncProducer).retryHandler+0x84	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:1215
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x871f5f 0x871c52 0x107a52a 0x1113ff9 0x8e2ee1
-#	0x107a529	github.com/IBM/sarama.(*asyncProducer).newBrokerProducer.func1+0x89	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:798
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38					C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x931f5f 0x931c32 0x17778ad 0x9a2ee1
+#	0x17778ac	main.setupGracefulShutdown.func1+0x2c	b:/projects/golang/chatLion/cmd/app/main.go:86
 
-1 @ 0x8db111 0x871f5f 0x871c52 0x110d6a5 0x1113ff9 0x8e2ee1
-#	0x110d6a4	github.com/IBM/sarama.(*syncProducer).handleSuccesses+0xe4	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/sync_producer.go:151
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x931f5f 0x931c32 0xff0a53 0x9a2ee1
+#	0xff0a52	github.com/rcrowley/go-metrics.(*meterArbiter).tick+0x32	C:/Users/caoyan/go/pkg/mod/github.com/rcrowley/go-metrics@v0.0.0-20201227073835-cf1acfcdf475/meter.go:239
 
-1 @ 0x8db111 0x871f5f 0x871c52 0x110d867 0x1113ff9 0x8e2ee1
-#	0x110d866	github.com/IBM/sarama.(*syncProducer).handleErrors+0xe6	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/sync_producer.go:159
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x931f5f 0x931c52 0x1135cca 0x11d3ff9 0x9a2ee1
+#	0x1135cc9	github.com/IBM/sarama.(*asyncProducer).dispatcher+0x149	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:393
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8a131e 0x8da43c 0x94f07a 0x95055b 0x9529d8 0xae5cb3 0xb02a85 0x9e1c28 0x1114717 0x940de8 0x940fd3 0x109061e 0x109263c 0x1113ff9 0x8e2ee1
-#	0x8da43b	internal/poll.runtime_pollWait+0x3b			C:/Program Files/Go/src/runtime/netpoll.go:351
-#	0x94f079	internal/poll.(*pollDesc).wait+0x79			C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
-#	0x95055a	internal/poll.execIO+0x2ba				C:/Program Files/Go/src/internal/poll/fd_windows.go:177
-#	0x9529d7	internal/poll.(*FD).Read+0x4b7				C:/Program Files/Go/src/internal/poll/fd_windows.go:438
-#	0xae5cb2	net.(*netFD).Read+0x72					C:/Program Files/Go/src/net/fd_posix.go:55
-#	0xb02a84	net.(*conn).Read+0xa4					C:/Program Files/Go/src/net/net.go:194
-#	0x9e1c27	bufio.(*Reader).Read+0x347				C:/Program Files/Go/src/bufio/bufio.go:245
-#	0x1114716	github.com/IBM/sarama.(*bufConn).Read+0x76		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:107
-#	0x940de7	io.ReadAtLeast+0x167					C:/Program Files/Go/src/io/io.go:335
-#	0x940fd2	io.ReadFull+0x92					C:/Program Files/Go/src/io/io.go:354
-#	0x109061d	github.com/IBM/sarama.(*Broker).readFull+0x17d		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:941
-#	0x109263b	github.com/IBM/sarama.(*Broker).responseReceiver+0x15b	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:1176
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x931f5f 0x931c52 0x113a232 0x11d3ff9 0x9a2ee1
+#	0x113a231	github.com/IBM/sarama.(*asyncProducer).newBrokerProducer.func2+0x71	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:854
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38					C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8a131e 0x8da43c 0x94f07a 0x95055b 0x95592d 0x956085 0xae7f6f 0xb109e5 0xb0e965 0xc5ddcb 0xc5d79c 0x16b618f 0x16b9f27 0x8aa5c7 0x8e2ee1
-#	0x8da43b	internal/poll.runtime_pollWait+0x3b	C:/Program Files/Go/src/runtime/netpoll.go:351
-#	0x94f079	internal/poll.(*pollDesc).wait+0x79	C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
-#	0x95055a	internal/poll.execIO+0x2ba		C:/Program Files/Go/src/internal/poll/fd_windows.go:177
-#	0x95592c	internal/poll.(*FD).acceptOne+0x10c	C:/Program Files/Go/src/internal/poll/fd_windows.go:946
-#	0x956084	internal/poll.(*FD).Accept+0x444	C:/Program Files/Go/src/internal/poll/fd_windows.go:980
-#	0xae7f6e	net.(*netFD).accept+0xce		C:/Program Files/Go/src/net/fd_windows.go:182
-#	0xb109e4	net.(*TCPListener).accept+0x64		C:/Program Files/Go/src/net/tcpsock_posix.go:159
-#	0xb0e964	net.(*TCPListener).Accept+0x64		C:/Program Files/Go/src/net/tcpsock.go:380
-#	0xc5ddca	net/http.(*Server).Serve+0x50a		C:/Program Files/Go/src/net/http/server.go:3424
-#	0xc5d79b	net/http.(*Server).ListenAndServe+0x17b	C:/Program Files/Go/src/net/http/server.go:3350
-#	0x16b618e	cchat/internal/router.RunEngine+0x2ee	b:/projects/golang/chatLion/internal/router/router.go:42
-#	0x16b9f26	main.main+0xce6				b:/projects/golang/chatLion/cmd/app/main.go:65
-#	0x8aa5c6	runtime.main+0x226			C:/Program Files/Go/src/runtime/proc.go:283
+1 @ 0x99b111 0x931f5f 0x931c52 0x113a52a 0x11d3ff9 0x9a2ee1
+#	0x113a529	github.com/IBM/sarama.(*asyncProducer).newBrokerProducer.func1+0x89	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:798
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38					C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8bb5ca 0x107ab9f 0x1113ff9 0x8e2ee1
-#	0x107ab9e	github.com/IBM/sarama.(*brokerProducer).run+0x25e	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:917
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x931f5f 0x931c52 0x11cd6a5 0x11d3ff9 0x9a2ee1
+#	0x11cd6a4	github.com/IBM/sarama.(*syncProducer).handleSuccesses+0xe4	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/sync_producer.go:151
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8bb5ca 0x1091738 0x1091488 0x108fbcf 0x10b47ea 0x10b2485 0x1113ff9 0x8e2ee1
-#	0x1091737	github.com/IBM/sarama.handleResponsePromise+0x137			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:1066
-#	0x1091487	github.com/IBM/sarama.(*Broker).sendAndReceive+0x267			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:1055
-#	0x108fbce	github.com/IBM/sarama.(*Broker).Fetch+0xee				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:511
-#	0x10b47e9	github.com/IBM/sarama.(*brokerConsumer).fetchNewMessages+0x829		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:1135
-#	0x10b2484	github.com/IBM/sarama.(*brokerConsumer).subscriptionConsumer+0x124	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:935
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38					C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x931f5f 0x931c52 0x11cd867 0x11d3ff9 0x9a2ee1
+#	0x11cd866	github.com/IBM/sarama.(*syncProducer).handleErrors+0xe6	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/sync_producer.go:159
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8bb5ca 0x10b1ea6 0x1113ff9 0x8e2ee1
-#	0x10b1ea5	github.com/IBM/sarama.(*brokerConsumer).subscriptionManager+0x1a5	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:892
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38					C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x96131e 0x99a43c 0xa0f07a 0xa1055b 0xa129d8 0xba5cb3 0xbc2a85 0xaa1c28 0x11d4717 0xa00de8 0xa00fd3 0x115061e 0x115263c 0x11d3ff9 0x9a2ee1
+#	0x99a43b	internal/poll.runtime_pollWait+0x3b			C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0xa0f079	internal/poll.(*pollDesc).wait+0x79			C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0xa1055a	internal/poll.execIO+0x2ba				C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0xa129d7	internal/poll.(*FD).Read+0x4b7				C:/Program Files/Go/src/internal/poll/fd_windows.go:438
+#	0xba5cb2	net.(*netFD).Read+0x72					C:/Program Files/Go/src/net/fd_posix.go:55
+#	0xbc2a84	net.(*conn).Read+0xa4					C:/Program Files/Go/src/net/net.go:194
+#	0xaa1c27	bufio.(*Reader).Read+0x347				C:/Program Files/Go/src/bufio/bufio.go:245
+#	0x11d4716	github.com/IBM/sarama.(*bufConn).Read+0x76		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:107
+#	0xa00de7	io.ReadAtLeast+0x167					C:/Program Files/Go/src/io/io.go:335
+#	0xa00fd2	io.ReadFull+0x92					C:/Program Files/Go/src/io/io.go:354
+#	0x115061d	github.com/IBM/sarama.(*Broker).readFull+0x17d		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:941
+#	0x115263b	github.com/IBM/sarama.(*Broker).responseReceiver+0x15b	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:1176
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8bb5ca 0x10b5ada 0x1208a59 0x8e2ee1
-#	0x10b5ad9	github.com/IBM/sarama.(*consumerGroup).Consume+0x499			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:217
-#	0x1208a58	cchat/internal/service.(*KafkaConsumerService).Start.func1+0x198	b:/projects/golang/chatLion/internal/service/kafka_consumer.go:65
+1 @ 0x99b111 0x96131e 0x99a43c 0xa0f07a 0xa1055b 0xa1592d 0xa16085 0xba7f6f 0xbd09e5 0xbce965 0xd1ddcb 0xd1d79c 0x17734ef 0x1777287 0x96a5c7 0x9a2ee1
+#	0x99a43b	internal/poll.runtime_pollWait+0x3b	C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0xa0f079	internal/poll.(*pollDesc).wait+0x79	C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0xa1055a	internal/poll.execIO+0x2ba		C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0xa1592c	internal/poll.(*FD).acceptOne+0x10c	C:/Program Files/Go/src/internal/poll/fd_windows.go:946
+#	0xa16084	internal/poll.(*FD).Accept+0x444	C:/Program Files/Go/src/internal/poll/fd_windows.go:980
+#	0xba7f6e	net.(*netFD).accept+0xce		C:/Program Files/Go/src/net/fd_windows.go:182
+#	0xbd09e4	net.(*TCPListener).accept+0x64		C:/Program Files/Go/src/net/tcpsock_posix.go:159
+#	0xbce964	net.(*TCPListener).Accept+0x64		C:/Program Files/Go/src/net/tcpsock.go:380
+#	0xd1ddca	net/http.(*Server).Serve+0x50a		C:/Program Files/Go/src/net/http/server.go:3424
+#	0xd1d79b	net/http.(*Server).ListenAndServe+0x17b	C:/Program Files/Go/src/net/http/server.go:3350
+#	0x17734ee	cchat/internal/router.RunEngine+0x2ee	b:/projects/golang/chatLion/internal/router/router.go:42
+#	0x1777286	main.main+0xce6				b:/projects/golang/chatLion/cmd/app/main.go:65
+#	0x96a5c6	runtime.main+0x226			C:/Program Files/Go/src/runtime/proc.go:283
 
-1 @ 0x8db111 0x8bb5ca 0x10bbae5 0x8e2ee1
-#	0x10bbae4	github.com/IBM/sarama.(*consumerGroup).loopCheckPartitionNumbers+0x7e4	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:721
+1 @ 0x99b111 0x97b5ca 0x113ab9f 0x11d3ff9 0x9a2ee1
+#	0x113ab9e	github.com/IBM/sarama.(*brokerProducer).run+0x25e	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/async_producer.go:917
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8bb5ca 0x10be9c5 0x8e2ee1
-#	0x10be9c4	github.com/IBM/sarama.(*consumerGroupSession).heartbeatLoop+0x804	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:1059
+1 @ 0x99b111 0x97b5ca 0x1151738 0x1151488 0x114fbcf 0x11747ea 0x1172485 0x11d3ff9 0x9a2ee1
+#	0x1151737	github.com/IBM/sarama.handleResponsePromise+0x137			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:1066
+#	0x1151487	github.com/IBM/sarama.(*Broker).sendAndReceive+0x267			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:1055
+#	0x114fbce	github.com/IBM/sarama.(*Broker).Fetch+0xee				C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/broker.go:511
+#	0x11747e9	github.com/IBM/sarama.(*brokerConsumer).fetchNewMessages+0x829		C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:1135
+#	0x1172484	github.com/IBM/sarama.(*brokerConsumer).subscriptionConsumer+0x124	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:935
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38					C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8bb5ca 0x10eee57 0x1113ff9 0x8e2ee1
-#	0x10eee56	github.com/IBM/sarama.(*offsetManager).mainLoop+0x1f6	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/offset_manager.go:239
-#	0x1113ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
+1 @ 0x99b111 0x97b5ca 0x1171ea6 0x11d3ff9 0x9a2ee1
+#	0x1171ea5	github.com/IBM/sarama.(*brokerConsumer).subscriptionManager+0x1a5	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer.go:892
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38					C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8bb5ca 0x112b065 0x8e2ee1
-#	0x112b064	github.com/go-redis/redis/v8/internal/pool.(*ConnPool).reaper+0x164	C:/Users/caoyan/go/pkg/mod/github.com/go-redis/redis/v8@v8.11.5/internal/pool/pool.go:485
+1 @ 0x99b111 0x97b5ca 0x1175ada 0x12c8359 0x9a2ee1
+#	0x1175ad9	github.com/IBM/sarama.(*consumerGroup).Consume+0x499			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:217
+#	0x12c8358	cchat/internal/service.(*KafkaConsumerService).Start.func1+0x198	b:/projects/golang/chatLion/internal/service/kafka_consumer.go:65
 
-1 @ 0x8db111 0x8bb5ca 0x11ff06d 0x8e2ee1
-#	0x11ff06c	cchat/internal/service.(*FragmentManager).cleanupExpiredFragments+0xcc	b:/projects/golang/chatLion/internal/service/fragment_manager.go:249
+1 @ 0x99b111 0x97b5ca 0x117bae5 0x9a2ee1
+#	0x117bae4	github.com/IBM/sarama.(*consumerGroup).loopCheckPartitionNumbers+0x7e4	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:721
 
-1 @ 0x8db111 0x8bb5ca 0x12086b9 0x8e2ee1
-#	0x12086b8	cchat/internal/service.(*KafkaConsumerService).Start.func2+0x178	b:/projects/golang/chatLion/internal/service/kafka_consumer.go:77
+1 @ 0x99b111 0x97b5ca 0x117e9c5 0x9a2ee1
+#	0x117e9c4	github.com/IBM/sarama.(*consumerGroupSession).heartbeatLoop+0x804	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/consumer_group.go:1059
 
-1 @ 0x8db111 0x8bb5ca 0x120c0fc 0x8e2ee1
-#	0x120c0fb	cchat/internal/service.(*Server).Start+0x15b	b:/projects/golang/chatLion/internal/service/server.go:34
+1 @ 0x99b111 0x97b5ca 0x11aee57 0x11d3ff9 0x9a2ee1
+#	0x11aee56	github.com/IBM/sarama.(*offsetManager).mainLoop+0x1f6	C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/offset_manager.go:239
+#	0x11d3ff8	github.com/IBM/sarama.withRecover+0x38			C:/Users/caoyan/go/pkg/mod/github.com/!i!b!m/sarama@v1.43.3/utils.go:43
 
-1 @ 0x8db111 0x8bb5ca 0xca05be 0x8e2ee1
-#	0xca05bd	database/sql.(*DB).connectionOpener+0xbd	C:/Program Files/Go/src/database/sql/sql.go:1261
+1 @ 0x99b111 0x97b5ca 0x11eb065 0x9a2ee1
+#	0x11eb064	github.com/go-redis/redis/v8/internal/pool.(*ConnPool).reaper+0x164	C:/Users/caoyan/go/pkg/mod/github.com/go-redis/redis/v8@v8.11.5/internal/pool/pool.go:485
+
+1 @ 0x99b111 0x97b5ca 0x12c7fb9 0x9a2ee1
+#	0x12c7fb8	cchat/internal/service.(*KafkaConsumerService).Start.func2+0x178	b:/projects/golang/chatLion/internal/service/kafka_consumer.go:77
+
+1 @ 0x99b111 0x97b5ca 0xd605be 0x9a2ee1
+#	0xd605bd	database/sql.(*DB).connectionOpener+0xbd	C:/Program Files/Go/src/database/sql/sql.go:1261
 
