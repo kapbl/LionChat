@@ -11,26 +11,28 @@ import (
 )
 
 type Client struct {
-	Ws              *websocket.Conn  // 客户端连接
-	UUID            string           // 客户端唯一标识
-	Send            chan []byte      // 客户端发送消息通道
-	done            chan struct{}    // 是否表示客户端已断开
-	ConnTime        int64            // 连接那一时间戳
-	RemoteAddr      string           // 远程地址
-	workerID        int              // 服务自己的worker id
+	Ws         *websocket.Conn // 客户端连接
+	UUID       string          // 客户端唯一标识
+	Send       chan []byte     // 客户端发送消息通道，
+	done       chan struct{}   // 是否表示客户端已断开
+	ConnTime   int64           // 连接那一时间戳
+	RemoteAddr string          // 远程地址
+	workerID   int             // 服务自己的worker id
 }
 
+// 新建一个客户端
 func NewClient(ws *websocket.Conn, uuid string) *Client {
 	return &Client{
-		Ws:              ws,
-		UUID:            uuid,
-		Send:            make(chan []byte),
-		done:            make(chan struct{}),
-		ConnTime:        time.Now().Unix(),
-		RemoteAddr:      ws.RemoteAddr().String(),
+		Ws:         ws,
+		UUID:       uuid,
+		Send:       make(chan []byte),
+		done:       make(chan struct{}),
+		ConnTime:   time.Now().Unix(),
+		RemoteAddr: ws.RemoteAddr().String(),
 	}
 }
 
+// 客户端读取一个消息
 func (c *Client) Read() {
 	defer func() {
 		close(c.done)

@@ -10,19 +10,17 @@ import (
 	"go.uber.org/zap"
 )
 
-// 一个worker 可以服务多个 client, 10个client
-
+// 一个worker 可以服务多个 client, 10个client， 后续可以自动扩容
 type Worker struct {
-	ID              int      // 该工作者的ID
-	Clients         sync.Map // 该工作者管理的client
-	Register        chan *Client
-	Unregister      chan *Client
-	Broadcast       chan []byte
+	ID              int          // 该工作者的ID
+	Clients         sync.Map     // 该工作者管理的client
+	Register        chan *Client // 客户端注册通道
+	Unregister      chan *Client // 客户端注销通道
+	Broadcast       chan []byte  // 客户端广播通道
 	mutex           sync.Mutex
 	FragmentManager *FragmentManager // 消息分片管理器
 	TaskCount       int              // 该工作者当前管理的任务数量
 	WorkerHouse     *WorkerHouse     // 该工作者所在的房子
-
 }
 
 // AddClient 添加一个client到该工作者管理的client列表中
@@ -48,6 +46,8 @@ func (s *Worker) getContentTypeName(contentType int32) string {
 		return "语音"
 	case 5:
 		return "视频"
+	case 6:
+		return "语音通话"
 	case 8:
 		return "好友请求"
 	default:
@@ -157,7 +157,7 @@ func (s *Worker) Do() {
 			s.mutex.Lock()
 			// 使用统一的消息处理逻辑
 			switch msg.ContentType {
-			case 1, 2, 3, 4, 5: // 文本、文件、图片、语音、视频消息
+			case 1, 2, 3, 4, 5, 6: // 文本、文件、图片、语音、视频消息
 				if msg.MessageType == 1 {
 					// 单聊消息
 					s.handleDirectMessage(&msg, message)

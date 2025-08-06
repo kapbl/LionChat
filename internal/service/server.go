@@ -17,7 +17,7 @@ type Server struct {
 var ServerInstance = &Server{
 	Clients:         sync.Map{},
 	mutex:           &sync.Mutex{},
-	Broadcast:       make(chan []byte, 1000), // 1000缓冲大小
+	Broadcast:       make(chan []byte, 1000),
 	Register:        make(chan *Client, 100),
 	Ungister:        make(chan *Client, 100),
 	FragmentManager: NewFragmentManager(),
