@@ -176,7 +176,7 @@ func (s *Server) Start() {
 						logger.Info("发送群聊文件消息", zap.String("groupId", msg.To))
 						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
-				case 5:
+				case 5: // 视频消息
 					if msg.MessageType == 1 {
 						client, ok := s.Clients.Load(msg.To)
 						if ok {
@@ -216,13 +216,36 @@ func (s *Server) Start() {
 					if msg.MessageType == 1 {
 						client, ok := s.Clients.Load(msg.To)
 						if ok {
-							msgByte, err := proto.Marshal(&msg)
-							if err != nil {
-								logger.Error("消息序列化失败", zap.Error(err))
-								return
+							// 检查消息的大小
+							if s.FragmentManager.ShouldFragment(&msg) {
+								// 分片消息
+								fragments, err := s.FragmentManager.FragmentMessage(&msg)
+								if err != nil {
+									logger.Error("消息分片失败", zap.Error(err))
+									s.mutex.Unlock()
+									return
+								}
+								// 发送分片消息
+								for _, fragment := range fragments {
+									fragmentBytes, err := proto.Marshal(fragment)
+									if err != nil {
+										logger.Error("分片序列化失败", zap.Error(err))
+										s.mutex.Unlock()
+										return
+									}
+									client.(*Client).Send <- fragmentBytes
+								}
+							} else {
+								// 发送单聊语音消息
+								logger.Info("发送单聊语音消息", zap.String("to", msg.To))
+								msgByte, err := proto.Marshal(&msg)
+								if err != nil {
+									logger.Error("消息序列化失败", zap.Error(err))
+									return
+								}
+								s.SendMessageToClient(client.(*Client), msgByte)
 							}
-							logger.Info("发送单聊语音消息", zap.String("to", msg.To))
-							s.SendMessageToClient(client.(*Client), msgByte)
+							s.mutex.Unlock()
 						}
 					} else {
 						// 群聊消息
@@ -231,7 +254,7 @@ func (s *Server) Start() {
 							logger.Error("消息序列化失败", zap.Error(err))
 							return
 						}
-						logger.Info("发送群聊语音消息", zap.String("groupId", msg.To))
+						logger.Info("发送群聊文件消息", zap.String("groupId", msg.To))
 						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 8: // 加好友消息
