@@ -38,6 +38,6 @@ chat lion 是一个采用 Go 技术栈构建即时通讯后端系统，使用 Gi
 ### 客户端之间的通信过程
 ![客户端之间的通信过程](resources\logo\客户端之间的通信过程.svg)
 ### 聊天
-![聊天1](resources\logo\客户端之间的通信过程.svg)
+![聊天1](resources/assest/57d8e366a96b0678301d3c98df8eea4a.png)
 ![聊天2](resources\logo\客户端之间的通信过程.svg)
 
