@@ -1,6 +1,5 @@
-# chat-lion (⌛ Working on it.)
-
-  <img align="right" width="260" src="resources/logo/lion.png">
+# chat-lion 🦁
+ (⌛ Working on it.)
 
 English | [简体中文]
 
