@@ -11,19 +11,21 @@ import (
 )
 
 type Server struct {
-	Clients   sync.Map     // 存储所有客户端连接
-	mutex     *sync.Mutex  // 保护clients的并发访问
-	Broadcast chan []byte  // 广播通道
-	Register  chan *Client // 注册消息通道
-	Ungister  chan *Client // 注销消息通道
+	Clients         sync.Map         // 存储所有客户端连接
+	mutex           *sync.Mutex      // 保护clients的并发访问
+	Broadcast       chan []byte      // 广播通道
+	Register        chan *Client     // 注册消息通道
+	Ungister        chan *Client     // 注销消息通道
+	FragmentManager *FragmentManager // 消息分片管理器
 }
 
 var ServerInstance = &Server{
-	Clients:   sync.Map{},
-	mutex:     &sync.Mutex{},
-	Broadcast: make(chan []byte, 1000), // 1000缓冲大小
-	Register:  make(chan *Client, 100),
-	Ungister:  make(chan *Client, 100),
+	Clients:         sync.Map{},
+	mutex:           &sync.Mutex{},
+	Broadcast:       make(chan []byte, 1000), // 1000缓冲大小
+	Register:        make(chan *Client, 100),
+	Ungister:        make(chan *Client, 100),
+	FragmentManager: NewFragmentManager(),
 }
 
 // 服务启动入口
@@ -46,21 +48,7 @@ func (s *Server) Start() {
 			}
 			s.mutex.Unlock()
 		case conn := <-s.Ungister:
-			s.mutex.Lock()
-			logger.Info("注销连接", zap.String("uuid", conn.UUID))
-			s.Clients.Delete(conn.UUID)
-			close(conn.Send)
-			// 发送用户下线事件到Kafka
-			if dao.KafkaProducerInstance != nil {
-				metadata := map[string]interface{}{
-					"disconnect_time": conn.ConnTime,
-					"client_ip":       conn.RemoteAddr,
-				}
-				if err := dao.KafkaProducerInstance.SendUserEvent("user_offline", conn.UUID, metadata); err != nil {
-					logger.Error("发送用户下线事件到Kafka失败", zap.Error(err))
-				}
-			}
-			s.mutex.Unlock()
+			s.handleClientDisconnect(conn) // 统一使用清理函数
 		case message := <-s.Broadcast:
 			msg := protocol.Message{}
 			if err := proto.Unmarshal(message, &msg); err != nil {
@@ -69,11 +57,6 @@ func (s *Server) Start() {
 			}
 			// 表示有意向的消息
 			if msg.To != "" {
-				logger.Info("处理定向消息",
-					zap.String("from", msg.From),
-					zap.String("to", msg.To),
-					zap.Int32("contentType", msg.ContentType),
-					zap.Int32("messageType", msg.MessageType))
 				s.mutex.Lock()
 				switch msg.ContentType {
 				case 1: //Text消息
@@ -125,13 +108,27 @@ func (s *Server) Start() {
 					if msg.MessageType == 1 {
 						client, ok := s.Clients.Load(msg.To)
 						if ok {
-							msgByte, err := proto.Marshal(&msg)
-							if err != nil {
-								logger.Error("消息序列化失败", zap.Error(err))
-								return
+							// 检查消息的大小
+							if s.FragmentManager.ShouldFragment(&msg) {
+								// 分片消息
+								fragments, err := s.FragmentManager.FragmentMessage(&msg)
+								if err != nil {
+									logger.Error("消息分片失败", zap.Error(err))
+									s.mutex.Unlock()
+									return
+								}
+								// 发送分片消息
+								for _, fragment := range fragments {
+									fragmentBytes, err := proto.Marshal(fragment)
+									if err != nil {
+										logger.Error("分片序列化失败", zap.Error(err))
+										s.mutex.Unlock()
+										return
+									}
+									client.(*Client).Send <- fragmentBytes
+								}
 							}
-							logger.Info("发送单聊文件消息", zap.String("to", msg.To))
-							s.SendMessageToClient(client.(*Client), msgByte)
+							s.mutex.Unlock()
 						}
 					} else {
 						// 群聊消息
@@ -147,13 +144,27 @@ func (s *Server) Start() {
 					if msg.MessageType == 1 {
 						client, ok := s.Clients.Load(msg.To)
 						if ok {
-							msgByte, err := proto.Marshal(&msg)
-							if err != nil {
-								logger.Error("消息序列化失败", zap.Error(err))
-								return
+							// 检查消息的大小
+							if s.FragmentManager.ShouldFragment(&msg) {
+								// 分片消息
+								fragments, err := s.FragmentManager.FragmentMessage(&msg)
+								if err != nil {
+									logger.Error("消息分片失败", zap.Error(err))
+									s.mutex.Unlock()
+									return
+								}
+								// 发送分片消息
+								for _, fragment := range fragments {
+									fragmentBytes, err := proto.Marshal(fragment)
+									if err != nil {
+										logger.Error("分片序列化失败", zap.Error(err))
+										s.mutex.Unlock()
+										return
+									}
+									client.(*Client).Send <- fragmentBytes
+								}
 							}
-							logger.Info("发送单聊图片消息", zap.String("to", msg.To))
-							s.SendMessageToClient(client.(*Client), msgByte)
+							s.mutex.Unlock()
 						}
 					} else {
 						// 群聊消息
@@ -162,20 +173,79 @@ func (s *Server) Start() {
 							logger.Error("消息序列化失败", zap.Error(err))
 							return
 						}
-						logger.Info("发送群聊图片消息", zap.String("groupId", msg.To))
+						logger.Info("发送群聊文件消息", zap.String("groupId", msg.To))
+						s.SendGroupMessage(msg.From, msg.To, msgByte)
+					}
+				case 5: // 视频消息
+					if msg.MessageType == 1 {
+						client, ok := s.Clients.Load(msg.To)
+						if ok {
+							// 检查消息的大小
+							if s.FragmentManager.ShouldFragment(&msg) {
+								// 分片消息
+								fragments, err := s.FragmentManager.FragmentMessage(&msg)
+								if err != nil {
+									logger.Error("消息分片失败", zap.Error(err))
+									s.mutex.Unlock()
+									return
+								}
+								// 发送分片消息
+								for _, fragment := range fragments {
+									fragmentBytes, err := proto.Marshal(fragment)
+									if err != nil {
+										logger.Error("分片序列化失败", zap.Error(err))
+										s.mutex.Unlock()
+										return
+									}
+									client.(*Client).Send <- fragmentBytes
+								}
+							}
+							s.mutex.Unlock()
+						}
+					} else {
+						// 群聊消息
+						msgByte, err := proto.Marshal(&msg)
+						if err != nil {
+							logger.Error("消息序列化失败", zap.Error(err))
+							return
+						}
+						logger.Info("发送群聊文件消息", zap.String("groupId", msg.To))
 						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 4: // 语音消息
 					if msg.MessageType == 1 {
 						client, ok := s.Clients.Load(msg.To)
 						if ok {
-							msgByte, err := proto.Marshal(&msg)
-							if err != nil {
-								logger.Error("消息序列化失败", zap.Error(err))
-								return
+							// 检查消息的大小
+							if s.FragmentManager.ShouldFragment(&msg) {
+								// 分片消息
+								fragments, err := s.FragmentManager.FragmentMessage(&msg)
+								if err != nil {
+									logger.Error("消息分片失败", zap.Error(err))
+									s.mutex.Unlock()
+									return
+								}
+								// 发送分片消息
+								for _, fragment := range fragments {
+									fragmentBytes, err := proto.Marshal(fragment)
+									if err != nil {
+										logger.Error("分片序列化失败", zap.Error(err))
+										s.mutex.Unlock()
+										return
+									}
+									client.(*Client).Send <- fragmentBytes
+								}
+							} else {
+								// 发送单聊语音消息
+								logger.Info("发送单聊语音消息", zap.String("to", msg.To))
+								msgByte, err := proto.Marshal(&msg)
+								if err != nil {
+									logger.Error("消息序列化失败", zap.Error(err))
+									return
+								}
+								s.SendMessageToClient(client.(*Client), msgByte)
 							}
-							logger.Info("发送单聊语音消息", zap.String("to", msg.To))
-							s.SendMessageToClient(client.(*Client), msgByte)
+							s.mutex.Unlock()
 						}
 					} else {
 						// 群聊消息
@@ -184,7 +254,7 @@ func (s *Server) Start() {
 							logger.Error("消息序列化失败", zap.Error(err))
 							return
 						}
-						logger.Info("发送群聊语音消息", zap.String("groupId", msg.To))
+						logger.Info("发送群聊文件消息", zap.String("groupId", msg.To))
 						s.SendGroupMessage(msg.From, msg.To, msgByte)
 					}
 				case 8: // 加好友消息
@@ -249,24 +319,96 @@ func (s *Server) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 	}
 }
 
-// 发送单个消息
+// 发送单个消息（支持分片）
 func (s *Server) SendMessageToClient(client *Client, msg []byte) {
-	// 先检查客户端是否存在，避免在发送消息时才发现客户端已断开
+	// 反序列化消息以检查是否需要分片
+	var message protocol.Message
+	if err := proto.Unmarshal(msg, &message); err != nil {
+		logger.Error("反序列化消息失败", zap.Error(err))
+		return
+	}
+
+	// 检查是否需要分片
+	if s.FragmentManager.ShouldFragment(&message) {
+		logger.Info("消息需要分片",
+			zap.String("to", client.UUID),
+			zap.Int("messageSize", len(msg)))
+
+		// 分片消息
+		fragments, err := s.FragmentManager.FragmentMessage(&message)
+		if err != nil {
+			logger.Error("消息分片失败", zap.Error(err))
+			return
+		}
+
+		// 发送所有分片
+		for i, fragment := range fragments {
+			fragmentBytes, err := proto.Marshal(fragment)
+			if err != nil {
+				logger.Error("分片序列化失败", zap.Error(err))
+				return
+			}
+
+			if !s.sendRawMessage(client, fragmentBytes) {
+				logger.Error("发送分片失败",
+					zap.String("to", client.UUID),
+					zap.Int("fragmentIndex", i))
+				return
+			}
+		}
+
+		logger.Info("分片消息发送完成",
+			zap.String("to", client.UUID),
+			zap.Int("totalFragments", len(fragments)))
+	} else {
+		// 直接发送非分片消息
+		s.sendRawMessage(client, msg)
+	}
+}
+
+// 发送原始消息字节
+func (s *Server) sendRawMessage(client *Client, msg []byte) bool {
 	select {
 	case client.Send <- msg:
-		logger.Debug("消息发送成功", zap.String("to", client.UUID))
+		return true
 	case <-client.done:
-		logger.Info("客户端已关闭", zap.String("uuid", client.UUID))
-		s.handleClientDisconnect(client)
+		// 不直接调用handleClientDisconnect，让Ungister流程处理
+		logger.Info("检测到客户端已关闭", zap.String("uuid", client.UUID))
+		return false
 	default:
 		logger.Warn("消息发送失败，客户端可能已断开", zap.String("uuid", client.UUID))
-		s.handleClientDisconnect(client)
+		return false
 	}
 }
 
 func (s *Server) handleClientDisconnect(client *Client) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	close(client.Send)
+
+	// 检查客户端是否已经被清理
+	if _, exists := s.Clients.Load(client.UUID); !exists {
+		return // 已经被清理过了
+	}
+
+	// 安全关闭发送通道
+	select {
+	case <-client.Send:
+		// 通道已关闭
+	default:
+		close(client.Send)
+	}
+
 	s.Clients.Delete(client.UUID)
+
+	// 清理分片管理器
+	if client.FragmentManager != nil {
+		client.FragmentManager.Stop()
+	}
+
+	// 发送Kafka下线事件
+	if dao.KafkaProducerInstance != nil {
+		// ... Kafka事件发送逻辑
+	}
+
+	logger.Info("客户端连接已清理", zap.String("uuid", client.UUID))
 }

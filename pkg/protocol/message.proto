@@ -13,4 +13,12 @@ message Message {
     string url = 9;          // 图片，视频，语音的路径
     string fileSuffix = 10;  // 文件后缀，如果通过二进制头不能解析文件后缀，使用该后缀
     bytes file = 11;         // 如果是图片，文件，视频等的二进制
+    
+    // 消息分片相关字段
+    string messageId = 12;   // 消息唯一标识符
+    bool isFragmented = 13;  // 是否为分片消息
+    int32 fragmentIndex = 14; // 分片索引（从0开始）
+    int32 totalFragments = 15; // 总分片数
+    int64 timestamp = 16;    // 消息时间戳
+    string checksum = 17;    // 消息校验和（用于验证完整性）
 }
