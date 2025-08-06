@@ -1,4 +1,4 @@
-# chat-lion (under development)
+# chat-lion (⌛ Working on it.)
 
   <img align="right" width="260" src="resources/logo/lion.png">
 
