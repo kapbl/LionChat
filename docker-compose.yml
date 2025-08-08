@@ -78,22 +78,6 @@ services:
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     networks:
       - kafka-network
-
-  # 可选：Kafka Manager (另一个管理界面)
-  kafka-manager:
-    image: hlebalbau/kafka-manager:stable
-    container_name: chatLion-kafka-manager
-    depends_on:
-      - kafka
-      - zookeeper
-    ports:
-      - "9000:9000"
-    environment:
-      ZK_HOSTS: "zookeeper:2181"
-      APPLICATION_SECRET: "random-secret"
-    networks:
-      - kafka-network
-
   # 初始化脚本容器
   kafka-init:
     image: confluentinc/cp-kafka:7.4.0
@@ -122,6 +106,28 @@ services:
       '
     networks:
       - kafka-network
+
+  chat-lion:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chatLion-chat-lion
+    depends_on:
+      - kafka
+      - zookeeper
+      - redis
+    ports:
+      - "8081:8081"
+    environment:
+      - CONFIG_PATH=./config/config.dev.yaml
+      - GIN_MODE=release
+    volumes:
+      - ./config:/root/config:ro
+      - ./logs:/root/logs
+    networks:
+      - kafka-network
+    restart: unless-stopped
+
 
 volumes:
   zookeeper-data:

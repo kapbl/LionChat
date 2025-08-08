@@ -23,13 +23,22 @@ chat lion 是一个采用 Go 技术栈构建即时通讯后端系统，使用 Gi
 - 实时语音转录+情感分析❌
 - 跨语言无障碍沟通❌
 - 对话摘要与决策提炼❌
-
+- Docker部署✅
 ## 🎐本地开发
-- Go 1.19+
+- Go 1.24+
 - gin
 - GORM
 - nginx
 - docker
+## 🎐Docker Compose 部署
+- 构建镜像
+```bash
+docker-compose build
+```
+- 运行容器
+```bash
+docker-compose up -d
+```
 ## 🦁画廊
 ### 服务端架构
 ![服务端架构](resources/logo/服务端架构.svg)
