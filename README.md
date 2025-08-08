@@ -1,16 +1,16 @@
 <div align="center">
 
-# ![resources/logo/lionchat.png](resources/logo/lionchat.png)
- (⌛ 正在开发中.)
+# ![resources/logo/lionchat.png](resources/logo/logo.png)
+(⌛ 正在开发中.)
 English | [简体中文]
 chat lion 是一个采用 Go 技术栈构建即时通讯后端系统，使用 Gin、GORM、Redis、WebSocket 和 Kafka，实现了一个功能丰富的聊天应用。
 [documentation]() | [fronted project](https://github.com/kapbl/LionChat-Fronted)
 </div>
 
 
-## ✨ 特点
+## 🎯 特点
 - 支持消息分片✅
-- JWT authentication✅
+- 分层架构✅
 - 工作池模式✅
 - 好友管理✅
 - 单聊和群聊✅
