@@ -117,7 +117,7 @@ services:
       - zookeeper
       - redis
     ports:
-      - "8081:8081"
+      - "80:80"
     environment:
       - CONFIG_PATH=./config/config.dev.yaml
       - GIN_MODE=release
