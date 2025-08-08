@@ -5,6 +5,7 @@ import (
 	"cchat/pkg/logger"
 	"cchat/pkg/protocol"
 	"sync"
+	"time"
 
 	"github.com/gogo/protobuf/proto"
 	"go.uber.org/zap"
@@ -12,15 +13,36 @@ import (
 
 // 一个worker 可以服务多个 client, 10个client， 后续可以自动扩容
 type Worker struct {
-	ID              int          // 该工作者的ID
-	Clients         sync.Map     // 该工作者管理的client
-	Register        chan *Client // 客户端注册通道
-	Unregister      chan *Client // 客户端注销通道
-	Broadcast       chan []byte  // 客户端广播通道
-	mutex           sync.Mutex
-	FragmentManager *FragmentManager // 消息分片管理器
-	TaskCount       int              // 该工作者当前管理的任务数量
-	WorkerHouse     *WorkerHouse     // 该工作者所在的房子
+	ID         int          // 该工作者的ID
+	Clients    sync.Map     // 该工作者管理的client
+	Register   chan *Client // 客户端注册通道
+	Unregister chan *Client // 客户端注销通道
+	Broadcast  chan []byte  // 客户端广播通道
+	mutex      sync.RWMutex // 读写锁
+
+	FragmentManager *FragmentManager  // 消息分片管理器
+	TaskCount       int               // 该工作者当前管理的任务数量
+	WorkerHouse     *WorkerHouse      // 该工作者所在的房子
+	messageQueue    chan *MessageTask // 消息处理队列
+}
+
+type MessageTask struct {
+	Message     *protocol.Message
+	RawData     []byte
+	ProcessTime time.Time
+}
+
+// 启动多个消息处理协程
+func (s *Worker) startMessageProcessors(count int) {
+	for i := 0; i < count; i++ {
+		go s.messageProcessor()
+	}
+}
+
+func (s *Worker) messageProcessor() {
+	for task := range s.messageQueue {
+		s.processMessageTask(task)
+	}
 }
 
 // AddClient 添加一个client到该工作者管理的client列表中
@@ -115,70 +137,124 @@ func (s *Worker) handleGroupMessage(msg *protocol.Message, originalMessage []byt
 
 // 工作者做任务
 func (s *Worker) Do() {
+	s.startMessageProcessors(3)
 	for {
 		select {
 		case conn := <-s.Register:
-			s.mutex.Lock()
 			logger.Info("注册连接", zap.String("uuid", conn.UUID), zap.Int("workerID", s.ID))
 			s.Clients.Store(conn.UUID, conn)
-			// 发送用户上线事件到Kafka
-			if dao.KafkaProducerInstance != nil {
-				metadata := map[string]interface{}{
-					"connection_time": conn.ConnTime,
-					"client_ip":       conn.RemoteAddr,
-					"worker_id":       s.ID,
+			go func() {
+				// 发送用户上线事件到Kafka
+				if dao.KafkaProducerInstance != nil {
+					metadata := map[string]interface{}{
+						"connection_time": conn.ConnTime,
+						"client_ip":       conn.RemoteAddr,
+						"worker_id":       s.ID,
+					}
+					if err := dao.KafkaProducerInstance.SendUserEvent("user_online", conn.UUID, s.ID, metadata); err != nil {
+						logger.Error("发送用户上线事件到Kafka失败", zap.Error(err))
+					}
 				}
-				if err := dao.KafkaProducerInstance.SendUserEvent("user_online", conn.UUID, s.ID, metadata); err != nil {
-					logger.Error("发送用户上线事件到Kafka失败", zap.Error(err))
-				}
-			}
+			}()
 			// 启动客户端的读取和写入 goroutine
 			conn.workerID = s.ID
 			go conn.Read()
 			go conn.Write()
-			s.mutex.Unlock()
-
 		case conn := <-s.Unregister:
 			s.handleClientDisconnect(conn)
-
 		case message := <-s.Broadcast:
-			msg := protocol.Message{}
-			if err := proto.Unmarshal(message, &msg); err != nil {
-				logger.Error("解析消息失败", zap.Error(err))
-				continue
-			}
+			s.queueMessage(message)
 
-			// 检查是否为有效的目标消息
-			if msg.To == "" {
-				logger.Debug("收到广播消息，跳过处理")
-				continue
-			}
+			// msg := protocol.Message{}
+			// if err := proto.Unmarshal(message, &msg); err != nil {
+			// 	logger.Error("解析消息失败", zap.Error(err))
+			// 	continue
+			// }
 
-			s.mutex.Lock()
-			// 使用统一的消息处理逻辑
-			switch msg.ContentType {
-			case 1, 2, 3, 4, 5, 6: // 文本、文件、图片、语音、视频消息
-				if msg.MessageType == 1 {
-					// 单聊消息
-					s.handleDirectMessage(&msg, message)
-				} else {
-					// 群聊消息
-					s.handleGroupMessage(&msg, message)
-				}
-			case 8: // 好友请求消息
-				if msg.MessageType == 1 {
-					s.handleDirectMessage(&msg, message)
-				}
-			default:
-				logger.Warn("未知的消息内容类型",
-					zap.Int32("contentType", msg.ContentType),
-					zap.String("from", msg.From),
-					zap.String("to", msg.To))
-			}
-			s.mutex.Unlock()
+			// // 检查是否为有效的目标消息
+			// if msg.To == "" {
+			// 	logger.Debug("收到广播消息，跳过处理")
+			// 	continue
+			// }
+			// // 使用统一的消息处理逻辑
+			// switch msg.ContentType {
+			// case 1, 2, 3, 4, 5, 6: // 文本、文件、图片、语音、视频消息
+			// 	if msg.MessageType == 1 {
+			// 		// 单聊消息
+			// 		s.handleDirectMessage(&msg, message)
+			// 	} else {
+			// 		// 群聊消息
+			// 		s.handleGroupMessage(&msg, message)
+			// 	}
+			// case 8: // 好友请求消息
+			// 	if msg.MessageType == 1 {
+			// 		s.handleDirectMessage(&msg, message)
+			// 	}
+			// default:
+			// 	logger.Warn("未知的消息内容类型",
+			// 		zap.Int32("contentType", msg.ContentType),
+			// 		zap.String("from", msg.From),
+			// 		zap.String("to", msg.To))
+			// }
 		}
 	}
 }
+func (s *Worker) processMessageTask(task *MessageTask) {
+	// 处理消息任务
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Error("消息处理发生panic",
+				zap.Any("panic", r),
+				zap.String("messageId", task.Message.MessageId),
+				zap.String("from", task.Message.From),
+				zap.String("to", task.Message.To))
+		}
+	}()
+	// 处理消息
+	switch task.Message.ContentType {
+	case 1, 2, 3, 4, 5, 6: // 文本、文件、图片、语音、视频消息
+		if task.Message.MessageType == 1 {
+			// 单聊消息
+			s.handleDirectMessage(task.Message, task.RawData)
+		} else {
+			// 群聊消息
+			s.handleGroupMessage(task.Message, task.RawData)
+		}
+	case 8: // 好友请求消息
+		if task.Message.MessageType == 1 {
+			// 好友请求消息
+			s.handleDirectMessage(task.Message, task.RawData)
+		}
+	default:
+		logger.Warn("未知的消息内容类型",
+			zap.Int32("contentType", task.Message.ContentType),
+			zap.String("from", task.Message.From),
+			zap.String("to", task.Message.To))
+	}
+}
+
+func (s *Worker) queueMessage(rawMessage []byte) {
+	msg := &protocol.Message{}
+	if err := proto.Unmarshal(rawMessage, msg); err != nil {
+		logger.Error("解析消息失败", zap.Error(err))
+		return
+	}
+	if msg.To == "" {
+		return
+	}
+	task := &MessageTask{
+		Message:     msg,
+		RawData:     rawMessage,
+		ProcessTime: time.Now(),
+	}
+	select {
+	case s.messageQueue <- task:
+		// 成功入队
+	default:
+		logger.Warn("消息队列已满，丢弃消息")
+	}
+}
+
 func (s *Worker) handleClientDisconnect(client *Client) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()

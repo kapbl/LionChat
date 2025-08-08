@@ -65,7 +65,7 @@ func InitWorkerHouse(workerNum int) *WorkerHouse {
 			Register:        make(chan *Client, 100),
 			Unregister:      make(chan *Client, 100),
 			Broadcast:       make(chan []byte, 100),
-			mutex:           sync.Mutex{},
+			mutex:           sync.RWMutex{},
 			FragmentManager: NewFragmentManager(),
 			TaskCount:       10,
 			WorkerHouse:     workerHouse,

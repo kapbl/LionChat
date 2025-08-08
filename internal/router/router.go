@@ -32,7 +32,7 @@ func InitWebEngine() {
 
 func RunEngine(c *config.Config) {
 	server := &http.Server{
-		Addr:         "localhost:" + strconv.Itoa(c.Server.Port),
+		Addr:         ":" + strconv.Itoa(c.Server.Port),
 		Handler:      webEngine,
 		ReadTimeout:  time.Duration(c.Server.ReadTimeout) * time.Second,
 		WriteTimeout: time.Duration(c.Server.WriteTimeout) * time.Second,
@@ -73,11 +73,23 @@ func getRouterGroupNames() []string {
 
 func InitCors() {
 	webEngine.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},           // 允许所有域名
-		AllowMethods:     []string{"GET", "POST"}, // 允许的方法
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowOrigins: []string{
+			"http://localhost",
+			"http://localhost:3000",
+			"http://localhost:8080",
+			"http://localhost:8081",
+			"http://localhost:8082",
+			"http://127.0.0.1",
+			"http://127.0.0.1:3000",
+			"http://127.0.0.1:8080",
+			"http://127.0.0.1:8081",
+			"http://127.0.0.1:8082",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
 	}))
 	logger.Info("CORS中间件配置完成")
 }
