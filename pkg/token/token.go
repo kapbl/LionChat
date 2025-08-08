@@ -16,7 +16,6 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// todo 等待实现
 func GEnToken(user *model.Users) (string, error) {
 	// Jwt载荷: user_id, user_name, user_uuid
 	claims := Claims{

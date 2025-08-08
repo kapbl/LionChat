@@ -39,6 +39,7 @@ func (s *Worker) startMessageProcessors(count int) {
 	}
 }
 
+// 消息处理goroutine
 func (s *Worker) messageProcessor() {
 	for task := range s.messageQueue {
 		s.processMessageTask(task)
@@ -137,6 +138,7 @@ func (s *Worker) handleGroupMessage(msg *protocol.Message, originalMessage []byt
 
 // 工作者做任务
 func (s *Worker) Do() {
+	// 启动消息处理队列
 	s.startMessageProcessors(3)
 	for {
 		select {
@@ -164,38 +166,6 @@ func (s *Worker) Do() {
 			s.handleClientDisconnect(conn)
 		case message := <-s.Broadcast:
 			s.queueMessage(message)
-
-			// msg := protocol.Message{}
-			// if err := proto.Unmarshal(message, &msg); err != nil {
-			// 	logger.Error("解析消息失败", zap.Error(err))
-			// 	continue
-			// }
-
-			// // 检查是否为有效的目标消息
-			// if msg.To == "" {
-			// 	logger.Debug("收到广播消息，跳过处理")
-			// 	continue
-			// }
-			// // 使用统一的消息处理逻辑
-			// switch msg.ContentType {
-			// case 1, 2, 3, 4, 5, 6: // 文本、文件、图片、语音、视频消息
-			// 	if msg.MessageType == 1 {
-			// 		// 单聊消息
-			// 		s.handleDirectMessage(&msg, message)
-			// 	} else {
-			// 		// 群聊消息
-			// 		s.handleGroupMessage(&msg, message)
-			// 	}
-			// case 8: // 好友请求消息
-			// 	if msg.MessageType == 1 {
-			// 		s.handleDirectMessage(&msg, message)
-			// 	}
-			// default:
-			// 	logger.Warn("未知的消息内容类型",
-			// 		zap.Int32("contentType", msg.ContentType),
-			// 		zap.String("from", msg.From),
-			// 		zap.String("to", msg.To))
-			// }
 		}
 	}
 }

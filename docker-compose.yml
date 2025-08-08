@@ -1,6 +1,14 @@
-version: '3.8'
-
 services:
+  redis:
+    image: redis:6.2-alpine
+    container_name: chatLion-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - kafka-network
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
     hostname: zookeeper
@@ -122,6 +130,9 @@ volumes:
     driver: local
   kafka-data:
     driver: local
+  redis-data:
+    driver: local
+
 
 networks:
   kafka-network:

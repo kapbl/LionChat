@@ -21,6 +21,7 @@ type ClientInfo struct {
 
 func GetClients(c *gin.Context) {
 	clients := make([]ClientInfo, 0)
+
 	service.ServerInstance.Clients.Range(func(key, value interface{}) bool {
 		client := value.(*service.Client)
 		clients = append(clients, ClientInfo{
