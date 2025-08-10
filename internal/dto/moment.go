@@ -13,13 +13,13 @@ type MomentCreateResp struct {
 
 // MomentListResp 动态列表响应
 type MomentListResp struct {
+	MomentID    int64             `json:"moment_id"`
 	UserID      int64             `json:"user_id"`
 	Username    string            `json:"username"`
 	Content     string            `json:"content"`
 	LikeCount   int64             `json:"like_count"`
 	CommentList []CommentListResp `json:"comment_list"`
-
-	CreateTime time.Time `json:"create_time"`
+	CreateTime  time.Time         `json:"create_time"`
 }
 
 type CommentListResp struct {

@@ -53,6 +53,7 @@ func InitRouterGroups() {
 	AppRouterGroups["group"] = webEngine.Group("v1/api/group")
 	AppRouterGroups["monitor"] = webEngine.Group("v1/api/monitor")
 	AppRouterGroups["moment"] = webEngine.Group("v1/api/moment")
+	AppRouterGroups["comment"] = webEngine.Group("v1/api/comment")
 
 	AppRouterGroups["profile"] = webEngine.Group("v1/api/profile")
 	// 服务器统计和管理相关的路由组
@@ -90,6 +91,8 @@ func InitMiddleware() {
 	AppRouterGroups["group"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["profile"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["moment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+	AppRouterGroups["comment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+
 	// AppRouterGroups["monitor"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	logger.Info("JWT中间件配置完成",
 		zap.Strings("protected_groups", []string{"friend", "group", "monitor"}))
@@ -132,6 +135,11 @@ func InitRouter() {
 
 	AppRouterGroups["moment"].POST("/createMoment", api.CreateMoment)
 	AppRouterGroups["moment"].GET("/list", api.ListMoment)
+
+	AppRouterGroups["comment"].POST("/createComment", api.CreateComment)
+	AppRouterGroups["comment"].POST("/like", api.LikeComment)
+
+
 
 	logger.Info("API路由注册完成")
 }

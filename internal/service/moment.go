@@ -136,12 +136,20 @@ func ListMoment(userID int) ([]*dto.MomentListResp, error) {
 		if err != nil {
 			return nil, err
 		}
+		// 查询动态的点赞数量
+		var likeCount int64
+		if err := dao.DB.Model(&model.Like{}).
+			Where("moment_id = ?", result.MomentID).
+			Count(&likeCount).Error; err != nil {
+			return nil, err
+		}
 
 		momentList = append(momentList, &dto.MomentListResp{
+			MomentID:    result.MomentID,
 			UserID:      result.UserID,
 			Username:    result.Username,
 			Content:     result.Content,
-			LikeCount:   0,
+			LikeCount:   likeCount,
 			CommentList: commentList,
 			CreateTime:  result.CreateTime,
 		})
