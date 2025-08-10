@@ -55,6 +55,9 @@ services:
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 102400
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 102400
       KAFKA_SOCKET_REQUEST_MAX_BYTES: 104857600
+      # 支持大文件传输 - 设置最大消息大小为 10MB
+      KAFKA_MESSAGE_MAX_BYTES: 10485760
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 10485760
     volumes:
       - kafka-data:/var/lib/kafka/data
     networks:
@@ -107,26 +110,26 @@ services:
     networks:
       - kafka-network
 
-  chat-lion:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: chatLion-chat-lion
-    depends_on:
-      - kafka
-      - zookeeper
-      - redis
-    ports:
-      - "80:80"
-    environment:
-      - CONFIG_PATH=./config/config.dev.yaml
-      - GIN_MODE=release
-    volumes:
-      - ./config:/root/config:ro
-      - ./logs:/root/logs
-    networks:
-      - kafka-network
-    restart: unless-stopped
+  # chat-lion:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: chatLion-chat-lion
+  #   depends_on:
+  #     - kafka
+  #     - zookeeper
+  #     - redis
+  #   ports:
+  #     - "80:80"
+  #   environment:
+  #     - CONFIG_PATH=./config/config.dev.yaml
+  #     - GIN_MODE=release
+  #   volumes:
+  #     - ./config:/root/config:ro
+  #     - ./logs:/root/logs
+  #   networks:
+  #     - kafka-network
+  #   restart: unless-stopped
 
 
 volumes:

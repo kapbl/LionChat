@@ -59,8 +59,8 @@ func AddSearchClientByUserName(req *dto.AddFriendReq, userId int, uuid string, u
 		// 在数据库中添加这条加好友记录
 		friendTable = model.UserFriends{
 			CreateAt: time.Now(),
-			UpdateAt: nil,
-			DeleteAt: 0,
+			UpdateAt: time.Now(),
+			DeleteAt: nil,
 			UserID:   userId,
 			FriendID: int(targetUser.Id),
 			Status:   0,
@@ -214,8 +214,8 @@ func ReceiveFriendRequest(d *dto.HandleFriendRequest, userId int, uuid string, u
 			// 创建一个好友Record
 			newFriendRecord := model.UserFriends{
 				CreateAt: time.Now(),
-				UpdateAt: nil,
-				DeleteAt: 0,
+				UpdateAt: time.Now(),
+				DeleteAt: nil,
 				UserID:   userId,
 				FriendID: int(targetUser.Id),
 				Status:   1,
@@ -268,8 +268,8 @@ func HandleFriendRequest(dto *dto.HandleFriendRequest, userId int, uuid string, 
 			// 创建一个好友Record
 			newFriendRecord := model.UserFriends{
 				CreateAt: time.Now(),
-				UpdateAt: nil,
-				DeleteAt: 0,
+				UpdateAt: time.Now(),
+				DeleteAt: nil,
 				UserID:   userId,
 				FriendID: int(targetUser.Id),
 				Status:   1,

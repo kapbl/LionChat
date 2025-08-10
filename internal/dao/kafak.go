@@ -65,6 +65,8 @@ func NewKafkaProducer(cfg *config.Config) (*KafkaProducer, error) {
 	config.Producer.Return.Successes = true
 	config.Producer.Flush.Frequency = time.Duration(cfg.Kafka.Producer.LingerMs) * time.Millisecond
 	config.Producer.Flush.Messages = cfg.Kafka.Producer.BatchSize
+	// 设置最大消息大小为 10MB，支持大文件传输
+	config.Producer.MaxMessageBytes = 10 * 1024 * 1024
 
 	producer, err := sarama.NewSyncProducer(cfg.Kafka.Brokers, config)
 	if err != nil {
@@ -82,6 +84,8 @@ func NewKafkaProducer(cfg *config.Config) (*KafkaProducer, error) {
 func NewKafkaConsumer(cfg *config.Config) (*KafkaConsumer, error) {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
+	// 设置最大消息大小为 10MB，与生产者保持一致
+	config.Consumer.Fetch.Max = 10 * 1024 * 1024
 
 	// 设置消费者组的偏移量重置策略
 	switch cfg.Kafka.Consumer.AutoOffsetReset {

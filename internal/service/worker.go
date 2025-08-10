@@ -71,6 +71,8 @@ func (s *Worker) getContentTypeName(contentType int32) string {
 		return "视频"
 	case 6:
 		return "语音通话"
+	case 7:
+		return "视频电话"
 	case 8:
 		return "好友请求"
 	default:
@@ -182,7 +184,7 @@ func (s *Worker) processMessageTask(task *MessageTask) {
 	}()
 	// 处理消息
 	switch task.Message.ContentType {
-	case 1, 2, 3, 4, 5, 6: // 文本、文件、图片、语音、视频消息
+	case 1, 2, 3, 4, 5, 6, 7: // 文本、文件、图片、语音、视频消息
 		if task.Message.MessageType == 1 {
 			// 单聊消息
 			s.handleDirectMessage(task.Message, task.RawData)

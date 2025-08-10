@@ -26,6 +26,25 @@ type UpdateUserReq struct {
 	Avatar   string `json:"avatar"`   // 头像
 }
 
+// GetUserIDByUUID 根据UUID获取用户ID
+func GetUserIDByUUID(uuid string) (int, error) {
+	if uuid == "" {
+		return 0, errors.New("UUID不能为空")
+	}
+
+	// 查询用户ID
+	var user model.Users
+	err := dao.DB.Table(user.GetTable()).Select("id").Where("uuid = ?", uuid).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, errors.New("用户不存在")
+		}
+		return 0, errors.New("查询用户ID失败: " + err.Error())
+	}
+
+	return int(user.Id), nil
+}
+
 // GetUserInfor 根据UUID获取用户信息
 func GetUserInfor(uuid string) (*UserInfoResp, error) {
 	if uuid == "" {

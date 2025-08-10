@@ -52,6 +52,8 @@ func InitRouterGroups() {
 	AppRouterGroups["message"] = webEngine.Group("v1/api/message")
 	AppRouterGroups["group"] = webEngine.Group("v1/api/group")
 	AppRouterGroups["monitor"] = webEngine.Group("v1/api/monitor")
+	AppRouterGroups["moment"] = webEngine.Group("v1/api/moment")
+
 	AppRouterGroups["profile"] = webEngine.Group("v1/api/profile")
 	// 服务器统计和管理相关的路由组
 	AppRouterGroups["server"] = webEngine.Group("v1/api/server")
@@ -73,25 +75,13 @@ func getRouterGroupNames() []string {
 
 func InitCors() {
 	webEngine.Use(cors.New(cors.Config{
-		AllowOrigins: []string{
-			"http://localhost",
-			"http://localhost:3000",
-			"http://localhost:8080",
-			"http://localhost:8081",
-			"http://localhost:8082",
-			"http://127.0.0.1",
-			"http://127.0.0.1:3000",
-			"http://127.0.0.1:8080",
-			"http://127.0.0.1:8081",
-			"http://127.0.0.1:8082",
-		},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-	logger.Info("CORS中间件配置完成")
 }
 
 func InitMiddleware() {
@@ -99,6 +89,7 @@ func InitMiddleware() {
 	AppRouterGroups["friend"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["group"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["profile"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+	AppRouterGroups["moment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	// AppRouterGroups["monitor"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	logger.Info("JWT中间件配置完成",
 		zap.Strings("protected_groups", []string{"friend", "group", "monitor"}))
@@ -138,6 +129,9 @@ func InitRouter() {
 	// *** 监控相关的路由
 	AppRouterGroups["monitor"].GET("/clients", api.GetClients)
 	AppRouterGroups["monitor"].GET("/serverInfo", api.GetServerInfor)
+
+	AppRouterGroups["moment"].POST("/createMoment", api.CreateMoment)
+	AppRouterGroups["moment"].GET("/list", api.ListMoment)
 
 	logger.Info("API路由注册完成")
 }

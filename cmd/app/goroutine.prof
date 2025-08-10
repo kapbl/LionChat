@@ -1,0 +1,74 @@
+goroutine profile: total 63
+30 @ 0x7db111 0x771f5f 0x771c52 0x11329db 0x7e2ee1
+#	0x11329da	cchat/internal/service.(*Worker).messageProcessor+0x3a	b:/projects/golang/chatLion/internal/service/worker.go:44
+
+11 @ 0x7db111 0x7bb5ca 0x112238d 0x7e2ee1
+#	0x112238c	cchat/internal/service.(*FragmentManager).cleanupExpiredFragments+0xcc	b:/projects/golang/chatLion/internal/service/fragment_manager.go:243
+
+10 @ 0x7db111 0x7bb5ca 0x1134198 0x7e2ee1
+#	0x1134197	cchat/internal/service.(*Worker).Do+0x157	b:/projects/golang/chatLion/internal/service/worker.go:146
+
+2 @ 0x7db111 0x771f5f 0x771c52 0x112105d 0x7e2ee1
+#	0x112105c	cchat/internal/service.(*Client).Write+0xdc	b:/projects/golang/chatLion/internal/service/client.go:94
+
+2 @ 0x7db111 0x7a131e 0x7da43c 0x84f07a 0x85055b 0x8529d8 0x9e7933 0xa04705 0x8e10da 0x8e149b 0x10fde65 0x110173c 0x1103287 0x1103e05 0x1120377 0x7e2ee1
+#	0x7da43b	internal/poll.runtime_pollWait+0x3b			C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0x84f079	internal/poll.(*pollDesc).wait+0x79			C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0x85055a	internal/poll.execIO+0x2ba				C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0x8529d7	internal/poll.(*FD).Read+0x4b7				C:/Program Files/Go/src/internal/poll/fd_windows.go:438
+#	0x9e7932	net.(*netFD).Read+0x72					C:/Program Files/Go/src/net/fd_posix.go:55
+#	0xa04704	net.(*conn).Read+0xa4					C:/Program Files/Go/src/net/net.go:194
+#	0x8e10d9	bufio.(*Reader).fill+0x259				C:/Program Files/Go/src/bufio/bufio.go:113
+#	0x8e149a	bufio.(*Reader).Peek+0x15a				C:/Program Files/Go/src/bufio/bufio.go:152
+#	0x10fde64	github.com/gorilla/websocket.(*Conn).read+0x84		C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:371
+#	0x110173b	github.com/gorilla/websocket.(*Conn).advanceFrame+0x17b	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:809
+#	0x1103286	github.com/gorilla/websocket.(*Conn).NextReader+0x126	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:1009
+#	0x1103e04	github.com/gorilla/websocket.(*Conn).ReadMessage+0x64	C:/Users/caoyan/go/pkg/mod/github.com/gorilla/websocket@v1.5.3/conn.go:1093
+#	0x1120376	cchat/internal/service.(*Client).Read+0xd6		b:/projects/golang/chatLion/internal/service/client.go:48
+
+2 @ 0x7db111 0x7a131e 0x7da43c 0x84f07a 0x85055b 0x8529d8 0x9e7933 0xa04705 0xb50c6b 0x8e10da 0x8e149b 0xb5a606 0x7e2ee1
+#	0x7da43b	internal/poll.runtime_pollWait+0x3b	C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0x84f079	internal/poll.(*pollDesc).wait+0x79	C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0x85055a	internal/poll.execIO+0x2ba		C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0x8529d7	internal/poll.(*FD).Read+0x4b7		C:/Program Files/Go/src/internal/poll/fd_windows.go:438
+#	0x9e7932	net.(*netFD).Read+0x72			C:/Program Files/Go/src/net/fd_posix.go:55
+#	0xa04704	net.(*conn).Read+0xa4			C:/Program Files/Go/src/net/net.go:194
+#	0xb50c6a	net/http.(*connReader).Read+0x22a	C:/Program Files/Go/src/net/http/server.go:798
+#	0x8e10d9	bufio.(*Reader).fill+0x259		C:/Program Files/Go/src/bufio/bufio.go:113
+#	0x8e149a	bufio.(*Reader).Peek+0x15a		C:/Program Files/Go/src/bufio/bufio.go:152
+#	0xb5a605	net/http.(*conn).serve+0x1dc5		C:/Program Files/Go/src/net/http/server.go:2137
+
+1 @ 0x777e91 0x7dd029 0x15debb7 0x7e2ee1
+#	0x7dd028	os/signal.signal_recv+0x28	C:/Program Files/Go/src/runtime/sigqueue.go:152
+#	0x15debb6	os/signal.loop+0x16		C:/Program Files/Go/src/os/signal/signal_unix.go:23
+
+1 @ 0x79cc51 0x7da05d 0xe39cc3 0xe39906 0xe34bf8 0x15dfeea 0x7e2ee1
+#	0xe39cc2	runtime/pprof.writeRuntimeProfile+0x182	C:/Program Files/Go/src/runtime/pprof/pprof.go:796
+#	0xe39905	runtime/pprof.writeGoroutine+0x85	C:/Program Files/Go/src/runtime/pprof/pprof.go:755
+#	0xe34bf7	runtime/pprof.(*Profile).WriteTo+0x97	C:/Program Files/Go/src/runtime/pprof/pprof.go:377
+#	0x15dfee9	main.monitorGoroutines+0x1c9		b:/projects/golang/chatLion/cmd/app/main.go:74
+
+1 @ 0x7db111 0x771f5f 0x771c32 0x15e026d 0x7e2ee1
+#	0x15e026c	main.setupShutdown.func1+0x2c	b:/projects/golang/chatLion/cmd/app/main.go:87
+
+1 @ 0x7db111 0x7a131e 0x7da43c 0x84f07a 0x85055b 0x85592d 0x856085 0x9e9bef 0xa12665 0xa105e5 0xb5fa4b 0xb5f41c 0x15db90f 0x15dfc47 0x7aa5c7 0x7e2ee1
+#	0x7da43b	internal/poll.runtime_pollWait+0x3b	C:/Program Files/Go/src/runtime/netpoll.go:351
+#	0x84f079	internal/poll.(*pollDesc).wait+0x79	C:/Program Files/Go/src/internal/poll/fd_poll_runtime.go:84
+#	0x85055a	internal/poll.execIO+0x2ba		C:/Program Files/Go/src/internal/poll/fd_windows.go:177
+#	0x85592c	internal/poll.(*FD).acceptOne+0x10c	C:/Program Files/Go/src/internal/poll/fd_windows.go:946
+#	0x856084	internal/poll.(*FD).Accept+0x444	C:/Program Files/Go/src/internal/poll/fd_windows.go:980
+#	0x9e9bee	net.(*netFD).accept+0xce		C:/Program Files/Go/src/net/fd_windows.go:182
+#	0xa12664	net.(*TCPListener).accept+0x64		C:/Program Files/Go/src/net/tcpsock_posix.go:159
+#	0xa105e4	net.(*TCPListener).Accept+0x64		C:/Program Files/Go/src/net/tcpsock.go:380
+#	0xb5fa4a	net/http.(*Server).Serve+0x50a		C:/Program Files/Go/src/net/http/server.go:3424
+#	0xb5f41b	net/http.(*Server).ListenAndServe+0x17b	C:/Program Files/Go/src/net/http/server.go:3350
+#	0x15db90e	cchat/internal/router.RunEngine+0x2ee	b:/projects/golang/chatLion/internal/router/router.go:42
+#	0x15dfc46	main.main+0xe66				b:/projects/golang/chatLion/cmd/app/main.go:66
+#	0x7aa5c6	runtime.main+0x226			C:/Program Files/Go/src/runtime/proc.go:283
+
+1 @ 0x7db111 0x7bb5ca 0x104d885 0x7e2ee1
+#	0x104d884	github.com/go-redis/redis/v8/internal/pool.(*ConnPool).reaper+0x164	C:/Users/caoyan/go/pkg/mod/github.com/go-redis/redis/v8@v8.11.5/internal/pool/pool.go:485
+
+1 @ 0x7db111 0x7bb5ca 0xbc2dde 0x7e2ee1
+#	0xbc2ddd	database/sql.(*DB).connectionOpener+0xbd	C:/Program Files/Go/src/database/sql/sql.go:1261
+

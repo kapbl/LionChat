@@ -3,9 +3,9 @@ package model
 import "time"
 
 type UserFriends struct {
-	CreateAt time.Time  `json:"createAt"`
-	UpdateAt *time.Time `json:"updateAt"`
-	DeleteAt int64      `json:"deleteAt"`
+	CreateAt time.Time  `json:"create_at"`
+	UpdateAt time.Time  `json:"update_at"`
+	DeleteAt *time.Time `json:"delete_at"`
 	UserID   int        `gorm:"comment:'用户id'"`
 	FriendID int        `gorm:"comment:'好友id'"`
 	Status   int        `gorm:"comment:'状态：1或0'"`

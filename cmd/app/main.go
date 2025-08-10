@@ -42,7 +42,8 @@ func main() {
 	}
 	// 自动迁移表
 	dao.DB.AutoMigrate(&model.Users{}, &model.UserFriends{},
-		&model.Message{}, &model.Group{}, &model.GroupMember{})
+		&model.Message{}, &model.Group{}, &model.GroupMember{}, &model.Moment{}, &model.Timeline{})
+
 	// 初始化路由
 	router.InitWebEngine()
 	// 启动Kafka消费者服务
