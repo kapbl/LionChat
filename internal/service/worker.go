@@ -132,10 +132,20 @@ func (s *Worker) forwardToOtherWorkers(targetUUID string, message []byte) {
 
 // handleGroupMessage 处理群聊消息（预留接口）
 func (s *Worker) handleGroupMessage(msg *protocol.Message, originalMessage []byte) {
-	// TODO: 实现群聊消息处理逻辑
 	logger.Info("处理群聊消息",
 		zap.String("type", s.getContentTypeName(msg.ContentType)),
 		zap.String("groupID", msg.To))
+	s.SendGroupMessage(msg.From, msg.To, originalMessage)
+	// 优先使用Kafka发送，否则使用WebSocket
+	// if dao.KafkaProducerInstance != nil {
+	// 	if err := dao.KafkaProducerInstance.SendGroupMessage(msg.To, msg.From, originalMessage); err != nil {
+	// 		logger.Error("发送消息到Kafka失败", zap.Error(err))
+	// 		// Kafka失败时降级到WebSocket
+	// 		s.SendGroupMessage(msg.To, msg.From, originalMessage)
+	// 	}
+	// } else {
+	// 	s.SendGroupMessage(msg.To, msg.From, originalMessage)
+	// }
 }
 
 // 工作者做任务
@@ -323,9 +333,16 @@ func (s *Worker) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 		if clientID == fromUUID {
 			continue
 		}
-		client, ok := s.Clients.Load(clientID)
-		if ok {
+		// 尝试从本地客户端列表中查找目标客户端
+		if client, ok := s.Clients.Load(clientID); ok {
+			// 找到本地客户端，直接发送
+			logger.Info("发送群聊消息",
+				zap.String("to", clientID),
+				zap.Int("workerID", s.ID))
 			s.SendMessageToClient(client.(*Client), msg)
+		} else {
+			// 本地未找到，转发到其他worker
+			s.forwardToOtherWorkers(clientID, msg)
 		}
 	}
 }

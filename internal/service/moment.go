@@ -25,7 +25,7 @@ func CreateMoment(moment *dto.MomentCreateReq, uuid string) (*dto.MomentCreateRe
 	m := &model.Moment{
 		UserID:     int64(user.Id),
 		Content:    moment.Content,
-		CreateTime: time.Now(),
+		CreateAt:   time.Now(),
 		DeleteTime: nil,
 	}
 	// 插入到自己的动态表中
@@ -34,10 +34,10 @@ func CreateMoment(moment *dto.MomentCreateReq, uuid string) (*dto.MomentCreateRe
 	}
 	// 插入到自己的Timeline表中
 	t := &model.Timeline{
-		UserID:     int64(user.Id),
-		MomentID:   m.ID,
-		IsOwn:      true,
-		CreateTime: time.Now(),
+		UserID:   int64(user.Id),
+		MomentID: m.ID,
+		IsOwn:    true,
+		CreateAt: time.Now(),
 	}
 	if err := dao.DB.Create(t).Error; err != nil {
 		return nil, err
@@ -54,10 +54,10 @@ func CreateMoment(moment *dto.MomentCreateReq, uuid string) (*dto.MomentCreateRe
 		// 插入到好友的Timeline表中
 		for _, friend := range friends {
 			t := &model.Timeline{
-				UserID:     int64(friend.FriendID),
-				MomentID:   m.ID,
-				IsOwn:      false,
-				CreateTime: time.Now(),
+				UserID:   int64(friend.FriendID),
+				MomentID: m.ID,
+				IsOwn:    false,
+				CreateAt: time.Now(),
 			}
 			if err := dao.DB.Create(t).Error; err != nil {
 				logger.Error("插入好友Timeline失败", zap.Error(err))
@@ -114,16 +114,16 @@ func ListMoment(userID int) ([]*dto.MomentListResp, error) {
 		UserID     int64     `gorm:"column:user_id"`
 		Username   string    `gorm:"column:username"`
 		Content    string    `gorm:"column:content"`
-		CreateTime time.Time `gorm:"column:create_time"`
+		CreateTime time.Time `gorm:"column:created_at"`
 	}
 
 	// 从 timeline 表查询用户的动态，按时间倒序
 	if err := dao.DB.Table("timeline t").
-		Select("m.id as moment_id, m.user_id, u.username, m.content, m.create_time").
+		Select("m.id as moment_id, m.user_id, u.username, m.content, m.created_at").
 		Joins("JOIN moment m ON t.moment_id = m.id").
 		Joins("JOIN users u ON m.user_id = u.id").
 		Where("t.user_id = ? AND m.delete_time IS NULL", userID).
-		Order("t.create_time DESC").
+		Order("t.created_at DESC").
 		Scan(&results).Error; err != nil {
 		return nil, err
 	}

@@ -34,7 +34,7 @@ func CreateGroup(c *gin.Context) {
 		UserUUID: uuid,
 		Username: username,
 	}
-	err := groupService.CreateGroup(&req)
+	resp, err := groupService.CreateGroup(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.Base{
 			Code: 1,
@@ -44,7 +44,7 @@ func CreateGroup(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, dto.Base{
 		Code: 0,
-		Data: "创建组成功",
+		Data: resp,
 	})
 }
 

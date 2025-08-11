@@ -17,39 +17,60 @@ type GroupService struct {
 	Username string
 }
 
-func (g *GroupService) CreateGroup(req *dto.CreateGroupReq) error {
+func (g *GroupService) CreateGroup(req *dto.CreateGroupReq) (*dto.CreateGroupResp, error) {
 	// 检查该群组是否存在
 	// 如果存在，则加入该群组
 	// 如果不存在，则创建该群组
 	// 将用户的group_version 加一
-	var newGroup model.Group
-	err := dao.DB.Table("group").Where("name=?", req.GroupName).First(&newGroup).Error
+	var newGroup1 model.Group
+	err := dao.DB.Table("group").Where("name=?", req.GroupName).First(&newGroup1).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		newGroup := model.Group{
 			UUID:        token.GenUUID(req.GroupName),
 			Name:        req.GroupName,
-			Desc:        "",
+			Desc:        req.Description,
 			MemberCount: 1,
+			Type:        req.GroupType,
 			OwnerId:     g.UserId,
 			CreateAt:    time.Now(),
 			UpdateAt:    time.Now(),
+			DeleteAt:    nil,
 		}
 		err = dao.DB.Table("group").Create(&newGroup).Error
 		if err != nil {
-			return errors.New("创建组失败")
+			return nil, errors.New("创建组失败")
 		}
 		user := model.Users{}
 		err = dao.DB.Table("users").Where("id = ?", g.UserId).First(&user).Error
 		if err != nil {
-			return errors.New("用户不存在")
+			return nil, errors.New("用户不存在")
 		}
 		user.GroupVersion++
 		err = dao.DB.Table("users").Where("id = ?", g.UserId).Updates(&user).Error
 		if err != nil {
-			return errors.New("更新用户的group_version失败")
+			return nil, errors.New("更新用户的group_version失败")
 		}
+		// 加入组
+		err = dao.DB.Table("group_member").Create(&model.GroupMember{
+			GroupId:   newGroup.Id,
+			GroupUUID: newGroup.UUID,
+			UserId:    g.UserId,
+			UserUUID:  g.UserUUID,
+			CreateAt:  time.Now(),
+			UpdateAt:  time.Now(),
+		}).Error
+		if err != nil {
+			return nil, errors.New("加入组失败")
+		}
+		return &dto.CreateGroupResp{
+			GroupID:   newGroup.Id,
+			GroupName: newGroup.Name,
+		}, nil
 	}
-	return nil
+	return &dto.CreateGroupResp{
+		GroupID:   newGroup1.Id,
+		GroupName: newGroup1.Name,
+	}, nil
 }
 
 func (g *GroupService) JoinGroup(req *dto.JoinGroupReq) (dto.JoinGroupResp, error) {
@@ -66,10 +87,12 @@ func (g *GroupService) JoinGroup(req *dto.JoinGroupReq) (dto.JoinGroupResp, erro
 	}
 	// 加入组
 	err = dao.DB.Table("group_member").Create(&model.GroupMember{
-		GroupId:  group.Id,
-		UserId:   g.UserId,
-		CreateAt: time.Now(),
-		UpdateAt: time.Now(),
+		GroupId:   group.Id,
+		GroupUUID: group.UUID,
+		UserId:    g.UserId,
+		UserUUID:  g.UserUUID,
+		CreateAt:  time.Now(),
+		UpdateAt:  time.Now(),
 	}).Error
 	if err != nil {
 		return dto.JoinGroupResp{}, errors.New("加入组失败")
@@ -85,7 +108,7 @@ func (g *GroupService) JoinGroup(req *dto.JoinGroupReq) (dto.JoinGroupResp, erro
 		return dto.JoinGroupResp{}, errors.New("更新用户的group_version失败")
 	}
 	return dto.JoinGroupResp{
-		GroupID:     group.Id,
+		GroupID:     group.UUID,
 		GroupName:   group.Name,
 		MemberCount: group.MemberCount,
 	}, nil

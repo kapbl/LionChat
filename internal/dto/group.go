@@ -6,13 +6,15 @@ type JoinGroupReq struct {
 }
 
 type JoinGroupResp struct {
-	GroupID     int    `json:"group_id"`     // 群组id
+	GroupID     string `json:"group_uuid"`   // 群组id
 	GroupName   string `json:"group_name"`   // 群组名称
 	MemberCount int    `json:"member_count"` // 群组成员数量
 }
 
 type CreateGroupReq struct {
-	GroupName string `json:"group_name"` // 群组名称, 可选
+	GroupName   string `json:"group_name"` // 群组名称, 可选
+	GroupType   string `json:"group_type"`
+	Description string `json:"description"`
 }
 
 type CreateGroupResp struct {

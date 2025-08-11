@@ -67,7 +67,7 @@ func AddSearchClientByUserName(req *dto.AddFriendReq, userId int, uuid string, u
 		}
 		err = dao.DB.Table(friendTable.GetTable()).Create(&friendTable).Error
 		dao.DB.Table("users").Where("id = ?", userId).
-			Update("group_version", gorm.Expr("group_version + ?", 1))
+			Update("friend_version", gorm.Expr("friend_version + ?", 1))
 		if err != nil {
 			return nil
 		}
@@ -156,7 +156,7 @@ func GetFriendList(uuid string, userID int) ([]dto.FriendInfo, error) {
 		_, _ = pipe.Exec(ctx)                  // 忽略缓存失败
 		return friendList, nil
 	}
-	// 获取任意一个朋友的版本号
+	// 获自己的朋友版本号
 	sentinel := model.Users{}
 	dao.DB.Table("users").Where("id = ?", userID).First(&sentinel)
 	// 如果在Redis中可以缓存到且与数据库的版本号一致
@@ -165,14 +165,24 @@ func GetFriendList(uuid string, userID int) ([]dto.FriendInfo, error) {
 		if err := json.Unmarshal([]byte(v), &friend); err != nil {
 			continue
 		}
-		if sentinel.GroupVersion != friend.Version {
+		if sentinel.FriendVersion != friend.Version {
+			// 版本号不一致，需要重新从数据库查询
+			err := dao.DB.Table("user_friends AS uf").
+				Select("u.uuid AS friend_uuid,u.username AS friend_name,u.avatar AS friend_avatar,u.nickname AS friend_nickname,uf.status").
+				Joins("JOIN users AS u ON u.id = uf.friend_id").
+				Where("uf.user_id = (SELECT id FROM users WHERE uuid = ?)", uuid).
+				Where("uf.status = 1").
+				Scan(&friendList).Error
+			if err != nil {
+				return []dto.FriendInfo{}, err
+			}
 			// 先查询版本号
 			var user model.Users
 			dao.DB.Table("users").Where("id = ?", userID).First(&user)
 			for i := 0; i < len(friendList); i++ {
-				friendList[i].Version = user.GroupVersion
+				friendList[i].Version = user.FriendVersion
 			}
-			// 再更新
+			// 再更新到Redis
 			pipe := dao.REDIS.Pipeline()
 			for _, f := range friendList {
 				// 序列化结构体为JSON
@@ -186,11 +196,10 @@ func GetFriendList(uuid string, userID int) ([]dto.FriendInfo, error) {
 			}
 			pipe.Expire(ctx, uuid, 10*time.Minute) // 设置 TTL
 			_, _ = pipe.Exec(ctx)                  // 忽略缓存失败
-			return nil, fmt.Errorf("version not match")
+			return friendList, nil
 		}
 		friendList = append(friendList, friend)
 	}
-	fmt.Println(friendList)
 	return friendList, nil
 }
 
@@ -237,7 +246,7 @@ func ReceiveFriendRequest(d *dto.HandleFriendRequest, userId int, uuid string, u
 		err = dao.UpdataUserWithDelayDoubleDelete(uuid, func() error {
 			dao.DB.Table(friendTable.GetTable()).Update("status", d.Status)
 			dao.DB.Table("users").Where("id = ?", userId).
-				Update("group_version", gorm.Expr("group_version + ?", 1))
+				Update("friend_version", gorm.Expr("friend_version + ?", 1))
 			if err != nil {
 				return err
 			}
@@ -276,7 +285,7 @@ func HandleFriendRequest(dto *dto.HandleFriendRequest, userId int, uuid string, 
 			}
 			err = dao.DB.Table(friendTable.GetTable()).Create(&newFriendRecord).Error
 			dao.DB.Table("users").Where("id = ?", userId).
-				Update("group_version", gorm.Expr("group_version + ?", 1))
+				Update("friend_version", gorm.Expr("friend_version + ?", 1))
 			if err != nil {
 				return err
 			}
@@ -290,7 +299,7 @@ func HandleFriendRequest(dto *dto.HandleFriendRequest, userId int, uuid string, 
 		err = dao.UpdataUserWithDelayDoubleDelete(uuid, func() error {
 			dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", userId, targetUser.Id).Update("status", dto.Status)
 			dao.DB.Table("users").Where("id = ?", userId).
-				Update("group_version", gorm.Expr("group_version + ?", 1))
+				Update("friend_version", gorm.Expr("friend_version + ?", 1))
 			if err != nil {
 				return err
 			}

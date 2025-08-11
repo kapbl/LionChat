@@ -4,6 +4,7 @@ import (
 	"cchat/internal/dto"
 	"cchat/internal/service"
 	"fmt"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +20,10 @@ func CreateComment(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"message": "评论成功"})
+	c.JSON(200, dto.Base{
+		Code: 0,
+		Data: "发布评论成功",
+	})
 }
 
 func LikeComment(c *gin.Context) {
@@ -34,8 +38,36 @@ func LikeComment(c *gin.Context) {
 	fmt.Println(userId, uuid, username)
 
 	if err := service.LikeComment(int64(userId), req.MomentID); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(400, dto.Base{
+			Code: 1,
+			Data: err.Error(),
+		})
 		return
 	}
-	c.JSON(200, gin.H{"message": "点赞成功"})
+	c.JSON(400, dto.Base{
+		Code: 0,
+		Data: "点赞成功",
+	})
+}
+
+func GetCommentList(c *gin.Context) {
+	moment_id := c.Query("moment_id")
+	i_moment_id, err := strconv.Atoi(moment_id)
+	if err != nil {
+		c.JSON(200, dto.Base{
+			Code: 1,
+			Data: "动态id出错",
+		})
+	}
+	resp, err := service.GetCommentsByMomentID(int64(i_moment_id))
+	if err != nil {
+		c.JSON(200, dto.Base{
+			Code: 1,
+			Data: err.Error(),
+		})
+	}
+	c.JSON(200, dto.Base{
+		Code: 0,
+		Data: resp,
+	})
 }

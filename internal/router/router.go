@@ -136,10 +136,9 @@ func InitRouter() {
 	AppRouterGroups["moment"].POST("/createMoment", api.CreateMoment)
 	AppRouterGroups["moment"].GET("/list", api.ListMoment)
 
-	AppRouterGroups["comment"].POST("/createComment", api.CreateComment)
+	AppRouterGroups["comment"].POST("/create", api.CreateComment)
 	AppRouterGroups["comment"].POST("/like", api.LikeComment)
-
-
+	AppRouterGroups["comment"].GET("/list", api.GetCommentList)
 
 	logger.Info("API路由注册完成")
 }
