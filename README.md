@@ -45,7 +45,7 @@ docker-compose up -d
 ```
 ## 🦁画廊
 ### 服务端架构
-![服务端架构](resources/logo/服务端架构.svg)
+![服务端架构](resources/logo/Untitled-2025-08-07-1051.png)
 ### 客户端之间的通信过程
 ![客户端之间的通信过程](resources/logo/客户端之间的通信过程.svg)
 ### 1. 两个好友在聊天
