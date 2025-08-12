@@ -4,10 +4,9 @@
 (⌛ 正在开发中.)
 English | [简体中文]
 chat lion 是一个采用 Go 技术栈构建即时通讯后端系统，使用 Gin、GORM、Redis、WebSocket 和 Kafka，实现了一个功能丰富的聊天应用。
-[documentation]() | 
-[前端项目](https://github.com/kapbl/LionChat-Fronted)
-[后端项目](https://github.com/kapbl/LionChat)
-[测试服务器运行指标的项目](https://github.com/kapbl/Lion-Chat-Test)
+##### [前端项目](https://github.com/kapbl/LionChat-Fronted)
+##### [后端项目](https://github.com/kapbl/LionChat)
+##### [测试服务器运行指标的项目](https://github.com/kapbl/Lion-Chat-Test)
 </div>
 
 
