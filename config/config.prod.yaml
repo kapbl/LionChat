@@ -1,44 +1,46 @@
-# 生产环境配置
+# 开发环境配置
 mysql:
-  dsn: "root:password@tcp(localhost:3306)/chat?charset=utf8mb4&parseTime=True&loc=Local"
-  max_idle_conns: 20
-  max_open_conns: 200
+  dsn: "chatLion:123456@tcp(mysql:3306)/chatLion?charset=utf8mb4&parseTime=True&loc=Local"
+  max_idle_conns: 10
+  max_open_conns: 100
   conn_max_lifetime: 3600
 
 redis:
-  addr: "localhost:6379"
+  addr: "redis:6379"
   password: ""
   db: 0
-  pool_size: 200
-  min_idle_conns: 20
+  pool_size: 100
+  min_idle_conns: 10
 
 jwt:
-  signing_key: "chat-prod-key-change-this"
+  signing_key: "chat-dev-key"
   expires_time: 604800
   buffer_time: 86400
   issuer: "chat"
 
 server:
-  port: 8080
-  mode: "release"
+  port: 9922
+  mode: "debug"
   cors_origins:
-    - "https://yourdomain.com"
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+    - "http://localhost:8081"
+    - "http://127.0.0.1:8081"
+    - "http://localhost:8081"
 
 log:
-  level: "info"
-  format: "json"
-  output: "file"
+  level: "debug"
+  format: "console"
+  output: "stdout"
   file_path: "logs/chat.log"
   max_size: 100
   max_age: 30
   max_backups: 10
-  compress: true
+  compress: false
 
 kafka:
   brokers:
-    - "kafka1:9092"
-    - "kafka2:9092"
-    - "kafka3:9092"
+    - "kafka:29092"
   topics:
     chat_messages: "chat-messages"
     user_events: "user-events"
@@ -48,7 +50,7 @@ kafka:
     auto_offset_reset: "latest"
   producer:
     acks: "all"
-    retries: 5
-    batch_size: 32768
-    linger_ms: 5
-    buffer_memory: 67108864
+    retries: 3
+    batch_size: 16384
+    linger_ms: 1
+    buffer_memory: 33554432

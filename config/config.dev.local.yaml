@@ -1,12 +1,12 @@
 # 开发环境配置
 mysql:
-  dsn: "root:0220059cyCY@tcp(localhost:3306)/chat?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "root:123456@tcp(mysql:3306)/chatLion?charset=utf8mb4&parseTime=True&loc=Local"
   max_idle_conns: 10
   max_open_conns: 100
   conn_max_lifetime: 3600
 
 redis:
-  addr: "localhost:6379"
+  addr: "redis:6379"
   password: ""
   db: 0
   pool_size: 100
@@ -19,7 +19,7 @@ jwt:
   issuer: "chat"
 
 server:
-  port: 80
+  port: 9922
   mode: "debug"
   cors_origins:
     - "http://localhost:3000"
@@ -40,7 +40,7 @@ log:
 
 kafka:
   brokers:
-    - "localhost:9092"
+    - "kafka:9092"
   topics:
     chat_messages: "chat-messages"
     user_events: "user-events"

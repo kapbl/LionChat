@@ -1,4 +1,36 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: chatLion-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/app/static:ro
+      - ./resources:/app/resources:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - chat-lion
+    networks:
+      - kafka-network
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: chatLion-mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - kafka-network
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: chatLion
+      MYSQL_USER: chatLion
+      MYSQL_PASSWORD: 123456
+
   redis:
     image: redis:6.2-alpine
     container_name: chatLion-redis
@@ -63,24 +95,12 @@ services:
     networks:
       - kafka-network
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 60s
 
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: chatLion-kafka-ui
-    depends_on:
-      - kafka
-    ports:
-      - "8080:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
-    networks:
-      - kafka-network
   # 初始化脚本容器
   kafka-init:
     image: confluentinc/cp-kafka:7.4.0
@@ -110,26 +130,34 @@ services:
     networks:
       - kafka-network
 
-  # chat-lion:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: chatLion-chat-lion
-  #   depends_on:
-  #     - kafka
-  #     - zookeeper
-  #     - redis
-  #   ports:
-  #     - "80:80"
-  #   environment:
-  #     - CONFIG_PATH=./config/config.dev.yaml
-  #     - GIN_MODE=release
-  #   volumes:
-  #     - ./config:/root/config:ro
-  #     - ./logs:/root/logs
-  #   networks:
-  #     - kafka-network
-  #   restart: unless-stopped
+  chat-lion:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chatLion-chat-lion
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      zookeeper:
+        condition: service_started
+    ports:
+      - "9922:9922"
+    environment:
+      - CONFIG_PATH=./config/config.prod.yaml
+
+      - GIN_MODE=release
+    volumes:
+      - ./config:/root/config:ro
+      - ./logs:/root/logs
+    networks:
+      - kafka-network
+    restart: unless-stopped
 
 
 volumes:
@@ -140,6 +168,10 @@ volumes:
   kafka-data:
     driver: local
   redis-data:
+    driver: local
+  chat-lion-data:
+    driver: local
+  mysql-data:
     driver: local
 
 
