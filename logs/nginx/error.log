@@ -1,0 +1,4 @@
+2025/08/12 12:32:57 [emerg] 1#1: host not found in upstream "chat-lion:9922" in /etc/nginx/nginx.conf:55
+2025/08/12 12:34:35 [emerg] 1#1: host not found in upstream "chat-lion:9922" in /etc/nginx/nginx.conf:55
+2025/08/12 12:34:38 [emerg] 1#1: host not found in upstream "chat-lion:9922" in /etc/nginx/nginx.conf:55
+2025/08/12 12:36:00 [emerg] 1#1: host not found in upstream "chat-lion:9922" in /etc/nginx/nginx.conf:55

@@ -20,15 +20,16 @@ services:
     image: mysql:8.0
     container_name: chatLion-mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./scripts/chat.sql:/docker-entrypoint-initdb.d/chat.sql
     networks:
       - kafka-network
     environment:
       MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: chatLion
-      MYSQL_USER: chatLion
+      MYSQL_DATABASE: chat
+      MYSQL_USER: root
       MYSQL_PASSWORD: 123456
 
   redis:

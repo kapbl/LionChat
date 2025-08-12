@@ -1,6 +1,6 @@
 # 开发环境配置
 mysql:
-  dsn: "chatLion:123456@tcp(mysql:3306)/chatLion?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "root:123456@tcp(mysql:3306)/chat?charset=utf8mb4&parseTime=True&loc=Local"
   max_idle_conns: 10
   max_open_conns: 100
   conn_max_lifetime: 3600
