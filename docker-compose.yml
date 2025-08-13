@@ -1,40 +1,40 @@
 services:
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: chatLion-nginx
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
-  #     - ./static:/app/static:ro
-  #     - ./resources:/app/resources:ro
-  #     - ./logs/nginx:/var/log/nginx
-  #   depends_on:
-  #     - chat-lion
-  #   networks:
-  #     - kafka-network
-  #   restart: unless-stopped
+#   nginx:
+#     image: nginx:alpine
+#     container_name: chatLion-nginx
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#       - ./static:/app/static:ro
+#       - ./resources:/app/resources:ro
+#       - ./logs/nginx:/var/log/nginx
+#     depends_on:
+#       - chat-lion
+#     networks:
+#       - kafka-network
+#     restart: unless-stopped
 
-  mysql:
-    image: mysql:8.0
-    container_name: chatLion-mysql
-    ports:
-        - "3307:3306"
-    volumes:
-        - mysql-data:/var/lib/mysql
-        - ./scripts/chat.sql:/docker-entrypoint-initdb.d/chat.sql
-    networks:
-        - kafka-network
-    environment:
-        MYSQL_ROOT_PASSWORD: 0220059cyCY
-        MYSQL_DATABASE: chat
-        TZ: Asia/Shanghai
-    healthcheck:    # 增加健康检查
-        test: mysqladmin ping -uroot -p$${MYSQL_ROOT_PASSWORD}
-        interval: 5s
-        timeout: 10s
-        retries: 10
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: chatLion-mysql
+  #   ports:
+  #       - "3307:3306"
+  #   volumes:
+  #       - mysql-data:/var/lib/mysql
+  #       - ./scripts/chat.sql:/docker-entrypoint-initdb.d/chat.sql
+  #   networks:
+  #       - kafka-network
+  #   environment:
+  #       MYSQL_ROOT_PASSWORD: 0220059cyCY  # 高复杂度密码
+  #       MYSQL_DATABASE: chat
+  #       TZ: Asia/Shanghai
+  #   healthcheck:    # 增加健康检查
+  #       test: mysqladmin ping -uroot -p$${MYSQL_ROOT_PASSWORD}
+  #       interval: 5s
+  #       timeout: 10s
+  #       retries: 10
 
   redis:
     image: redis:6.2-alpine
@@ -135,34 +135,34 @@ services:
     networks:
       - kafka-network
 
-  chat-lion:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: chatLion-chat-lion
-    depends_on:
-      mysql:
-        condition: service_started
-      redis:
-        condition: service_started
-      kafka:
-        condition: service_healthy
-      kafka-init:
-        condition: service_completed_successfully
-      zookeeper:
-        condition: service_started
-    ports:
-      - "9922:9922"
-    environment:
-      - CONFIG_PATH=./config/config.prod.yaml
+  # chat-lion:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: chatLion-chat-lion
+  #   depends_on:
+  #     mysql:
+  #       condition: service_started
+  #     redis:
+  #       condition: service_started
+  #     kafka:
+  #       condition: service_healthy
+  #     kafka-init:
+  #       condition: service_completed_successfully
+  #     zookeeper:
+  #       condition: service_started
+  #   ports:
+  #     - "9922:9922"
+  #   environment:
+  #     - CONFIG_PATH=./config/config.prod.yaml
 
-      - GIN_MODE=release
-    volumes:
-      - ./config:/root/config:ro
-      - ./logs:/root/logs
-    networks:
-      - kafka-network
-    restart: unless-stopped
+  #     - GIN_MODE=release
+  #   volumes:
+  #     - ./config:/root/config:ro
+  #     - ./logs:/root/logs
+  #   networks:
+  #     - kafka-network
+  #   restart: unless-stopped
 
 
 volumes:
