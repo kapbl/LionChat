@@ -88,7 +88,7 @@ func LoadConfig() Config {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// 设置默认配置文件名和类型
-	viper.SetConfigName("config.prod")
+	viper.SetConfigName("config.dev")
 
 	viper.SetConfigType("yaml")
 
