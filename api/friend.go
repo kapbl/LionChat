@@ -7,15 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SearchClient(c *gin.Context) {
-	searchContent := c.Query("searchContent")
-	if searchContent == "" {
-		c.JSON(400, dto.Base{
-			Data: "参数错误",
-		})
-	}
-}
-
 func SearchClientByUserName(c *gin.Context) {
 	username := c.Query("username")
 
