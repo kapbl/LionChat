@@ -21,7 +21,7 @@ func Register(req *dto.RegisterReq) (*dto.RegisterResp, error) {
 	if err != nil {
 		return nil, errors.New("密码加密失败")
 	}
-	
+
 	searchUser.Username = req.Username
 	searchUser.Nickname = req.Nickname
 	searchUser.Password = hashedPassword
@@ -29,7 +29,8 @@ func Register(req *dto.RegisterReq) (*dto.RegisterResp, error) {
 	uuid := token.GenUUID(req.Username)
 	searchUser.Uuid = uuid
 	searchUser.CreateAt = time.Now()
-	searchUser.UpdateAt = nil
+	searchUser.UpdateAt = time.Now()
+	searchUser.DeleteAt = nil
 	// 保存用户
 	err = dao.DB.Table("users").Create(&searchUser).Error
 	if err != nil {

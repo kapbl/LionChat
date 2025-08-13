@@ -1,8 +1,15 @@
 package dto
 
-type LoginReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+// 登录请求
+type LoginRequestDTO struct {
+	Email    string `json:"email"`    // 邮箱
+	Password string `json:"password"` // 密码
+}
+type LoginResponseDTO struct {
+	BaseResponse
+	Code int       `json:"code"`
+	Msg  string    `json:"msg"`
+	Data LoginData `json:"data"`
 }
 
 type RegisterReq struct {
@@ -17,18 +24,11 @@ type UserInfo struct {
 	Username string `json:"username"`
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
-	// ... 其他用户信息字段
 }
 
 type LoginData struct {
 	Token    string   `json:"token"`
 	UserInfo UserInfo `json:"userinfo"`
-}
-
-type LoginResp struct {
-	Code int       `json:"code"`
-	Msg  string    `json:"msg"`
-	Data LoginData `json:"data"`
 }
 
 type RegisterResp struct {
