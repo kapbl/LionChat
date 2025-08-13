@@ -36,7 +36,6 @@ func main() {
 	// 初始化Kafka
 	if err := dao.InitKafka(&appConfig); err != nil {
 		logger.Error("Kafka初始化失败", zap.Error(err))
-		// Kafka初始化失败不影响主服务启动，只记录错误
 	} else {
 		logger.Info("Kafka初始化成功")
 	}
