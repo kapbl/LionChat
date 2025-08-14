@@ -13,6 +13,7 @@
 | 1019 | token失效 |
 | 1021 | uuid为空 |
 | 1023 | 用户不存在 |
+| 1025 | websocket连接失败 |
 
 
 ### Success Code

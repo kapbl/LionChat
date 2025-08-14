@@ -86,12 +86,13 @@ func InitCors() {
 }
 
 func InitMiddleware() {
-	webEngine.Use(middlewares.RequestID())
+	// webEngine.Use(middlewares.RequestID())
 	AppRouterGroups["friend"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse).Use()
 	AppRouterGroups["group"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["profile"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["moment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["comment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+	AppRouterGroups["webSocket"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	logger.Info("JWT中间件配置完成",
 		zap.Strings("protected_groups", []string{"friend", "group", "monitor"}))
 }

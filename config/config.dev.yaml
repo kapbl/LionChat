@@ -21,7 +21,7 @@ jwt:
   issuer: "chat"
 
 server:
-  port: 80
+  port: 9922
   mode: "debug"
   cors_origins:
     - "http://localhost:3000"
