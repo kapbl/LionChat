@@ -4,6 +4,7 @@ import (
 	"cchat/internal/dao"
 	"cchat/internal/dao/model"
 	"cchat/internal/dto"
+	"cchat/pkg/cerror"
 	"cchat/pkg/protocol"
 	"context"
 	"encoding/json"
@@ -15,20 +16,18 @@ import (
 	"gorm.io/gorm"
 )
 
-func SearchClientByUserName(username string) (dto.SearchFriendResp, error) {
+func SearchClient(information string) (*dto.UserInfo, *cerror.CodeError) {
 	user := model.Users{}
-
-	err := dao.DB.Table(user.GetTable()).Where("username = ?", username).Find(&user).Error
+	err := dao.DB.Table(user.GetTable()).Where("username = ? OR nickname = ? OR email = ?", information, information, information).First(&user).Error
 	if err != nil {
-		return dto.SearchFriendResp{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, cerror.NewCodeError(4444, "用户不存在")
+		}
+		return nil, cerror.NewCodeError(4444, err.Error())
 	}
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return dto.SearchFriendResp{}, gorm.ErrRecordNotFound
-	}
-
-	resp := dto.SearchFriendResp{
+	resp := &dto.UserInfo{
 		Username: user.Username,
-		UUID:     user.Uuid,
+		Email:    user.Email,
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
 	}

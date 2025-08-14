@@ -29,3 +29,10 @@ type UpdateUserResponse struct {
 	Code int32  `json:"code"`
 	Msg  string `json:"msg,omitempty"`
 }
+
+//搜索用户响应
+type SearchClientResponse struct {
+	BaseResponse
+	Code int32      `json:"code"`
+	Data []UserInfo `json:"data,omitempty"`
+}

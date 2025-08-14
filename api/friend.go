@@ -7,25 +7,37 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SearchClientByUserName(c *gin.Context) {
-	username := c.Query("username")
+// 搜索用户：Username, Nickname， Email
+func SearchClient(c *gin.Context) {
+	information := c.Query("information")
+	if information == "" {
+		c.JSON(400, dto.SearchClientResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 400,
+			Data: nil,
+		})
+		return
+	}
+	res, err := service.SearchClient(information)
 
-	if username == "" {
-		c.JSON(400, dto.Base{
-			Data: "参数错误",
-		})
-		return
-	}
-	res, err := service.SearchClientByUserName(username)
 	if err != nil {
-		c.JSON(404, dto.Base{
-			Data: "未查询到" + username,
+		c.JSON(400, dto.SearchClientResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: err.Code,
+			Data: nil,
 		})
 		return
 	}
-	c.JSON(200, dto.Base{
+	c.JSON(200, dto.SearchClientResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
 		Code: 200,
-		Data: res,
+		Data: []dto.UserInfo{*res},
 	})
 }
 
