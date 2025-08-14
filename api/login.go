@@ -8,36 +8,33 @@ import (
 )
 
 func Login(c *gin.Context) {
-	req := dto.LoginRequestDTO{}
+	req := dto.LoginRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, dto.LoginResponseDTO{
+		c.JSON(400, dto.LoginResponse{
 			BaseResponse: dto.BaseResponse{
 				RequestID: c.GetString("request_id"),
 			},
-			Code: 1000, // json 格式错误
-			Msg:  "格式错误",
-			Data: dto.LoginData{},
+			Code:        1000,
+			AccessToken: "",
 		})
 		return
 	}
-	currentUser, err := service.Login(&req)
+	accessToken, err := service.Login(&req)
 	if err != nil {
-		c.JSON(400, dto.LoginResponseDTO{
+		c.JSON(400, dto.LoginResponse{
 			BaseResponse: dto.BaseResponse{
 				RequestID: c.GetString("request_id"),
 			},
-			Code: 1001, // 登录失败
-			Msg:  "登录失败",
-			Data: dto.LoginData{},
+			Code:        err.Code,
+			AccessToken: "",
 		})
 		return
 	}
-	c.JSON(200, dto.LoginResponseDTO{
+	c.JSON(200, dto.LoginResponse{
 		BaseResponse: dto.BaseResponse{
 			RequestID: c.GetString("request_id"),
 		},
-		Code: 0,
-		Msg:  "登录成功",
-		Data: currentUser,
+		Code:        2002,
+		AccessToken: accessToken,
 	})
 }
