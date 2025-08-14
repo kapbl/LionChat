@@ -1,13 +1,11 @@
 <div align="center">
 
 # ![resources/logo/lionchat.png](resources/logo/logo.png)
-(⌛ 正在开发中.)
-English | [简体中文]
+#### (⌛ 正在开发中.)
+#### [English](https://github.com/kapbl/LionChat/blob/main/RE.md) | 简体中文
 chat lion 是一个采用 Go 技术栈构建即时通讯后端系统，使用 Gin、GORM、Redis、WebSocket 和 Kafka，实现了一个功能丰富的聊天应用。
-#### [前端项目 frontend](https://github.com/kapbl/LionChat-Fronted)
-#### [后端项目 backend](https://github.com/kapbl/LionChat)
-#### [测试服务器运行指标的项目 test](https://github.com/kapbl/Lion-Chat-Test)
-#### [在线运行 online](http://62.234.192.227:8080/) 
+#### [前端项目](https://github.com/kapbl/LionChat-Fronted)  | [后端项目](https://github.com/kapbl/LionChat) | [测试服务器运行指标的项目](https://github.com/kapbl/Lion-Chat-Test)
+#### [在线运行](http://62.234.192.227:8080/) 
 
 </div>
 
