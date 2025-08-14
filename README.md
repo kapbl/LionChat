@@ -33,14 +33,10 @@ chat lion 是一个采用 Go 技术栈构建即时通讯后端系统，使用 Gi
 - GORM
 - nginx
 - docker
-## 🎐Docker Compose 部署
+## 🎐Docker Compose 部署[暂时有问题]
 - 构建镜像
 ```bash
-docker-compose build
-```
-- 运行容器
-```bash
-docker-compose up -d
+docker compose up -d --build
 ```
 ## 🦁画廊
 ### 服务端架构
