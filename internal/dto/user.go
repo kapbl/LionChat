@@ -7,6 +7,7 @@ type GetUserInfoResponse struct {
 	UserInfo UserInfo `json:"user_info,omitempty"`
 }
 
+// 用户信息
 type UserInfo struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
