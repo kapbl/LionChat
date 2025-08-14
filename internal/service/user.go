@@ -11,23 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// UserInfoResp 用户信息响应结构体
-type UserInfoResp struct {
-	UUID     string `json:"uuid"`
-	Username string `json:"username"`
-	Nickname string `json:"nickname"`
-	Email    string `json:"email"`
-	Avatar   string `json:"avatar"`
-}
-
-// UpdateUserReq 用户信息更新请求结构体
-type UpdateUserReq struct {
-	Username string `json:"username"` // 用户名
-	Nickname string `json:"nickname"` // 昵称
-	Email    string `json:"email"`    // 邮箱
-	Avatar   string `json:"avatar"`   // 头像
-}
-
 // GetUserIDByUUID 根据UUID获取用户ID
 func GetUserIDByUUID(uuid string) (int, error) {
 	if uuid == "" {
