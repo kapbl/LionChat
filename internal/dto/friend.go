@@ -1,17 +1,5 @@
 package dto
 
-// 发送好友请求的数据传输格式
-type AddFriendReq struct {
-	TargetUserName string `json:"target_user_name"`
-	Content        string `json:"content"`
-}
-
-// 发送好友请求的回复数据传输格式
-type AddFriendResp struct {
-	OriginUUID     string `json:"uuid"`
-	TargetUserName string `json:"target_user_name"`
-}
-
 // 好友列表的数据传输格式
 type FriendInfo struct {
 	FriendUUID     string `json:"friend_uuid"`
