@@ -19,6 +19,7 @@ var UpdateGrader = websocket.Upgrader{
 	},
 }
 
+// ✅
 func WebSocketConnect(c *gin.Context) {
 	uuid := c.GetString("userUuid")
 	if uuid == "" {

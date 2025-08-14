@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ✅
 func Login(c *gin.Context) {
 	req := dto.LoginRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {

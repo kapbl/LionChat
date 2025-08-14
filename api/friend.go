@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 搜索用户：Username, Nickname， Email
+// ✅搜索用户：Username, Nickname， Email
 func SearchClient(c *gin.Context) {
 	information := c.Query("information")
 	if information == "" {
@@ -46,7 +46,7 @@ func HandleFriendRequest(c *gin.Context) {
 
 }
 
-// 加好友请求
+// ✅ 加好友请求
 func AddFriend(c *gin.Context) {
 	req := dto.AddFriendRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {

@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
+// ✅
 func Register(req *dto.RegisterRequest) *cerror.CodeError {
-
 	searchUser := model.Users{}
 	// 注册的条件：邮箱和用户名必须唯一
 	dao.DB.Table("users").Where("username = ? or email = ?", req.Username, req.Email).First(&searchUser)

@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// ✅
 func RegisterClient(ws *websocket.Conn, uuid string) *cerror.CodeError {
 	// 在服务器中注册成为一个客户端
 	client := NewClient(ws, uuid)

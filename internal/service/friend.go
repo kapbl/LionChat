@@ -16,6 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// ✅
 func SearchClient(information string) (*dto.UserInfo, *cerror.CodeError) {
 	user := model.Users{}
 	err := dao.DB.Table(user.GetTable()).Where("username = ? OR nickname = ? OR email = ?", information, information, information).First(&user).Error
@@ -34,6 +35,7 @@ func SearchClient(information string) (*dto.UserInfo, *cerror.CodeError) {
 	return resp, nil
 }
 
+// ✅
 func AddFriend(req *dto.AddFriendRequest, senderId int, senderUuid string, senderName string) *cerror.CodeError {
 	// 离线用户， 不经过websocket
 	// 在线用户， 经过websocket
@@ -78,6 +80,7 @@ func AddFriend(req *dto.AddFriendRequest, senderId int, senderUuid string, sende
 	return nil
 }
 
+// ✅
 func SendFriendRequest(targetUUID string, userId int, uuid string, userName string, content string, contentType int) error {
 	// 向对方发起好友通知
 	for _, worker := range ServerInstance.WorkerHouse.Workers {
