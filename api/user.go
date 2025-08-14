@@ -11,42 +11,67 @@ import (
 func GetUserInfor(c *gin.Context) {
 	uuid := c.GetString("userUuid")
 	if uuid == "" {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "用户不存在",
+		c.JSON(400, dto.GetUserInfoResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1019,
+			UserInfo: dto.UserInfo{
+				Email:    "",
+				Username: "",
+				Nickname: "",
+				Avatar:   "",
+			},
 		})
 		return
 	}
 	userInfo, err := service.GetUserInfor(uuid)
 	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: err.Error(),
+		c.JSON(http.StatusOK, dto.GetUserInfoResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1019,
+			UserInfo: dto.UserInfo{
+				Email:    "",
+				Username: "",
+				Nickname: "",
+				Avatar:   "",
+			},
 		})
 		return
 	}
-	c.JSON(http.StatusOK, dto.Base{
-		Code: 0,
-		Data: userInfo,
+	c.JSON(http.StatusOK, dto.GetUserInfoResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
+		Code:     2004,
+		UserInfo: *userInfo,
 	})
 }
 func UpdateUserInfor(c *gin.Context) {
 	// 获取当前用户UUID
 	uuid := c.GetString("userUuid")
 	if uuid == "" {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "用户不存在",
+		c.JSON(http.StatusOK, dto.UpdateUserResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1019,
+			Msg:  "token失效",
 		})
 		return
 	}
 
 	// 绑定请求参数
-	var req service.UpdateUserReq
+	req := dto.UpdateUserReq{}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "请求参数格式错误: " + err.Error(),
+		c.JSON(400, dto.UpdateUserResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1001,
+			Msg:  "json格式错误: ",
 		})
 		return
 	}
@@ -54,16 +79,22 @@ func UpdateUserInfor(c *gin.Context) {
 	// 调用服务层更新用户信息
 	err := service.UpdateUserInfor(uuid, &req)
 	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: err.Error(),
+		c.JSON(400, dto.UpdateUserResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1027,
+			Msg:  "更新用户信息失败",
 		})
 		return
 	}
 
 	// 返回成功响应
-	c.JSON(http.StatusOK, dto.Base{
+	c.JSON(http.StatusOK, dto.UpdateUserResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
 		Code: 0,
-		Data: "用户信息更新成功",
+		Msg:  "用户信息更新成功",
 	})
 }

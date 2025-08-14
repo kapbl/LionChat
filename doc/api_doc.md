@@ -1,5 +1,5 @@
 ## dto
-### Response Code
+### failed Code
 | 失败状态码，奇数 | 说明 |
 | --- | --- |
 | 1001 | json格式错误 |
@@ -10,11 +10,18 @@
 | 1013 | 数据库删除失败 |
 | 1015 | 数据库更新失败 |
 | 1017 | 生成token失败 |
+| 1019 | token失效 |
+| 1021 | uuid为空 |
+| 1023 | 用户不存在 |
+
+
 ### Success Code
 | 成功状态码，偶数 | 说明 |
 | --- | --- |
 | 2000 | 注册成功 |
 | 2002 | 登陆成功 |
+| 2004 | 获取用户信息成功 |
+| 2006 | 更新用户信息成功 |
 
 
 
@@ -58,5 +65,16 @@ type RegisterRequest struct{
     Username string `json:"username",validate:"required"`
     Nickname string `json:"nickname",validate:"required"`
     Password string `json:"password",validate:"required,min=6,max=12"`
+}
+```
+```go
+// 获取用户信息响应
+type GetUserInfoResponse struct{
+    BaseResponse
+    Code int32 `json:"code"`
+    Email string `json:"email"`
+    Username string `json:"username"`
+    Nickname string `json:"nickname"`
+    Avatar string `json:"avatar"`
 }
 ```

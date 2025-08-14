@@ -101,8 +101,8 @@ func InitRouter() {
 	AppRouterGroups["user"].POST("/login", api.Login)
 	AppRouterGroups["user"].POST("/register", api.Register)
 	AppRouterGroups["user"].POST("/logout", api.Logout)
-	AppRouterGroups["profile"].GET("/getProfileInfo", api.GetUserInfor)
-	AppRouterGroups["profile"].POST("/updateProfile", api.UpdateUserInfor)
+	AppRouterGroups["profile"].GET("/profileInfo", api.GetUserInfor)
+	AppRouterGroups["profile"].POST("/profileInfo", api.UpdateUserInfor)
 
 	// ***  socket相关的路由
 	AppRouterGroups["webSocket"].GET("/connect", api.WebSocketConnect)
