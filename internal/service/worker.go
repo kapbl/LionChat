@@ -170,6 +170,14 @@ func (s *Worker) Do() {
 					}
 				}
 			}()
+			// 异步更新数据库用户的在线状态
+			go func() {
+				// 更新用户的在线状态为1
+				err := dao.DB.Table("users").Where("uuid = ?", conn.UUID).Update("status", 1).Error
+				if err != nil {
+					logger.Error("更新用户在线状态失败", zap.Error(err))
+				}
+			}()
 			// 启动客户端的读取和写入 goroutine
 			conn.workerID = s.ID
 			go conn.Read()
@@ -261,6 +269,14 @@ func (s *Worker) handleClientDisconnect(client *Client) {
 		}
 	}
 	s.TaskCount++
+	// 异步更新数据库用户的在线状态
+	go func() {
+		// 更新用户的在线状态为0
+		err := dao.DB.Table("users").Where("uuid = ?", client.UUID).Update("status", 0).Error
+		if err != nil {
+			logger.Error("更新用户在线状态失败", zap.Error(err))
+		}
+	}()
 	logger.Info("客户端连接已清理", zap.String("uuid", client.UUID))
 }
 

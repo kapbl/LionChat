@@ -1,16 +1,5 @@
 package dto
 
-type SearchFriendReq struct {
-	Username string `json:"username"`
-}
-
-type SearchFriendResp struct {
-	Username string `json:"username"`
-	UUID     string `json:"uuid"`
-	Nickname string `json:"nickname"`
-	Avatar   string `json:"avatar"`
-}
-
 // 发送好友请求的数据传输格式
 type AddFriendReq struct {
 	TargetUserName string `json:"target_user_name"`
@@ -38,4 +27,17 @@ type HandleFriendRequest struct {
 	Status     int    `json:"status"` // 0:不同意 1：同意
 	TargetUUID string `json:"target_uuid"`
 	// AddFriendReq AddFriendReq `json:"add_friend_req"`
+}
+
+// 加好友请求
+type AddFriendRequest struct {
+	TargetUsername string `json:"target_user_name"`
+	Content        string `json:"content"`
+}
+
+// 加好友请求回复
+type AddFriendResponse struct {
+	BaseResponse
+	Code int32  `json:"code"`
+	Msg  string `json:"msg"`
 }

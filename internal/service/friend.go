@@ -34,52 +34,48 @@ func SearchClient(information string) (*dto.UserInfo, *cerror.CodeError) {
 	return resp, nil
 }
 
-func AddSearchClientByUserName(req *dto.AddFriendReq, userId int, uuid string, userName string) (dto.AddFriendResp, error) {
-	// 查询对方
+func AddFriend(req *dto.AddFriendRequest, senderId int, senderUuid string, senderName string) *cerror.CodeError {
+	// 离线用户， 不经过websocket
+	// 在线用户， 经过websocket
+	// 根据信息查询uuid
 	targetUser := model.Users{}
-	err := dao.DB.Table(targetUser.GetTable()).Where("username = ?", req.TargetUserName).First(&targetUser).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return dto.AddFriendResp{}, errors.New("目标用户不存在")
-	}
-	// 查询是否已经是好友 查询是否发送过请求
-	friendTable := model.UserFriends{}
-	err = dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", userId, targetUser.Id).First(&friendTable).Error
-	if err == nil {
-		SendFriendRequest(targetUser.Uuid, userId, uuid, userName, req.Content, 8)
-		return dto.AddFriendResp{
-			OriginUUID:     uuid,
-			TargetUserName: targetUser.Username,
-		}, nil
-	}
-
-	// 延迟双删
-	err = dao.UpdataUserWithDelayDoubleDelete(uuid, func() error {
-		// 查询自己的群组的最新版本号
-		// 在数据库中添加这条加好友记录
-		friendTable = model.UserFriends{
-			CreateAt: time.Now(),
-			UpdateAt: time.Now(),
-			DeleteAt: nil,
-			UserID:   userId,
-			FriendID: int(targetUser.Id),
-			Status:   0,
-		}
-		err = dao.DB.Table(friendTable.GetTable()).Create(&friendTable).Error
-		dao.DB.Table("users").Where("id = ?", userId).
-			Update("friend_version", gorm.Expr("friend_version + ?", 1))
-		if err != nil {
-			return nil
-		}
-		return nil
-	})
+	err := dao.DB.Table("users").Where("username = ?", req.TargetUsername).First(&targetUser).Error
 	if err != nil {
-		return dto.AddFriendResp{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return cerror.NewCodeError(4444, "目标用户不存在")
+		}
+		return cerror.NewCodeError(4444, err.Error())
 	}
-	SendFriendRequest(targetUser.Uuid, userId, uuid, userName, req.Content, 8)
-	return dto.AddFriendResp{
-		OriginUUID:     uuid,
-		TargetUserName: targetUser.Username,
-	}, nil
+	// 在好友表中存入自己的好友信息
+	friendTable := model.UserFriends{}
+	err = dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", senderId, targetUser.Id).First(&friendTable).Error
+	if err == nil {
+		if friendTable.Status == 1 {
+			return cerror.NewCodeError(4444, "已经是好友")
+		} else {
+			// 好友请求已发送
+			return cerror.NewCodeError(4444, "好友请求已发送")
+		}
+	}
+	// 插入一条好友关系记录
+	friendTable = model.UserFriends{
+		CreateAt: time.Now(),
+		UpdateAt: time.Now(),
+		DeleteAt: nil,
+		UserID:   senderId,
+		FriendID: int(targetUser.Id),
+		Status:   0,
+	}
+	err = dao.DB.Table(friendTable.GetTable()).Create(&friendTable).Error
+	if err != nil {
+		return cerror.NewCodeError(4444, err.Error())
+	}
+	// 发送好友请求
+	if targetUser.Status == 1 {
+		// 目标用户在线， 发送好友请求
+		SendFriendRequest(targetUser.Uuid, senderId, senderUuid, senderName, req.Content, 8)
+	}
+	return nil
 }
 
 func SendFriendRequest(targetUUID string, userId int, uuid string, userName string, content string, contentType int) error {

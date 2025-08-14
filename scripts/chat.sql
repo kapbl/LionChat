@@ -162,6 +162,7 @@ CREATE TABLE `users`  (
   `deleted_at` datetime(3) NULL DEFAULT NULL,
   `group_version` bigint NULL DEFAULT NULL COMMENT '\'控制用户的群组版本号，用于防止Redis读取到过期的数据\'',
   `friend_version` bigint NULL DEFAULT NULL COMMENT '\'控制用户的好友版本号，用于防止Redis读取到过期的数据\'',
+  `status` tinyint(1) NULL DEFAULT 0 COMMENT '\'0 不在线 1 在线\'',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uni_users_username`(`username` ASC) USING BTREE,
   UNIQUE INDEX `idx_uuid`(`uuid` ASC) USING BTREE

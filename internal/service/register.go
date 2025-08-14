@@ -36,6 +36,7 @@ func Register(req *dto.RegisterRequest) *cerror.CodeError {
 		Password: hashedPassword,
 		Email:    req.Email,
 		Uuid:     token.GenUUID(req.Username),
+		Status:   0,
 		CreateAt: time.Now(),
 		UpdateAt: time.Now(),
 		DeleteAt: nil,

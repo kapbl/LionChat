@@ -110,7 +110,7 @@ func InitRouter() {
 
 	//*** 好友相关的路由
 	AppRouterGroups["friend"].GET("/search", api.SearchClient)
-	AppRouterGroups["friend"].POST("/addFriend", api.AddSearchClientByUserName)
+	AppRouterGroups["friend"].POST("/addFriend", api.AddFriend)
 	AppRouterGroups["friend"].POST("/handleRequest", api.ReceiveFriendRequest)
 	AppRouterGroups["friend"].POST("/handleResponse", api.HandleFriendRequest)
 	AppRouterGroups["friend"].GET("/getFriendList", api.GetFriendList)
