@@ -1,7 +1,9 @@
 package logger
 
 import (
+	"fmt"
 	"os"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -31,13 +33,31 @@ func InitLogger() {
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 
-	// 配置输出
+	// --- 文件输出 ---
+	logDir := "logs/server"
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		panic(fmt.Sprintf("创建日志目录失败: %v", err))
+	}
+
+	logFileName := fmt.Sprintf("%s/%s.log", logDir, time.Now().Format("2006-01-02-15-04-05"))
+	logFile, err := os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(fmt.Sprintf("打开日志文件失败: %v", err))
+	}
+
+	fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
+	fileWriter := zapcore.AddSync(logFile)
+	fileCore := zapcore.NewCore(fileEncoder, fileWriter, atomicLevel)
+
+	// --- 控制台输出 ---
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 	consoleOutput := zapcore.Lock(os.Stdout)
+	consoleCore := zapcore.NewCore(consoleEncoder, consoleOutput, atomicLevel)
 
 	// 创建核心
 	core := zapcore.NewTee(
-		zapcore.NewCore(consoleEncoder, consoleOutput, atomicLevel),
+		consoleCore,
+		fileCore,
 	)
 
 	// 创建logger
