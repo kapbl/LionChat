@@ -125,6 +125,7 @@ CREATE TABLE `timeline`  (
   `moment_id` bigint NULL DEFAULT NULL,
   `is_own` tinyint(1) NULL DEFAULT NULL,
   `created_at` datetime(3) NULL DEFAULT NULL,
+  `updated_at` datetime(3) NULL DEFAULT NULL,
   `deleted_at` datetime(3) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_user_moment`(`user_id` ASC, `moment_id` ASC) USING BTREE,
