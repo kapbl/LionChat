@@ -41,7 +41,7 @@ func SearchClient(c *gin.Context) {
 	})
 }
 
-// 处理好友请求：同意 和 拒绝
+// ✅ 处理好友请求：同意 和 拒绝
 func HandleFriendResponse(c *gin.Context) {
 	req := dto.HandleFriendRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
