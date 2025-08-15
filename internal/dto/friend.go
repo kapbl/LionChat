@@ -12,9 +12,15 @@ type FriendInfo struct {
 
 // 处理好友请求
 type HandleFriendRequest struct {
-	Status     int    `json:"status"` // 0:不同意 1：同意
-	TargetUUID string `json:"target_uuid"`
-	// AddFriendReq AddFriendReq `json:"add_friend_req"`
+	Status         int    `json:"status"` // 0:不同意 1：同意
+	TargetUsername string `json:"target_username"`
+}
+
+// 处理好友请求回复
+type HandleFriendResponse struct {
+	BaseResponse
+	Code int32  `json:"code"`
+	Msg  string `json:"msg"`
 }
 
 // 加好友请求

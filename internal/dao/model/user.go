@@ -5,7 +5,7 @@ import (
 )
 
 type Users struct {
-	Id            int32  `gorm:"primary_key;AUTO_INCREMENT;comment:'id'"`
+	Id            int    `gorm:"primary_key;AUTO_INCREMENT;comment:'id'"`
 	Uuid          string `gorm:"type:varchar(150);not null;unique_index:idx_uuid;comment:'uuid'"`
 	Username      string `gorm:"unique;not null; comment:'用户名'"`
 	Password      string `gorm:"type:varchar(150);not null; comment:'密码'"`

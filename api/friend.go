@@ -42,8 +42,57 @@ func SearchClient(c *gin.Context) {
 }
 
 // 处理好友请求：同意 和 拒绝
-func HandleFriendRequest(c *gin.Context) {
-
+func HandleFriendResponse(c *gin.Context) {
+	req := dto.HandleFriendRequest{}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, dto.HandleFriendResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 400,
+			Msg:  "json err",
+		})
+		return
+	}
+	if req.TargetUsername == "" {
+		c.JSON(400, dto.HandleFriendResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 400,
+			Msg:  "target_username err",
+		})
+		return
+	}
+	if req.Status != 0 && req.Status != 1 {
+		c.JSON(400, dto.HandleFriendResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 400,
+			Msg:  "status err",
+		})
+		return
+	}
+	// go to service
+	err := service.HandleFriendRequest(&req, c.GetInt("userId"))
+	if err != nil {
+		c.JSON(400, dto.HandleFriendResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: err.Code,
+			Msg:  err.Msg,
+		})
+		return
+	}
+	c.JSON(200, dto.HandleFriendResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
+		Code: 2200,
+		Msg:  "success",
+	})
 }
 
 // ✅ 加好友请求
@@ -111,45 +160,3 @@ func GetFriendList(c *gin.Context) {
 		Data: friendList,
 	})
 }
-
-// 接收陌生人加好友请求，打开软件调用一次
-func ReceiveFriendRequest(c *gin.Context) {
-	req := dto.HandleFriendRequest{}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, "json err")
-	}
-	userId := c.GetInt("userId")        // 自己的id
-	uuid := c.GetString("userUuid")     // 自己的uuid
-	username := c.GetString("username") // 自己的账户名字
-	err := service.ReceiveFriendRequest(&req, userId, uuid, username)
-	if err != nil {
-		c.JSON(400, dto.Base{
-			Data: err.Error(),
-		})
-		return
-	}
-	c.JSON(200, dto.Base{
-		Data: "同意加好友",
-	})
-}
-
-// // 处理已经发送的好友请求
-// func HandleFriendRequest(c *gin.Context) {
-// 	req := dto.HandleFriendRequest{}
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(400, "json err")
-// 	}
-// 	userId := c.GetInt("userId")        // 自己的id
-// 	uuid := c.GetString("userUuid")     // 自己的uuid
-// 	username := c.GetString("username") // 自己的账户名字
-// 	err := service.HandleFriendRequest(&req, userId, uuid, username)
-// 	if err != nil {
-// 		c.JSON(400, dto.Base{
-// 			Data: err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.JSON(200, dto.Base{
-// 		Data: "同意加好友",
-// 	})
-// }
