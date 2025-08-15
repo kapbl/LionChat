@@ -34,7 +34,7 @@ type MessageTask struct {
 
 // 启动多个消息处理协程
 func (s *Worker) startMessageProcessors(count int) {
-	for i := 0; i < count; i++ {
+	for range count {
 		go s.messageProcessor()
 	}
 }
