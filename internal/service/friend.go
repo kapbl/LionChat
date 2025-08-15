@@ -6,10 +6,7 @@ import (
 	"cchat/internal/dto"
 	"cchat/pkg/cerror"
 	"cchat/pkg/protocol"
-	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -104,103 +101,23 @@ func SendFriendRequest(targetUUID string, userId int, uuid string, userName stri
 	return nil
 }
 
-func GetFriendList(uuid string, userID int) ([]dto.FriendInfo, error) {
-	var friendList []dto.FriendInfo
-	// 先从Redis中间件
-	ctx := context.Background()
-	result, err := dao.REDIS.HGetAll(
-		ctx,
-		uuid,
-	).Result()
-
+// ✅
+func GetFriendList(userID int) ([]dto.FriendInfo, *cerror.CodeError) {
+	friendIDs := []int{}
+	dao.DB.Table("user_friends").Where("user_id = ? AND status = 1", userID).Pluck("friend_id", &friendIDs)
+	if len(friendIDs) == 0 {
+		return []dto.FriendInfo{}, cerror.NewCodeError(4444, "没有好友")
+	}
+	// 根据好友ID查询好友信息
+	friendList := []dto.FriendInfo{}
+	err := dao.DB.Table("users").Where("id IN (?)", friendIDs).Find(&friendList).Error
 	if err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
-			return nil, fmt.Errorf("redis timeout")
-		}
-	}
-
-	// 缓存未命中
-	if len(result) == 0 {
-		// 直接通过 SQL 联表查询
-		err := dao.DB.Table("user_friends AS uf").
-			Select("u.uuid AS friend_uuid,u.username AS friend_name,u.avatar AS friend_avatar,u.nickname AS friend_nickname,uf.status").
-			Joins("JOIN users AS u ON u.id = uf.friend_id").
-			Where("uf.user_id = (SELECT id FROM users WHERE uuid = ?)", uuid).
-			Where("uf.status = 1").
-			Scan(&friendList).Error
-		if err != nil {
-			return []dto.FriendInfo{}, err
-		}
-		// 更新到redis中
-		// 先查询版本号
-		var user model.Users
-		dao.DB.Table("users").Where("id = ?", userID).First(&user)
-		for i := 0; i < len(friendList); i++ {
-			friendList[i].Version = user.GroupVersion
-		}
-		// 再更新
-		pipe := dao.REDIS.Pipeline()
-		for _, f := range friendList {
-			// 序列化结构体为JSON
-			friendData, _ := json.Marshal(f)
-			// 使用用户ID作为键，好友UUID作为字段
-			pipe.HSet(ctx,
-				uuid,
-				f.FriendUUID,
-				string(friendData),
-			)
-		}
-		pipe.Expire(ctx, uuid, 10*time.Minute) // 设置 TTL
-		_, _ = pipe.Exec(ctx)                  // 忽略缓存失败
-		return friendList, nil
-	}
-	// 获自己的朋友版本号
-	sentinel := model.Users{}
-	dao.DB.Table("users").Where("id = ?", userID).First(&sentinel)
-	// 如果在Redis中可以缓存到且与数据库的版本号一致
-	for _, v := range result {
-		var friend dto.FriendInfo
-		if err := json.Unmarshal([]byte(v), &friend); err != nil {
-			continue
-		}
-		if sentinel.FriendVersion != friend.Version {
-			// 版本号不一致，需要重新从数据库查询
-			err := dao.DB.Table("user_friends AS uf").
-				Select("u.uuid AS friend_uuid,u.username AS friend_name,u.avatar AS friend_avatar,u.nickname AS friend_nickname,uf.status").
-				Joins("JOIN users AS u ON u.id = uf.friend_id").
-				Where("uf.user_id = (SELECT id FROM users WHERE uuid = ?)", uuid).
-				Where("uf.status = 1").
-				Scan(&friendList).Error
-			if err != nil {
-				return []dto.FriendInfo{}, err
-			}
-			// 先查询版本号
-			var user model.Users
-			dao.DB.Table("users").Where("id = ?", userID).First(&user)
-			for i := 0; i < len(friendList); i++ {
-				friendList[i].Version = user.FriendVersion
-			}
-			// 再更新到Redis
-			pipe := dao.REDIS.Pipeline()
-			for _, f := range friendList {
-				// 序列化结构体为JSON
-				friendData, _ := json.Marshal(f)
-				// 使用用户ID作为键，好友UUID作为字段
-				pipe.HSet(ctx,
-					uuid,
-					f.FriendUUID,
-					string(friendData),
-				)
-			}
-			pipe.Expire(ctx, uuid, 10*time.Minute) // 设置 TTL
-			_, _ = pipe.Exec(ctx)                  // 忽略缓存失败
-			return friendList, nil
-		}
-		friendList = append(friendList, friend)
+		return []dto.FriendInfo{}, cerror.NewCodeError(4444, err.Error())
 	}
 	return friendList, nil
 }
 
+// ✅
 func HandleFriendRequest(dto *dto.HandleFriendRequest, userId int) *cerror.CodeError {
 	// 更新加好友的信息
 	targetUser := model.Users{}

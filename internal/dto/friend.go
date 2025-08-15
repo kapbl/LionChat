@@ -2,12 +2,10 @@ package dto
 
 // 好友列表的数据传输格式
 type FriendInfo struct {
-	FriendUUID     string `json:"friend_uuid"`
-	FriendName     string `json:"friend_name"`
-	FriendAvatar   string `json:"friend_avatar"`
-	FriendNickname string `json:"friend_nickname"`
-	Status         int    `json:"status"`
-	Version        int    `json:"version"`
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+	Nickname string `json:"nickname"`
+	Email    string `json:"email"`
 }
 
 // 处理好友请求
@@ -34,4 +32,12 @@ type AddFriendResponse struct {
 	BaseResponse
 	Code int32  `json:"code"`
 	Msg  string `json:"msg"`
+}
+
+// 好友列表回复
+type FriendListResponse struct {
+	BaseResponse
+	Code int32        `json:"code"`
+	Msg  string       `json:"msg"`
+	Data []FriendInfo `json:"data"`
 }

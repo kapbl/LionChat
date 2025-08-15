@@ -146,16 +146,23 @@ func AddFriend(c *gin.Context) {
 
 // 获取好友列表
 func GetFriendList(c *gin.Context) {
-	uuid := c.GetString("userUuid")
+	// 获取userID用户的所有好友-列表
 	userId := c.GetInt("userId")
-	friendList, err := service.GetFriendList(uuid, userId)
+	friendList, err := service.GetFriendList(userId)
 	if err != nil {
-		c.JSON(400, dto.Base{
-			Data: err.Error(),
+		c.JSON(400, dto.FriendListResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: err.Code,
+			Msg:  err.Msg,
 		})
 		return
 	}
-	c.JSON(200, dto.Base{
+	c.JSON(200, dto.FriendListResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
 		Code: 200,
 		Data: friendList,
 	})
