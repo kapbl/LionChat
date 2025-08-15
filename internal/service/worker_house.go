@@ -109,7 +109,7 @@ func (h *WorkerHouse) expandWorkerPool() {
 		FragmentManager: NewFragmentManager(),
 		TaskCount:       0, // 新Worker初始任务数为0
 		WorkerHouse:     h,
-		messageQueue:    make(chan *MessageTask, 100),
+		MessageQueue:    make(chan *MessageTask, 100),
 	}
 
 	h.Workers = append(h.Workers, worker)
@@ -176,7 +176,7 @@ func InitWorkerHouseWithConfig(initialWorkers, maxWorkers, threshold int) *Worke
 			FragmentManager: NewFragmentManager(),
 			TaskCount:       0, // 初始任务数量为0
 			WorkerHouse:     workerHouse,
-			messageQueue:    make(chan *MessageTask, 100),
+			MessageQueue:    make(chan *MessageTask, 100),
 		}
 		workerHouse.Workers = append(workerHouse.Workers, worker)
 	}

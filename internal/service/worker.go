@@ -23,7 +23,7 @@ type Worker struct {
 	FragmentManager *FragmentManager  // 消息分片管理器
 	TaskCount       int               // 该工作者当前管理的任务数量
 	WorkerHouse     *WorkerHouse      // 该工作者所在的房子
-	messageQueue    chan *MessageTask // 消息处理队列
+	MessageQueue    chan *MessageTask // 消息处理队列
 }
 
 type MessageTask struct {
@@ -41,7 +41,8 @@ func (s *Worker) startMessageProcessors(count int) {
 
 // 消息处理goroutine
 func (s *Worker) messageProcessor() {
-	for task := range s.messageQueue {
+	// 循环一直执行
+	for task := range s.MessageQueue {
 		s.processMessageTask(task)
 	}
 }
@@ -130,22 +131,22 @@ func (s *Worker) forwardToOtherWorkers(targetUUID string, message []byte) {
 	logger.Warn("未找到目标客户端", zap.String("target", targetUUID))
 }
 
-// handleGroupMessage 处理群聊消息（预留接口）
+// handleGroupMessage 处理群聊消息
 func (s *Worker) handleGroupMessage(msg *protocol.Message, originalMessage []byte) {
 	logger.Info("处理群聊消息",
 		zap.String("type", s.getContentTypeName(msg.ContentType)),
 		zap.String("groupID", msg.To))
 	s.SendGroupMessage(msg.From, msg.To, originalMessage)
 	// 优先使用Kafka发送，否则使用WebSocket
-	// if dao.KafkaProducerInstance != nil {
-	// 	if err := dao.KafkaProducerInstance.SendGroupMessage(msg.To, msg.From, originalMessage); err != nil {
-	// 		logger.Error("发送消息到Kafka失败", zap.Error(err))
-	// 		// Kafka失败时降级到WebSocket
-	// 		s.SendGroupMessage(msg.To, msg.From, originalMessage)
-	// 	}
-	// } else {
-	// 	s.SendGroupMessage(msg.To, msg.From, originalMessage)
-	// }
+	if dao.KafkaProducerInstance != nil {
+		if err := dao.KafkaProducerInstance.SendGroupMessage(msg.To, msg.From, originalMessage); err != nil {
+			logger.Error("发送消息到Kafka失败", zap.Error(err))
+			// Kafka失败时降级到WebSocket
+			s.SendGroupMessage(msg.To, msg.From, originalMessage)
+		}
+	} else {
+		s.SendGroupMessage(msg.To, msg.From, originalMessage)
+	}
 }
 
 // 工作者做任务
@@ -238,7 +239,7 @@ func (s *Worker) queueMessage(rawMessage []byte) {
 		ProcessTime: time.Now(),
 	}
 	select {
-	case s.messageQueue <- task:
+	case s.MessageQueue <- task:
 		// 成功入队
 	default:
 		logger.Warn("消息队列已满，丢弃消息")
@@ -336,15 +337,14 @@ func (s *Worker) sendRawMessage(client *Client, msg []byte) {
 // 发送群聊消息
 func (s *Worker) SendGroupMessage(fromUUID string, groupUUID string, msg []byte) {
 	// 获取该群聊下的所有群成员的UUID
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	groupService := &GroupService{}
 	groupMembers, err := groupService.GetGroupMember(groupUUID)
 	if err != nil {
 		logger.Error("获取群成员失败", zap.Error(err), zap.String("groupId", groupUUID))
 		return
 	}
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
 	for _, clientID := range groupMembers {
 		if clientID == fromUUID {
 			continue

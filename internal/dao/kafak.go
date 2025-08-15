@@ -164,7 +164,6 @@ func (kp *KafkaProducer) SendUserEvent(eventType, userID string, workerID int, m
 		UserID:    userID,
 		Metadata:  metadata,
 		WorkerID:  workerID,
-
 	}
 
 	return kp.SendMessage(kp.config.Kafka.Topics.UserEvents, userID, event)
@@ -182,7 +181,7 @@ func (kp *KafkaProducer) SendGroupMessage(groupID, userID string, messageData []
 		},
 	}
 
-	return kp.SendMessage(kp.config.Kafka.Topics.GroupMessages, groupID, event)
+	return kp.SendMessage(kp.config.Kafka.Topics.GroupMessages, userID, event)
 }
 
 // Close 关闭生产者
