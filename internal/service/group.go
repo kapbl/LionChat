@@ -32,9 +32,9 @@ func (g *GroupService) CreateGroup(req *dto.CreateGroupReq) (*dto.CreateGroupRes
 			MemberCount: 1,
 			Type:        req.GroupType,
 			OwnerId:     g.UserId,
-			CreateAt:    time.Now(),
-			UpdateAt:    time.Now(),
-			DeleteAt:    nil,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			DeletedAt:   nil,
 		}
 		err = dao.DB.Table("group").Create(&newGroup).Error
 		if err != nil {
@@ -56,8 +56,9 @@ func (g *GroupService) CreateGroup(req *dto.CreateGroupReq) (*dto.CreateGroupRes
 			GroupUUID: newGroup.UUID,
 			UserId:    g.UserId,
 			UserUUID:  g.UserUUID,
-			CreateAt:  time.Now(),
-			UpdateAt:  time.Now(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			DeletedAt: nil,
 		}).Error
 		if err != nil {
 			return nil, errors.New("加入组失败")
@@ -91,9 +92,11 @@ func (g *GroupService) JoinGroup(req *dto.JoinGroupReq) (dto.JoinGroupResp, erro
 		GroupUUID: group.UUID,
 		UserId:    g.UserId,
 		UserUUID:  g.UserUUID,
-		CreateAt:  time.Now(),
-		UpdateAt:  time.Now(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		DeletedAt: nil,
 	}).Error
+
 	if err != nil {
 		return dto.JoinGroupResp{}, errors.New("加入组失败")
 	}

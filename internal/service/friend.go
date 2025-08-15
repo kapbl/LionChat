@@ -58,9 +58,9 @@ func AddFriend(req *dto.AddFriendRequest, senderId int, senderUuid string, sende
 	}
 	// 插入一条好友关系记录
 	friendTable = model.UserFriends{
-		CreateAt: time.Now(),
-		UpdateAt: time.Now(),
-		DeleteAt: nil,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		DeletedAt: nil,
 		UserID:   senderId,
 		FriendID: int(targetUser.Id),
 		Status:   0,
@@ -137,9 +137,9 @@ func HandleFriendRequest(dto *dto.HandleFriendRequest, userId int) *cerror.CodeE
 			UserID:   userId,
 			FriendID: targetUser.Id,
 			Status:   1,
-			CreateAt: time.Now(),
-			UpdateAt: time.Now(),
-			DeleteAt: nil,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			DeletedAt: nil,
 		}
 		err = dao.DB.Table(friendTable.GetTable()).Create(&newFriendRecord).Error
 		if err != nil {

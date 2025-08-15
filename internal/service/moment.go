@@ -23,10 +23,11 @@ func CreateMoment(moment *dto.MomentCreateReq, uuid string) (*dto.MomentCreateRe
 	}
 	// 在数据库中插入这条动态
 	m := &model.Moment{
-		UserID:     int64(user.Id),
-		Content:    moment.Content,
-		CreateAt:   time.Now(),
-		DeleteTime: nil,
+		UserID:    int64(user.Id),
+		Content:   moment.Content,
+		CreatedAt: time.Now(),
+		DeletedAt: nil,
+		UpdatedAt: time.Now(),
 	}
 	// 插入到自己的动态表中
 	if err := dao.DB.Create(m).Error; err != nil {
@@ -34,10 +35,12 @@ func CreateMoment(moment *dto.MomentCreateReq, uuid string) (*dto.MomentCreateRe
 	}
 	// 插入到自己的Timeline表中
 	t := &model.Timeline{
-		UserID:   int64(user.Id),
-		MomentID: m.ID,
-		IsOwn:    true,
-		CreateAt: time.Now(),
+		UserID:    int64(user.Id),
+		MomentID:  m.ID,
+		IsOwn:     true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		DeletedAt: nil,
 	}
 	if err := dao.DB.Create(t).Error; err != nil {
 		return nil, err
@@ -54,10 +57,11 @@ func CreateMoment(moment *dto.MomentCreateReq, uuid string) (*dto.MomentCreateRe
 		// 插入到好友的Timeline表中
 		for _, friend := range friends {
 			t := &model.Timeline{
-				UserID:   int64(friend.FriendID),
-				MomentID: m.ID,
-				IsOwn:    false,
-				CreateAt: time.Now(),
+				UserID:    int64(friend.FriendID),
+				MomentID:  m.ID,
+				IsOwn:     false,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			}
 			if err := dao.DB.Create(t).Error; err != nil {
 				logger.Error("插入好友Timeline失败", zap.Error(err))

@@ -15,10 +15,12 @@ func CreateComment(userID, momentID int64, content string) error {
 		return errors.New("评论内容不能为空")
 	}
 	comment := &model.Comment{
-		MomentID: momentID,
-		Content:  content,
-		UserID:   userID,
-		CreateAt: time.Now(),
+		MomentID:  momentID,
+		Content:   content,
+		UserID:    userID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		DeletedAt: nil,
 	}
 	if err := dao.DB.Table("comment").Create(comment).Error; err != nil {
 		return err
@@ -32,9 +34,11 @@ func LikeComment(userID, momentID int64) error {
 	}
 
 	comment := &model.Like{
-		MomentID: momentID,
-		UserID:   userID,
-		CreateAt: time.Now(),
+		MomentID:  momentID,
+		UserID:    userID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		DeletedAt: nil,
 	}
 	if err := dao.DB.Table("like").Create(comment).Error; err != nil {
 		return err

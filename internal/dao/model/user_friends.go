@@ -4,9 +4,9 @@ import "time"
 
 type UserFriends struct {
 	Id       int        `gorm:"column:id;primaryKey"`
-	CreateAt time.Time  `gorm:"column:create_at"`
-	UpdateAt time.Time  `gorm:"column:update_at"`
-	DeleteAt *time.Time `gorm:"column:delete_at"`
+	CreatedAt time.Time  `gorm:"column:created_at"`
+	UpdatedAt time.Time  `gorm:"column:updated_at"`
+	DeletedAt *time.Time `gorm:"column:deleted_at"`
 	UserID   int        `gorm:"column:user_id"`
 	FriendID int        `gorm:"column:friend_id"`
 	Status   int        `gorm:"column:status"`
