@@ -6,7 +6,7 @@ services:
 #       - "80:80"
 #       - "443:443"
 #     volumes:
-#       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#       - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
 #       - ./static:/app/static:ro
 #       - ./resources:/app/resources:ro
 #       - ./logs/nginx:/var/log/nginx

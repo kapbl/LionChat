@@ -59,7 +59,7 @@ func main() {
 	// 关闭处理
 	setupShutdown()
 	// 启动goroutine监控
-	go monitorGoroutines()
+	// go monitorGoroutines()
 	// 启动路由
 	router.RunEngine(&appConfig)
 }
