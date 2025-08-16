@@ -27,6 +27,11 @@ type CommentList struct {
 	Content    string    `json:"content"`
 	CreateTime time.Time `json:"create_time"`
 }
+
+type GetCommentListResponse struct {
+	BaseResponse
+	CommentList []CommentList `json:"comment_list"`
+}
 type GetCommentList struct {
 	BaseResponse
 	Code        int           `json:"code"`

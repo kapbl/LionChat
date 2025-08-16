@@ -10,13 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateMoment 创建动态
 func CreateMoment(c *gin.Context) {
 	// 解析jwt
 	uuid := c.GetString("userUuid")
 	if uuid == "" {
-		c.JSON(http.StatusOK, dto.Base{
+		c.JSON(http.StatusOK, dto.MomentCreateResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: "用户未登录",
+			Msg:  "用户未登录",
 		})
 		return
 	}
@@ -136,19 +140,28 @@ func GetCommentsByMomentID(c *gin.Context) {
 	// 获取动态ID参数
 	momentIDStr := c.Param("momentId")
 	if momentIDStr == "" {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "动态ID不能为空",
+		c.JSON(http.StatusOK, dto.GetCommentListResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+				Code:      1,
+				Msg:       "动态ID不能为空",
+			},
+			CommentList: []dto.CommentList{},
 		})
+
 		return
 	}
 
 	// 转换动态ID为int64
 	momentID, err := strconv.ParseInt(momentIDStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "动态ID格式错误",
+		c.JSON(http.StatusOK, dto.GetCommentListResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+				Code:      1,
+				Msg:       "动态ID格式错误",
+			},
+			CommentList: []dto.CommentList{},
 		})
 		return
 	}
@@ -156,16 +169,23 @@ func GetCommentsByMomentID(c *gin.Context) {
 	// 调用服务层获取评论列表
 	comments, err := service.GetCommentsByMomentID(momentID)
 	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "获取评论列表失败: " + err.Error(),
+		c.JSON(http.StatusOK, dto.GetCommentListResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+				Code:      1,
+				Msg:       "获取评论列表失败",
+			},
+			CommentList: []dto.CommentList{},
 		})
 		return
 	}
-
 	// 返回评论列表
-	c.JSON(http.StatusOK, dto.Base{
-		Code: 0,
-		Data: comments,
+	c.JSON(http.StatusOK, dto.GetCommentListResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+			Code:      0,
+			Msg:       "获取评论列表成功",
+		},
+		CommentList: comments,
 	})
 }
