@@ -133,8 +133,8 @@ func InitRouter() {
 	AppRouterGroups["monitor"].GET("/clients", api.GetClients)
 	AppRouterGroups["monitor"].GET("/serverInfo", api.GetServerInfor)
 
-	AppRouterGroups["moment"].POST("/createMoment", api.CreateMoment)
-	AppRouterGroups["moment"].GET("/list", api.ListMoment)
+	AppRouterGroups["moment"].POST("", api.CreateMoment)
+	AppRouterGroups["moment"].GET("/moment-list", api.ListMoment)
 
 	AppRouterGroups["comment"].POST("/create", api.CreateComment)
 	AppRouterGroups["comment"].POST("/like", api.LikeComment)

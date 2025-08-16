@@ -1,6 +1,7 @@
 package api
 
 import (
+	"cchat/internal/dao"
 	"cchat/internal/dto"
 	"cchat/internal/service"
 	"net/http"
@@ -21,35 +22,60 @@ func CreateMoment(c *gin.Context) {
 	}
 
 	// 解析请求体
-	var moment dto.MomentCreateReq
+	var moment dto.MomentCreateRequest
 	if err := c.ShouldBindJSON(&moment); err != nil {
-		c.JSON(http.StatusOK, dto.Base{
+		c.JSON(http.StatusOK, dto.MomentCreateResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: "请求参数错误",
+			Msg:  "请求参数错误",
 		})
 		return
 	}
 	// 校验moment
 	if moment.Content == "" {
-		c.JSON(http.StatusOK, dto.Base{
+		c.JSON(http.StatusOK, dto.MomentCreateResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: "动态内容不能为空",
+			Msg:  "动态内容不能为空",
 		})
 		return
 	}
-	// 创建动态
-	resp, err := service.CreateMoment(&moment, uuid)
-	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
+	userID, exist := c.Get("userId")
+	if !exist {
+		c.JSON(http.StatusOK, dto.MomentCreateResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: "创建动态失败",
+			Msg:  "用户ID不存在",
+		})
+		return
+	}
+	iuserID := userID.(int)
+	momentService := service.NewMomentService(int64(iuserID), uuid, dao.DB)
+	// 创建动态
+	err2 := momentService.CreateMoment(&moment)
+	if err2 != nil {
+		c.JSON(http.StatusOK, dto.MomentCreateResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1,
+			Msg:  "创建动态失败",
 		})
 		return
 	}
 	// 返回动态ID
-	c.JSON(http.StatusOK, dto.Base{
+	c.JSON(http.StatusOK, dto.MomentCreateResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
 		Code: 0,
-		Data: resp,
+		Msg:  "创建动态成功",
 	})
 }
 
@@ -58,37 +84,50 @@ func ListMoment(c *gin.Context) {
 	// 解析jwt
 	uuid := c.GetString("userUuid")
 	if uuid == "" {
-		c.JSON(http.StatusOK, dto.Base{
+		c.JSON(http.StatusOK, dto.MomentListResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: "用户未登录",
+			Msg:  "用户未登录",
 		})
 		return
 	}
-
-	// 根据uuid获取用户ID
-	userID, err := service.GetUserIDByUUID(uuid)
-	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
+	userID, exist := c.Get("userId")
+	if !exist {
+		c.JSON(http.StatusOK, dto.MomentCreateResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: err.Error(),
+			Msg:  "用户ID不存在",
 		})
 		return
 	}
-
+	iUseID := userID.(int)
 	// 获取动态列表
-	moments, err := service.ListMoment(userID)
+	momentService := service.NewMomentService(int64(iUseID), uuid, dao.DB)
+	momentList, err := momentService.ListMoment()
+
 	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
+		c.JSON(http.StatusOK, dto.MomentListResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: "获取动态列表失败",
+			Msg:  "获取动态列表失败",
 		})
 		return
 	}
 
 	// 返回动态列表
-	c.JSON(http.StatusOK, dto.Base{
+	c.JSON(http.StatusOK, dto.MomentListResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
 		Code: 0,
-		Data: moments,
+		Msg:  "获取动态列表成功",
+		Data: momentList,
 	})
 }
 

@@ -15,13 +15,15 @@ import (
 type GroupService struct {
 	UserID   int
 	UserUUID string
+	Username string
 	DB       *gorm.DB
 }
 
-func NewGroupService(userID int, userUUID string, db *gorm.DB) *GroupService {
+func NewGroupService(userID int, userUUID string, username string, db *gorm.DB) *GroupService {
 	return &GroupService{
 		UserID:   userID,
 		UserUUID: userUUID,
+		Username: username,
 		DB:       db,
 	}
 }

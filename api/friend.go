@@ -1,6 +1,7 @@
 package api
 
 import (
+	"cchat/internal/dao"
 	"cchat/internal/dto"
 	"cchat/internal/service"
 
@@ -20,8 +21,12 @@ func SearchClient(c *gin.Context) {
 		})
 		return
 	}
-	res, err := service.SearchClient(information)
-
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
+	uuid := c.GetString("userUuid")
+	username := c.GetString("username")
+	friendService := service.NewFriendService(int64(iuserId), uuid, username, dao.DB)
+	res, err := friendService.SearchClient(information)
 	if err != nil {
 		c.JSON(400, dto.SearchClientResponse{
 			BaseResponse: dto.BaseResponse{
@@ -75,7 +80,12 @@ func HandleFriendResponse(c *gin.Context) {
 		return
 	}
 	// go to service
-	err := service.HandleFriendRequest(&req, c.GetInt("userId"))
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
+	uuid := c.GetString("userUuid")
+	username := c.GetString("username")
+	friendService := service.NewFriendService(int64(iuserId), uuid, username, dao.DB)
+	err := friendService.HandleFriendRequest(&req)
 	if err != nil {
 		c.JSON(400, dto.HandleFriendResponse{
 			BaseResponse: dto.BaseResponse{
@@ -121,10 +131,12 @@ func AddFriend(c *gin.Context) {
 		})
 		return
 	}
-	userId := c.GetInt("userId")
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
 	uuid := c.GetString("userUuid")
 	username := c.GetString("username")
-	err := service.AddFriend(&req, userId, uuid, username)
+	friendService := service.NewFriendService(int64(iuserId), uuid, username, dao.DB)
+	err := friendService.AddFriend(&req)
 	if err != nil {
 		c.JSON(400, dto.AddFriendResponse{
 			BaseResponse: dto.BaseResponse{
@@ -147,8 +159,12 @@ func AddFriend(c *gin.Context) {
 // 获取好友列表
 func GetFriendList(c *gin.Context) {
 	// 获取userID用户的所有好友-列表
-	userId := c.GetInt("userId")
-	friendList, err := service.GetFriendList(userId)
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
+	uuid := c.GetString("userUuid")
+	username := c.GetString("username")
+	friendService := service.NewFriendService(int64(iuserId), uuid, username, dao.DB)
+	friendList, err := friendService.GetFriendList()
 	if err != nil {
 		c.JSON(400, dto.FriendListResponse{
 			BaseResponse: dto.BaseResponse{

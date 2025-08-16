@@ -42,9 +42,11 @@ func CreateGroup(c *gin.Context) {
 		})
 		return
 	}
-	userId := c.GetInt("userId")
-	userUUID := c.GetString("userUuid")
-	groupService := service.NewGroupService(userId, userUUID, dao.DB)
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
+	uuid := c.GetString("userUuid")
+	username := c.GetString("username")
+	groupService := service.NewGroupService(iuserId, uuid, username, dao.DB)
 	resp, err := groupService.CreateGroup(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.CreateGroupResponse{
@@ -103,9 +105,11 @@ func JoinGroup(c *gin.Context) {
 			},
 		})
 	}
-	userId := c.GetInt("userId")    // 自己的id
-	uuid := c.GetString("userUuid") // 自己的uuid
-	groupService := service.NewGroupService(userId, uuid, dao.DB)
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
+	uuid := c.GetString("userUuid")
+	username := c.GetString("username")
+	groupService := service.NewGroupService(iuserId, uuid, username, dao.DB)
 	res, err := groupService.JoinGroup(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.JoinGroupResponse{
@@ -137,8 +141,10 @@ func JoinGroup(c *gin.Context) {
 
 func LeaveGroup(c *gin.Context) {
 	// 获取用户ID
-	userID := c.GetInt("userId")
-	userUUID := c.GetString("userUuid")
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
+	uuid := c.GetString("userUuid")
+	username := c.GetString("username")
 	GroupUUID := c.Query("groupUuid")
 	GroupName := c.Query("groupName")
 	// 参数验证
@@ -152,7 +158,7 @@ func LeaveGroup(c *gin.Context) {
 		})
 		return
 	}
-	groupService := service.NewGroupService(userID, userUUID, dao.DB)
+	groupService := service.NewGroupService(iuserId, uuid, username, dao.DB)
 	req := dto.LeaveGroupRequest{
 		GroupUUID: GroupUUID,
 		GroupName: GroupName,
@@ -181,9 +187,11 @@ func LeaveGroup(c *gin.Context) {
 
 // 获取自己的好友列表
 func GetGroupList(c *gin.Context) {
-	userId := c.GetInt("userId")
-	userUUID := c.GetString("userUuid")
-	groupService := service.NewGroupService(userId, userUUID, dao.DB)
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
+	uuid := c.GetString("userUuid")
+	username := c.GetString("username")
+	groupService := service.NewGroupService(iuserId, uuid, username, dao.DB)
 	res, err := groupService.GetGroupList()
 	if err != nil {
 		c.JSON(http.StatusOK, dto.GetGroupsResponse{

@@ -2,17 +2,26 @@ package dto
 
 import "time"
 
-// MomentCreateReq 新建动态请求
-type MomentCreateReq struct {
+// MomentCreateRequest 新建动态请求
+type MomentCreateRequest struct {
 	Content string `json:"content"`
 }
 
-type MomentCreateResp struct {
-	ID int64 `json:"id"`
+// MomentCreateResponse 新建动态响应
+type MomentCreateResponse struct {
+	BaseResponse
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }
 
 // MomentListResp 动态列表响应
-type MomentListResp struct {
+type MomentListResponse struct {
+	BaseResponse
+	Code int          `json:"code"`
+	Msg  string       `json:"msg"`
+	Data []MomentInfo `json:"data"`
+}
+type MomentInfo struct {
 	MomentID    int64             `json:"moment_id"`
 	UserID      int64             `json:"user_id"`
 	Username    string            `json:"username"`
