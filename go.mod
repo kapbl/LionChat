@@ -18,6 +18,12 @@ require (
 )
 
 require (
+	github.com/panjf2000/ants v1.3.0 // indirect
+	github.com/panjf2000/ants/v2 v2.11.3 // indirect
+	golang.org/x/sync v0.16.0 // indirect
+)
+
+require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bytedance/sonic v1.13.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
