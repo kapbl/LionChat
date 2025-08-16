@@ -47,9 +47,12 @@ func CreateGroup(c *gin.Context) {
 	groupService := service.NewGroupService(userId, userUUID, dao.DB)
 	resp, err := groupService.CreateGroup(&req)
 	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
+		c.JSON(http.StatusOK, dto.CreateGroupResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: "创建组失败",
+			Msg:  "创建组失败",
 		})
 		return
 	}
