@@ -65,7 +65,9 @@ func main() {
 	// 关闭处理
 	setupShutdown()
 	// 启动goroutine监控
-	// go monitorGoroutines()
+	if appConfig.Server.Environment == "dev" {
+		go monitorGoroutines()
+	}
 	// 启动路由
 	router.RunEngine(&appConfig)
 }

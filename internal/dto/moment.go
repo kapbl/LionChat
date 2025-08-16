@@ -22,18 +22,11 @@ type MomentListResponse struct {
 	Data []MomentInfo `json:"data"`
 }
 type MomentInfo struct {
-	MomentID    int64             `json:"moment_id"`
-	UserID      int64             `json:"user_id"`
-	Username    string            `json:"username"`
-	Content     string            `json:"content"`
-	LikeCount   int64             `json:"like_count"`
-	CommentList []CommentListResp `json:"comment_list"`
-	CreateTime  time.Time         `json:"create_time"`
-}
-
-type CommentListResp struct {
-	UserID     int64     `json:"user_id"`
-	Username   string    `json:"username"`
-	Content    string    `json:"content"`
-	CreateTime time.Time `json:"create_time"`
+	MomentID    int64         `json:"moment_id"`
+	UserID      int64         `json:"user_id"`
+	Username    string        `json:"username"`
+	Content     string        `json:"content"`
+	LikeCount   int64         `json:"like_count"`
+	CommentList []CommentList `json:"comment_list"`
+	CreateTime  time.Time     `json:"create_time"`
 }
