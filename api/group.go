@@ -2,7 +2,6 @@ package api
 
 import (
 	"cchat/internal/dao"
-	"cchat/internal/dao/model"
 	"cchat/internal/dto"
 	"cchat/internal/service"
 	"net/http"
@@ -10,30 +9,42 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 创建一个群组
 func CreateGroup(c *gin.Context) {
-	var req dto.CreateGroupReq
+	req := dto.CreateGroupRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "参数错误",
+		c.JSON(http.StatusOK, dto.CreateGroupResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1122,
+			Msg:  "参数错误",
+			GroupInfo: dto.GroupInfo{
+				GroupUUID:   "",
+				GroupName:   "",
+				MemberCount: 0,
+			},
 		})
 		return
 	}
 	if req.GroupName == "" {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "组名不能为空",
+		c.JSON(http.StatusOK, dto.CreateGroupResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1333,
+			Msg:  "组名不能为空",
+			GroupInfo: dto.GroupInfo{
+				GroupUUID:   "",
+				GroupName:   "",
+				MemberCount: 0,
+			},
 		})
+		return
 	}
-
-	userId := c.GetInt("userId")        // 自己的id
-	uuid := c.GetString("userUuid")     // 自己的uuid
-	username := c.GetString("username") // 自己的账户名字
-	groupService := service.GroupService{
-		UserId:   userId,
-		UserUUID: uuid,
-		Username: username,
-	}
+	userId := c.GetInt("userId")
+	userUUID := c.GetString("userUuid")
+	groupService := service.NewGroupService(userId, userUUID, dao.DB)
 	resp, err := groupService.CreateGroup(&req)
 	if err != nil {
 		c.JSON(http.StatusOK, dto.Base{
@@ -42,105 +53,150 @@ func CreateGroup(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, dto.Base{
+	c.JSON(http.StatusOK, dto.CreateGroupResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
 		Code: 0,
-		Data: resp,
+		Msg:  "创建成功",
+		GroupInfo: dto.GroupInfo{
+			GroupUUID:   resp.GroupUUID,
+			GroupName:   resp.GroupName,
+			MemberCount: resp.MemberCount,
+		},
 	})
 }
 
+// 加入群组
 func JoinGroup(c *gin.Context) {
-	req := dto.JoinGroupReq{}
+	req := dto.JoinGroupRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "参数错误",
+		c.JSON(http.StatusOK, dto.JoinGroupResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1122,
+			Msg:  "参数错误",
+			GroupInfo: dto.GroupInfo{
+				GroupUUID:   "",
+				GroupName:   "",
+				MemberCount: 0,
+			},
 		})
 		return
 	}
-	if req.GroupName == "" {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "参数错误",
+	// 只能通过组名或组uuid加入群组
+	if req.GroupName == "" && req.GroupUUID == "" {
+		c.JSON(http.StatusOK, dto.JoinGroupResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1122,
+			Msg:  "参数错误",
+			GroupInfo: dto.GroupInfo{
+				GroupUUID:   "",
+				GroupName:   "",
+				MemberCount: 0,
+			},
 		})
 	}
-	userId := c.GetInt("userId")        // 自己的id
-	uuid := c.GetString("userUuid")     // 自己的uuid
-	username := c.GetString("username") // 自己的账户名字
-	groupService := service.GroupService{
-		UserId:   userId,
-		UserUUID: uuid,
-		Username: username,
-	}
+	userId := c.GetInt("userId")    // 自己的id
+	uuid := c.GetString("userUuid") // 自己的uuid
+	groupService := service.NewGroupService(userId, uuid, dao.DB)
 	res, err := groupService.JoinGroup(&req)
 	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
-			Code: 1,
-			Data: "加入组失败",
+		c.JSON(http.StatusOK, dto.JoinGroupResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1122,
+			Msg:  "加入组失败",
+			GroupInfo: dto.GroupInfo{
+				GroupUUID:   "",
+				GroupName:   "",
+				MemberCount: 0,
+			},
 		})
 	}
-	c.JSON(http.StatusOK, dto.Base{
+	c.JSON(http.StatusOK, dto.JoinGroupResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
 		Code: 0,
-		Data: res,
+		Msg:  "加入成功",
+		GroupInfo: dto.GroupInfo{
+			GroupUUID:   res.GroupUUID,
+			GroupName:   res.GroupName,
+			MemberCount: res.MemberCount,
+		},
 	})
 }
 
 func LeaveGroup(c *gin.Context) {
 	// 获取用户ID
-	userUuid, exists := c.Get("userUuid")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "用户未认证"})
-		return
-	}
-
-	// 绑定请求参数
-	var req dto.LeaveGroupReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误: " + err.Error()})
-		return
-	}
-
+	userID := c.GetInt("userId")
+	userUUID := c.GetString("userUuid")
+	GroupUUID := c.Query("groupUuid")
+	GroupName := c.Query("groupName")
 	// 参数验证
-	if req.GroupName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "群组名称不能为空"})
+	if GroupUUID == "" && GroupName == "" {
+		c.JSON(http.StatusBadRequest, dto.LeaveGroupResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1122,
+			Msg:  "参数错误",
+		})
 		return
 	}
-
-	// 获取用户信息
-	var user model.Users
-	err := dao.DB.Table("users").Where("uuid = ?", userUuid).First(&user).Error
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取用户信息失败"})
-		return
+	groupService := service.NewGroupService(userID, userUUID, dao.DB)
+	req := dto.LeaveGroupRequest{
+		GroupUUID: GroupUUID,
+		GroupName: GroupName,
 	}
-
 	// 调用service层离开群组
-	groupService := &service.GroupService{UserId: int(user.Id)}
-	resp, err := groupService.LeaveGroup(&req)
+	err := groupService.LeaveGroup(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, dto.LeaveGroupResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1122,
+			Msg:  "参数错误",
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": resp.Message,
-		"data":    resp,
+	c.JSON(200, dto.LeaveGroupResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
+		Code: 1122,
+		Msg:  "离开组成功",
 	})
 }
 
+// 获取自己的好友列表
 func GetGroupList(c *gin.Context) {
 	userId := c.GetInt("userId")
-	groupService := service.GroupService{
-		UserId: userId,
-	}
+	userUUID := c.GetString("userUuid")
+	groupService := service.NewGroupService(userId, userUUID, dao.DB)
 	res, err := groupService.GetGroupList()
 	if err != nil {
-		c.JSON(http.StatusOK, dto.Base{
+		c.JSON(http.StatusOK, dto.GetGroupsResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
 			Code: 1,
-			Data: "获取组列表失败",
+			Msg:  "获取组列表失败",
 		})
 	}
-	c.JSON(http.StatusOK, dto.Base{
+	c.JSON(http.StatusOK, dto.GetGroupsResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
 		Code: 0,
+		Msg:  "获取组列表成功",
 		Data: res,
 	})
 }

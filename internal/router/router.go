@@ -119,10 +119,11 @@ func InitRouter() {
 	AppRouterGroups["message"].GET("/getUnreadMessage", api.GetUnreadMessage)
 
 	//*** 群组相关的路由
-	AppRouterGroups["group"].POST("/createGroup", api.CreateGroup)
-	AppRouterGroups["group"].POST("/joinGroup", api.JoinGroup)
-	AppRouterGroups["group"].POST("/leaveGroup", api.LeaveGroup)
-	AppRouterGroups["group"].GET("/getGroupList", api.GetGroupList)
+	AppRouterGroups["group"].POST("", api.CreateGroup)
+	AppRouterGroups["group"].POST("/group-memberships", api.JoinGroup)
+	AppRouterGroups["group"].DELETE("/group-memberships", api.LeaveGroup)
+	AppRouterGroups["group"].GET("/group-list", api.GetGroupList)
+
 	// todo
 	AppRouterGroups["group"].GET("/getGroupInfo", api.GetGroupInfo)
 	// todo

@@ -81,14 +81,16 @@ var (
 )
 
 // LoadConfig 加载配置
-func LoadConfig() Config {
+func LoadConfig(env string) Config {
 	// 设置环境变量前缀
 	viper.SetEnvPrefix("CHAT")
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	// 设置默认配置文件名和类型
-	viper.SetConfigName("config.dev")
+	// 根据环境参数设置配置文件名
+	configName := fmt.Sprintf("config.%s", env)
+	viper.SetConfigName(configName)
+	logger.Info("加载配置文件", zap.String("config_name", configName))
 
 	viper.SetConfigType("yaml")
 

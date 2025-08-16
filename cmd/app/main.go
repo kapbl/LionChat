@@ -7,6 +7,7 @@ import (
 	"cchat/internal/service"
 	"cchat/pkg/config"
 	"cchat/pkg/logger"
+	"flag"
 	"os"
 	"os/signal"
 	"runtime/pprof"
@@ -17,10 +18,15 @@ import (
 )
 
 func main() {
+	// 解析命令行参数
+	var env string
+	flag.StringVar(&env, "env", "dev", "运行环境 (dev, prod)")
+	flag.Parse()
+
 	// 初始化日志
 	logger.InitLogger()
 	// 加载配置
-	appConfig := config.LoadConfig()
+	appConfig := config.LoadConfig(env)
 	// 初始化数据库
 	if err := dao.InitDB(appConfig.MySQL.DSN, appConfig.MySQL.MaxIdleConns, appConfig.MySQL.MaxOpenConns, time.Duration(appConfig.MySQL.ConnMaxLifetime)); err != nil {
 		logger.Fatal("数据库初始化失败", zap.Error(err))

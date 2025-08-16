@@ -339,8 +339,7 @@ func (s *Worker) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 	// 获取该群聊下的所有群成员的UUID
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	groupService := &GroupService{}
-	groupMembers, err := groupService.GetGroupMember(groupUUID)
+	groupMembers, err := GetGroupMember(groupUUID)
 	if err != nil {
 		logger.Error("获取群成员失败", zap.Error(err), zap.String("groupId", groupUUID))
 		return

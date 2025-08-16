@@ -3,8 +3,7 @@ package model
 import "time"
 
 type Group struct {
-	Id int `gorm:"column:id;primary_key;AUTO_INCREMENT;comment:'id'"`
-
+	Id          int        `gorm:"column:id;primary_key;AUTO_INCREMENT;comment:'id'"`
 	UUID        string     `gorm:"column:uuid;type:varchar(150);not null;unique_index:idx_name;comment:'UUID'"`
 	Name        string     `gorm:"column:name;type:varchar(150);not null;unique_index:idx_name;comment:'组名'"`
 	Desc        string     `gorm:"column:desc;type:varchar(255);comment:'描述'"`
@@ -17,8 +16,7 @@ type Group struct {
 }
 
 type GroupMember struct {
-	Id int `gorm:"column:id;primary_key;AUTO_INCREMENT;comment:'id'"`
-
+	Id        int        `gorm:"column:id;primary_key;AUTO_INCREMENT;comment:'id'"`
 	GroupId   int        `gorm:"column:group_id;comment:'组id'"`
 	GroupUUID string     `gorm:"column:group_uuid;comment:'组UUID'"`
 	UserId    int        `gorm:"column:user_id;comment:'用户id'"`
