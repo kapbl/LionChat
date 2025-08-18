@@ -92,7 +92,6 @@ func InitMiddleware() {
 	AppRouterGroups["profile"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["moment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["comment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
-	AppRouterGroups["webSocket"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	logger.Info("JWT中间件配置完成",
 		zap.Strings("protected_groups", []string{"friend", "group", "monitor"}))
 }

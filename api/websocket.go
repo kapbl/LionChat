@@ -3,6 +3,7 @@ package api
 import (
 	"cchat/internal/dto"
 	"cchat/internal/service"
+	"cchat/pkg/token"
 	"net/http"
 	"time"
 
@@ -21,7 +22,25 @@ var UpdateGrader = websocket.Upgrader{
 
 // ✅
 func WebSocketConnect(c *gin.Context) {
-	uuid := c.GetString("userUuid")
+	access_token := c.Query("token")
+	if access_token == "" {
+		c.JSON(401, dto.WebSocketResponse{
+			Code: 1019,
+			Msg:  "token 无效",
+		})
+		return
+	}
+	// 解析token
+	claims, err := token.ParseToken(access_token)
+	if err != nil {
+		c.JSON(401, dto.WebSocketResponse{
+			Code: 1019,
+			Msg:  "token 无效",
+		})
+		return
+	}
+	// 从token中获取用户id
+	uuid := claims.UserUUID
 	if uuid == "" {
 		c.JSON(401, dto.WebSocketResponse{
 			Code: 1019,
@@ -29,6 +48,7 @@ func WebSocketConnect(c *gin.Context) {
 		})
 		return
 	}
+
 	// 连接websocket http -> websocket
 	ws, err := UpdateGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {

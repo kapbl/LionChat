@@ -255,11 +255,14 @@ func (g *GroupService) GetGroupList() ([]dto.GroupInfo, *cerror.CodeError) {
 	err := g.DB.Table("group").
 		Select("group.uuid as group_uuid, group.name as group_name, group.member_count as member_count").
 		Joins("JOIN group_member ON group.uuid = group_member.group_uuid").
-		Where("group_member.user_id = ? AND group_member.delete_at IS NULL", g.UserID).
-		Where("group.delete_at IS NULL").
+		Where("group_member.user_id = ? AND group_member.deleted_at IS NULL", g.UserID).
+		Where("group.deleted_at IS NULL").
 		Scan(&groups).Error
 	if err != nil {
-		return nil, cerror.NewCodeError(1122, "查询群组失败")
+		return groups, cerror.NewCodeError(1122, "查询群组失败")
+	}
+	if len(groups) == 0 {
+		return groups, cerror.NewCodeError(1122, "您不在任何群组中")
 	}
 	return groups, nil
 }

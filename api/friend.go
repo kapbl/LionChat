@@ -12,7 +12,7 @@ import (
 func SearchClient(c *gin.Context) {
 	information := c.Query("information")
 	if information == "" {
-		c.JSON(400, dto.SearchClientResponse{
+		c.JSON(200, dto.SearchClientResponse{
 			BaseResponse: dto.BaseResponse{
 				RequestID: c.GetString("requestId"),
 			},
@@ -28,7 +28,7 @@ func SearchClient(c *gin.Context) {
 	friendService := service.NewFriendService(int64(iuserId), uuid, username, dao.DB)
 	res, err := friendService.SearchClient(information)
 	if err != nil {
-		c.JSON(400, dto.SearchClientResponse{
+		c.JSON(200, dto.SearchClientResponse{
 			BaseResponse: dto.BaseResponse{
 				RequestID: c.GetString("requestId"),
 			},
@@ -166,7 +166,7 @@ func GetFriendList(c *gin.Context) {
 	friendService := service.NewFriendService(int64(iuserId), uuid, username, dao.DB)
 	friendList, err := friendService.GetFriendList()
 	if err != nil {
-		c.JSON(400, dto.FriendListResponse{
+		c.JSON(200, dto.FriendListResponse{
 			BaseResponse: dto.BaseResponse{
 				RequestID: c.GetString("requestId"),
 			},

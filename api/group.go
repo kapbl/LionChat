@@ -198,9 +198,10 @@ func GetGroupList(c *gin.Context) {
 			BaseResponse: dto.BaseResponse{
 				RequestID: c.GetString("requestId"),
 			},
-			Code: 1,
-			Msg:  "获取组列表失败",
+			Code: int(err.Code),
+			Msg:  err.Msg,
 		})
+		return
 	}
 	c.JSON(http.StatusOK, dto.GetGroupsResponse{
 		BaseResponse: dto.BaseResponse{
