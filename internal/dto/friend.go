@@ -6,6 +6,7 @@ type FriendInfo struct {
 	Avatar   string `json:"avatar"`
 	Nickname string `json:"nickname"`
 	Email    string `json:"email"`
+	UUID     string `json:"uuid"`
 }
 
 // 处理好友请求

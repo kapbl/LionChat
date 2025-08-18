@@ -31,7 +31,6 @@ func NewFriendService(userID int64, uuid string, username string, db *gorm.DB) *
 
 // ✅
 func (f *FriendService) SearchClient(information string) (*dto.UserInfo, *cerror.CodeError) {
-
 	user := model.Users{}
 	err := dao.DB.Table(user.GetTable()).Where("username = ? OR nickname = ? OR email = ?", information, information, information).First(&user).Error
 	if err != nil {
@@ -68,9 +67,6 @@ func (f *FriendService) AddFriend(req *dto.AddFriendRequest) *cerror.CodeError {
 	if err == nil {
 		if friendTable.Status == 1 {
 			return cerror.NewCodeError(4444, "已经是好友")
-		} else {
-			// 好友请求已发送
-			return cerror.NewCodeError(4444, "好友请求已发送")
 		}
 	}
 	// 插入一条好友关系记录
