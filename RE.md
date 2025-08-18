@@ -1,6 +1,6 @@
 <div align="center">
 
-# ![resources/logo/lionchat.png](resources/logo/Weixin Image_20250818161412_18.png)
+# ![resources/logo/lionchat.png](resources/logo/logo2.png)
 #### (⌛ In Development.)
 #### English | [简体中文](https://github.com/kapbl/LionChat/blob/main/README.md)
 LionChat is an instant messaging backend system built with Go technology stack, leveraging Gin, GORM, Redis, WebSocket and Kafka to implement a feature-rich chat application.
