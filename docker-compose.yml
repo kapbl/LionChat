@@ -141,8 +141,6 @@ services:
       dockerfile: Dockerfile
     container_name: chatLion-chat-lion
     depends_on:
-      mysql:
-        condition: service_started
       redis:
         condition: service_started
       kafka:
