@@ -3,7 +3,7 @@
 # ![resources/logo/lionchat.png](resources/logo/lionchat.png)
 #### (⌛ 正在开发中)
 #### [English](https://github.com/kapbl/LionChat/blob/main/RE.md) | 简体中文
-LionChat 是一个即时通讯（IM）后端系统，完全采用 Go 语言技术栈构建。旨在提供一个高性能丰富的聊天应用程序后端，支持单聊、群聊、多媒体消息等多种现代IM功能。
+Lion Chat 是一个即时通讯（IM）后端系统，完全采用 Go 语言技术栈构建。旨在提供一个高性能丰富的聊天应用程序后端，支持单聊、群聊、多媒体消息等多种现代IM功能。
 #### [前端项目](https://github.com/kapbl/LionChat-Fronted)  | [后端项目](https://github.com/kapbl/LionChat) | [测试服务器运行指标的项目](https://github.com/kapbl/Lion-Chat-Test)
 #### [在线运行](http://62.234.192.227:8080/) 
 
@@ -34,7 +34,8 @@ LionChat 是一个即时通讯（IM）后端系统，完全采用 Go 语言技�
 - GORM
 - nginx
 - docker
-## 🎐Docker Compose 部署[暂时有问题]
+## 🎐Docker Compose 部署
+- 获取 release 分支的项目文件
 - 构建镜像
 ```bash
 docker compose up -d --build
