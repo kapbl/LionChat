@@ -46,11 +46,9 @@ COPY --from=builder /app/config ./config
 COPY --from=builder /app/static ./static
 COPY --from=builder /app/resources ./resources
 
-# 创建日志目录
-RUN mkdir -p /app/logs/server
-
-# 设置文件权限
-RUN chown -R appuser:appgroup /app && \
+# 创建日志目录并设置权限
+RUN mkdir -p /app/logs/server && \
+    chown -R appuser:appgroup /app && \
     chmod -R 755 /app && \
     chmod -R 777 /app/logs
 

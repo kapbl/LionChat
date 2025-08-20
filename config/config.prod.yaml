@@ -1,6 +1,6 @@
-# 开发环境配置
+# 生产环境配置
 mysql:
-  dsn: "root:0220059cyCY@tcp(mysql:3306)/chat?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "root:0220059cyCY@tcp(bj-cynosdbmysql-grp-ruts707k.sql.tencentcdb.com:24612)/lionchat?charset=utf8mb4&parseTime=True&loc=Local"
   max_idle_conns: 10
   max_open_conns: 100
   conn_max_lifetime: 3600
@@ -13,10 +13,10 @@ redis:
   min_idle_conns: 10
 
 jwt:
-  signing_key: "chat-dev-key"
+  signing_key: "chat-lion-key"
   expires_time: 604800
   buffer_time: 86400
-  issuer: "chat"
+  issuer: "lionchat"
 
 server:
   port: 9922
