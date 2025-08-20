@@ -5,7 +5,7 @@
 #### English | [简体中文](https://github.com/kapbl/LionChat/blob/main/README.md)
 LionChat is an instant messaging backend system built with Go technology stack, leveraging Gin, GORM, Redis, WebSocket and Kafka to implement a feature-rich chat application.
 #### [Frontend Project](https://github.com/kapbl/LionChat-Fronted) | [Backend Project](https://github.com/kapbl/LionChat) | [Performance Test Project](https://github.com/kapbl/Lion-Chat-Test)
-[Online Demo](http://62.234.192.227:8080/) 
+[Online Demo](https://lionchat.online/) 
 
 </div>
 
