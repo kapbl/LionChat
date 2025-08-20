@@ -52,6 +52,7 @@ func GetUserInfor(uuid string) (*dto.UserInfo, *cerror.CodeError) {
 		Username: user.Username,
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
+		UUID:     user.Uuid,
 	}
 
 	return userInfo, nil
