@@ -23,7 +23,7 @@ func main() {
 	if envVar := os.Getenv("APP_ENV"); envVar != "" {
 		env = envVar
 	} else {
-		flag.StringVar(&env, "env", "dev", "运行环境 (dev, prod)")
+		flag.StringVar(&env, "env", "prod", "运行环境 (dev, prod)")
 		flag.Parse()
 	}
 

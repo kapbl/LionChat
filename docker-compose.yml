@@ -103,6 +103,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: chatLion-chat-lion
+    user: "0:0"  # 以 root 用户运行解决权限问题
     depends_on:
       redis:
         condition: service_started
@@ -116,6 +117,7 @@ services:
       - "9922:9922"
     environment:
       - CONFIG_PATH=./config/config.prod.yaml
+      - APP_ENV=prod
       - GIN_MODE=release
     volumes:
       - ./config:/app/config:ro
@@ -136,9 +138,6 @@ volumes:
     driver: local
   chat-lion-data:
     driver: local
-  mysql-data:
-    driver: local
-
 
 networks:
   kafka-network:

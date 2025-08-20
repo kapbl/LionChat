@@ -110,7 +110,6 @@ func InitRouter() {
 	//*** 好友相关的路由
 	AppRouterGroups["friend"].GET("/search", api.SearchClient)
 	AppRouterGroups["friend"].POST("/friends", api.AddFriend)
-	// AppRouterGroups["friend"].POST("/handleRequest", api.ReceiveFriendRequest)
 	AppRouterGroups["friend"].POST("/friendResponse", api.HandleFriendResponse)
 	AppRouterGroups["friend"].GET("/friendList", api.GetFriendList)
 
@@ -138,6 +137,5 @@ func InitRouter() {
 	AppRouterGroups["comment"].POST("/create", api.CreateComment)
 	AppRouterGroups["comment"].POST("/like", api.LikeComment)
 	AppRouterGroups["comment"].GET("/list", api.GetCommentList)
-
 	logger.Info("API路由注册完成")
 }

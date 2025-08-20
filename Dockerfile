@@ -56,11 +56,12 @@ RUN mkdir -p /app/logs/server && \
 USER appuser
 
 # 暴露端口
-EXPOSE 8081
+EXPOSE 9922
 
 # 设置环境变量
 ENV GIN_MODE=release
-ENV CONFIG_PATH=./config/config.yaml
+ENV APP_ENV=prod
+ENV CONFIG_PATH=./config/config.prod.yaml
 
 # 运行应用
 CMD ["./main"]
