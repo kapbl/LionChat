@@ -1,6 +1,6 @@
 <div align="center">
 
-# ![resources/logo/lionchat.png](resources/logo/logo2.png)
+# ![resources/logo/lionchat.png](resources/logo/lionchat.png)
 #### (⌛ 正在开发中)
 #### [English](https://github.com/kapbl/LionChat/blob/main/RE.md) | 简体中文
 LionChat 是一个即时通讯（IM）后端系统，完全采用 Go 语言技术栈构建。旨在提供一个高性能丰富的聊天应用程序后端，支持单聊、群聊、多媒体消息等多种现代IM功能。
