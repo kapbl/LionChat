@@ -34,7 +34,7 @@ RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup
 
 # 设置工作目录
-WORKDIR /root/
+WORKDIR /app
 
 # 从构建阶段复制二进制文件
 COPY --from=builder /app/main .
@@ -47,10 +47,12 @@ COPY --from=builder /app/static ./static
 COPY --from=builder /app/resources ./resources
 
 # 创建日志目录
-RUN mkdir -p /root/logs
+RUN mkdir -p /app/logs/server
 
 # 设置文件权限
-RUN chown -R appuser:appgroup /root
+RUN chown -R appuser:appgroup /app && \
+    chmod -R 755 /app && \
+    chmod -R 777 /app/logs
 
 # 切换到非root用户
 USER appuser

@@ -158,8 +158,8 @@ services:
 
   #     - GIN_MODE=release
   #   volumes:
-  #     - ./config:/root/config:ro
-  #     - ./logs:/root/logs
+  #     - ./config:/app/config:ro
+  #     - ./logs:/app/logs
   #   networks:
   #     - kafka-network
   #   restart: unless-stopped
