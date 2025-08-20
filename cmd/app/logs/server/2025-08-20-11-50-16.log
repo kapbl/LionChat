@@ -1,0 +1,178 @@
+{"level":"info","time":"2025-08-20T11:50:16.769+0800","caller":"config/config.go:93","msg":"加载配置文件","config_name":"config.dev"}
+{"level":"info","time":"2025-08-20T11:50:16.770+0800","caller":"config/config.go:101","msg":"配置文件搜索路径","paths":["config/","../config/","../../config/"]}
+{"level":"info","time":"2025-08-20T11:50:16.788+0800","caller":"config/config.go:129","msg":"加载配置文件成功","config_file":"c:\\Users\\caoyan\\LionChat\\config\\config.dev.yaml","environment":""}
+{"level":"info","time":"2025-08-20T11:50:16.809+0800","caller":"dao/db.go:44","msg":"数据库连接池配置成功","max_idle_conns":10,"max_open_conns":100,"conn_max_lifetime":0.0000036}
+{"level":"info","time":"2025-08-20T11:50:16.810+0800","caller":"app/main.go:34","msg":"数据库初始化成功"}
+{"level":"info","time":"2025-08-20T11:50:16.851+0800","caller":"dao/redis.go:44","msg":"Redis连接成功","addr":"localhost:6379","db":0,"pool_size":100,"min_idle_conns":10}
+{"level":"info","time":"2025-08-20T11:50:16.851+0800","caller":"app/main.go:40","msg":"Redis初始化成功"}
+{"level":"info","time":"2025-08-20T11:50:16.864+0800","caller":"dao/kafak.go:56","msg":"Kafka客户端初始化成功"}
+{"level":"info","time":"2025-08-20T11:50:16.864+0800","caller":"app/main.go:47","msg":"Kafka初始化成功"}
+{"level":"info","time":"2025-08-20T11:50:17.045+0800","caller":"router/router.go:64","msg":"路由组初始化完成","groupCount":12,"groups":["stats","user","webSocket","message","group","monitor","moment","profile","server","friend","comment","health"]}
+{"level":"info","time":"2025-08-20T11:50:17.045+0800","caller":"router/router.go:95","msg":"JWT中间件配置完成","protected_groups":["friend","group","monitor"]}
+{"level":"info","time":"2025-08-20T11:50:17.045+0800","caller":"router/router.go:142","msg":"API路由注册完成"}
+{"level":"info","time":"2025-08-20T11:50:17.045+0800","caller":"router/router.go:30","msg":"Web引擎初始化完成"}
+{"level":"info","time":"2025-08-20T11:50:17.049+0800","caller":"app/main.go:60","msg":"Kafka消费者服务启动成功"}
+{"level":"info","time":"2025-08-20T11:50:17.049+0800","caller":"router/router.go:41","msg":"启动Web服务器","addr":":9922"}
+{"level":"info","time":"2025-08-20T11:50:17.050+0800","caller":"service/kafka_consumer.go:86","msg":"Kafka消费者服务启动成功","topics":["chat-messages","user-events","group-messages"]}
+{"level":"info","time":"2025-08-20T11:50:17.050+0800","caller":"service/worker_house.go:184","msg":"WorkerHouse初始化完成","initialWorkers":10,"maxWorkers":20,"threshold":150}
+{"level":"info","time":"2025-08-20T11:51:23.611+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":0,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:51:23.611+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":0}
+{"level":"info","time":"2025-08-20T11:51:23.632+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:51:23.632+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:51:40.940+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":1,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:51:40.940+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":1}
+{"level":"info","time":"2025-08-20T11:51:40.961+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:51:40.961+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:52:03.263+0800","caller":"service/worker.go:96","msg":"发送单聊消息","type":"文本","to":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":1}
+{"level":"info","time":"2025-08-20T11:52:03.272+0800","caller":"service/kafka_consumer.go:166","msg":"处理聊天消息事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"message"}
+{"level":"info","time":"2025-08-20T11:53:09.358+0800","caller":"service/worker.go:96","msg":"发送单聊消息","type":"文本","to":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":1}
+{"level":"info","time":"2025-08-20T11:53:09.363+0800","caller":"service/kafka_consumer.go:166","msg":"处理聊天消息事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"message"}
+{"level":"error","time":"2025-08-20T11:54:17.420+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T11:54:17.423+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:54:17.423+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T11:54:17.423+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"error","time":"2025-08-20T11:54:17.432+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T11:54:17.436+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:54:17.436+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T11:54:17.436+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:54:17.437+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":2,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:54:17.437+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":2}
+{"level":"info","time":"2025-08-20T11:54:17.441+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:54:17.441+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:54:17.464+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":3,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:54:17.464+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":3}
+{"level":"info","time":"2025-08-20T11:54:17.469+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:54:17.469+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"error","time":"2025-08-20T11:54:36.010+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T11:54:36.014+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:54:36.014+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T11:54:36.014+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:54:36.024+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":4,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:54:36.024+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":4}
+{"level":"info","time":"2025-08-20T11:54:36.028+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:54:36.028+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"error","time":"2025-08-20T11:54:36.037+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T11:54:36.041+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:54:36.041+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T11:54:36.041+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:54:36.060+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":5,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:54:36.060+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":5}
+{"level":"info","time":"2025-08-20T11:54:36.064+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:54:36.064+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:54:43.418+0800","caller":"service/worker.go:96","msg":"发送单聊消息","type":"文本","to":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":4}
+{"level":"info","time":"2025-08-20T11:54:43.422+0800","caller":"service/kafka_consumer.go:166","msg":"处理聊天消息事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"message"}
+{"level":"info","time":"2025-08-20T11:54:54.367+0800","caller":"service/client.go:53","msg":"client disconnected normally","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","error":"websocket: close 1001 (going away)"}
+{"level":"info","time":"2025-08-20T11:54:54.370+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:54:54.373+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T11:54:54.373+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:54:54.621+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":6,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:54:54.623+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":6}
+{"level":"info","time":"2025-08-20T11:54:54.627+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:54:54.627+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:55:01.404+0800","caller":"service/worker.go:96","msg":"发送单聊消息","type":"文本","to":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":6}
+{"level":"info","time":"2025-08-20T11:55:01.409+0800","caller":"service/kafka_consumer.go:166","msg":"处理聊天消息事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"message"}
+{"level":"info","time":"2025-08-20T11:56:51.765+0800","caller":"service/client.go:53","msg":"client disconnected normally","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","error":"websocket: close 1001 (going away)"}
+{"level":"info","time":"2025-08-20T11:56:51.769+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:56:51.769+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T11:56:51.769+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:56:51.993+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":7,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:56:51.993+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":7}
+{"level":"info","time":"2025-08-20T11:56:51.998+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:56:51.998+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T11:56:53.317+0800","caller":"service/client.go:53","msg":"client disconnected normally","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","error":"websocket: close 1001 (going away)"}
+{"level":"info","time":"2025-08-20T11:56:53.320+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:56:53.322+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T11:56:53.322+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:56:53.491+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":8,"taskCount":1}
+{"level":"info","time":"2025-08-20T11:56:53.493+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":8}
+{"level":"info","time":"2025-08-20T11:56:53.498+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T11:56:53.498+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T11:56:59.069+0800","caller":"service/worker.go:96","msg":"发送单聊消息","type":"文本","to":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":7}
+{"level":"info","time":"2025-08-20T11:56:59.073+0800","caller":"service/kafka_consumer.go:166","msg":"处理聊天消息事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"message"}
+{"level":"error","time":"2025-08-20T12:00:59.155+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T12:00:59.161+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:00:59.161+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:00:59.161+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"error","time":"2025-08-20T12:00:59.162+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T12:00:59.166+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:00:59.167+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:00:59.167+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:00:59.175+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":9,"taskCount":1}
+{"level":"info","time":"2025-08-20T12:00:59.175+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":9}
+{"level":"info","time":"2025-08-20T12:00:59.178+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:00:59.178+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:00:59.189+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":9,"taskCount":2}
+{"level":"info","time":"2025-08-20T12:00:59.189+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":9}
+{"level":"info","time":"2025-08-20T12:00:59.192+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:00:59.192+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"error","time":"2025-08-20T12:01:13.115+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"error","time":"2025-08-20T12:01:13.118+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T12:01:13.118+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:01:13.119+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:01:13.120+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:01:13.122+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:01:13.122+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:01:13.122+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:01:13.135+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":0,"taskCount":3}
+{"level":"info","time":"2025-08-20T12:01:13.135+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":0}
+{"level":"info","time":"2025-08-20T12:01:13.140+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:01:13.141+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:01:13.142+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":1,"taskCount":3}
+{"level":"info","time":"2025-08-20T12:01:13.142+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":1}
+{"level":"info","time":"2025-08-20T12:01:13.146+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:01:13.146+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:01:29.379+0800","caller":"service/worker.go:96","msg":"发送单聊消息","type":"文本","to":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":0}
+{"level":"info","time":"2025-08-20T12:01:29.385+0800","caller":"service/kafka_consumer.go:166","msg":"处理聊天消息事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"message"}
+{"level":"error","time":"2025-08-20T12:01:52.642+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T12:01:52.647+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:01:52.649+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:01:52.649+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"error","time":"2025-08-20T12:01:52.655+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T12:01:52.658+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":2,"taskCount":3}
+{"level":"info","time":"2025-08-20T12:01:52.658+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":2}
+{"level":"info","time":"2025-08-20T12:01:52.659+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:01:52.659+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:01:52.659+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:01:52.662+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:01:52.662+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:01:52.675+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":3,"taskCount":3}
+{"level":"info","time":"2025-08-20T12:01:52.675+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":3}
+{"level":"info","time":"2025-08-20T12:01:52.678+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:01:52.678+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:02:00.907+0800","caller":"service/worker.go:96","msg":"发送单聊消息","type":"文本","to":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":3}
+{"level":"info","time":"2025-08-20T12:02:00.912+0800","caller":"service/kafka_consumer.go:166","msg":"处理聊天消息事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"message"}
+{"level":"error","time":"2025-08-20T12:02:20.378+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T12:02:20.382+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:02:20.384+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:02:20.385+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"error","time":"2025-08-20T12:02:20.390+0800","caller":"service/client.go:51","msg":"client read message error:","error":"websocket: close 1005 (no status)"}
+{"level":"info","time":"2025-08-20T12:02:20.393+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":4,"taskCount":3}
+{"level":"info","time":"2025-08-20T12:02:20.393+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":4}
+{"level":"info","time":"2025-08-20T12:02:20.395+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:02:20.395+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:02:20.395+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:02:20.397+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:02:20.397+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:02:20.415+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":5,"taskCount":3}
+{"level":"info","time":"2025-08-20T12:02:20.415+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":5}
+{"level":"info","time":"2025-08-20T12:02:20.421+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:02:20.421+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800"}
+{"level":"info","time":"2025-08-20T12:02:26.327+0800","caller":"service/worker.go:96","msg":"发送单聊消息","type":"文本","to":"21981263-b413-3ca0-bc23-13b98d7cc800","workerID":5}
+{"level":"info","time":"2025-08-20T12:02:26.332+0800","caller":"service/kafka_consumer.go:166","msg":"处理聊天消息事件","user_id":"21981263-b413-3ca0-bc23-13b98d7cc800","event_type":"message"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming group-messages/1: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming chat-messages/2: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming user-events/1: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming user-events/0: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming user-events/2: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming group-messages/2: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming group-messages/0: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming chat-messages/1: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"error","time":"2025-08-20T12:33:02.572+0800","caller":"service/kafka_consumer.go:81","msg":"Kafka消费者错误","error":"kafka: error while consuming chat-messages/0: read tcp [::1]:50917->[::1]:9092: i/o timeout"}
+{"level":"info","time":"2025-08-20T12:35:12.969+0800","caller":"service/client.go:53","msg":"client disconnected normally","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","error":"websocket: close 1001 (going away)"}
+{"level":"info","time":"2025-08-20T12:35:12.975+0800","caller":"service/worker.go:281","msg":"客户端连接已清理","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:35:12.976+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_offline"}
+{"level":"info","time":"2025-08-20T12:35:12.976+0800","caller":"service/kafka_consumer.go:196","msg":"用户下线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}
+{"level":"info","time":"2025-08-20T12:35:13.214+0800","caller":"service/worker_house.go:41","msg":"取出一个工作者","workerID":6,"taskCount":3}
+{"level":"info","time":"2025-08-20T12:35:13.214+0800","caller":"service/worker.go:159","msg":"注册连接","uuid":"0704e879-c1e8-37f8-8a71-79c7e122f474","workerID":6}
+{"level":"info","time":"2025-08-20T12:35:13.219+0800","caller":"service/kafka_consumer.go:185","msg":"处理用户事件","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474","event_type":"user_online"}
+{"level":"info","time":"2025-08-20T12:35:13.219+0800","caller":"service/kafka_consumer.go:193","msg":"用户上线","user_id":"0704e879-c1e8-37f8-8a71-79c7e122f474"}

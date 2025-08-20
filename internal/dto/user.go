@@ -13,6 +13,7 @@ type UserInfo struct {
 	Username string `json:"username"`
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
+	UUID     string `json:"uuid"`
 }
 
 // 更新用户信息请求
