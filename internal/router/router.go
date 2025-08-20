@@ -115,6 +115,7 @@ func InitRouter() {
 
 	//*** 消息相关的路由
 	AppRouterGroups["message"].GET("/getUnreadMessage", api.GetUnreadMessage)
+	AppRouterGroups["message"].POST("/markAsRead", api.MarkMessageAsRead)
 
 	//*** 群组相关的路由
 	AppRouterGroups["group"].POST("", api.CreateGroup)

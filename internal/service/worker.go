@@ -2,8 +2,10 @@ package service
 
 import (
 	"cchat/internal/dao"
+	"cchat/internal/dao/model"
 	"cchat/pkg/logger"
 	"cchat/pkg/protocol"
+	"strconv"
 	"sync"
 	"time"
 
@@ -90,27 +92,41 @@ func (s *Worker) handleDirectMessage(msg *protocol.Message, originalMessage []by
 		return
 	}
 
-	// 尝试从本地客户端列表中查找目标客户端
-	if client, ok := s.Clients.Load(msg.To); ok {
-		// 找到本地客户端，直接发送
-		logger.Info("发送单聊消息",
-			zap.String("type", s.getContentTypeName(msg.ContentType)),
-			zap.String("to", msg.To),
-			zap.Int("workerID", s.ID))
+	// 保存消息到数据库
+	s.saveMessageToDB(msg)
 
-		// 优先使用Kafka发送，否则使用WebSocket
-		if dao.KafkaProducerInstance != nil {
-			if err := dao.KafkaProducerInstance.SendChatMessage(msg.To, msgByte, s.ID); err != nil {
-				logger.Error("发送消息到Kafka失败", zap.Error(err))
-				// Kafka失败时降级到WebSocket
+	// 检查目标用户是否在线
+	isOnline := s.isUserOnline(msg.To)
+
+	if isOnline {
+		// 尝试从本地客户端列表中查找目标客户端
+		if client, ok := s.Clients.Load(msg.To); ok {
+			// 找到本地客户端，直接发送
+			logger.Info("发送单聊消息",
+				zap.String("type", s.getContentTypeName(msg.ContentType)),
+				zap.String("to", msg.To),
+				zap.Int("workerID", s.ID))
+
+			// 优先使用Kafka发送，否则使用WebSocket
+			if dao.KafkaProducerInstance != nil {
+				if err := dao.KafkaProducerInstance.SendChatMessage(msg.To, msgByte, s.ID); err != nil {
+					logger.Error("发送消息到Kafka失败", zap.Error(err))
+					// Kafka失败时降级到WebSocket
+					s.SendMessageToClient(client.(*Client), msgByte)
+				}
+			} else {
 				s.SendMessageToClient(client.(*Client), msgByte)
 			}
 		} else {
-			s.SendMessageToClient(client.(*Client), msgByte)
+			// 本地未找到，转发到其他worker
+			s.forwardToOtherWorkers(msg.To, originalMessage)
 		}
 	} else {
-		// 本地未找到，转发到其他worker
-		s.forwardToOtherWorkers(msg.To, originalMessage)
+		// 用户离线，消息已保存到数据库，等待用户上线时推送
+		logger.Info("用户离线，消息已保存到数据库",
+			zap.String("to", msg.To),
+			zap.String("from", msg.From),
+			zap.String("messageId", msg.MessageId))
 	}
 }
 
@@ -171,13 +187,16 @@ func (s *Worker) Do() {
 					}
 				}
 			}()
-			// 异步更新数据库用户的在线状态
+			// 异步更新数据库用户的在线状态并推送离线消息
 			go func() {
 				// 更新用户的在线状态为1
 				err := dao.DB.Table("users").Where("uuid = ?", conn.UUID).Update("status", 1).Error
 				if err != nil {
 					logger.Error("更新用户在线状态失败", zap.Error(err))
 				}
+
+				// 推送离线消息
+				s.pushOfflineMessages(conn)
 			}()
 			// 启动客户端的读取和写入 goroutine
 			conn.workerID = s.ID
@@ -360,4 +379,126 @@ func (s *Worker) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 			s.forwardToOtherWorkers(clientID, msg)
 		}
 	}
+}
+
+// saveMessageToDB 保存消息到数据库
+func (s *Worker) saveMessageToDB(msg *protocol.Message) {
+	// 生成消息ID（如果没有的话）
+	var messageID uint
+	if msg.MessageId != "" {
+		// 尝试将字符串转换为uint
+		if id, err := strconv.ParseUint(msg.MessageId, 10, 64); err == nil {
+			messageID = uint(id)
+		} else {
+			messageID = uint(time.Now().UnixNano())
+		}
+	} else {
+		messageID = uint(time.Now().UnixNano())
+	}
+
+	// 创建消息记录
+	message := &model.Message{
+		SenderID:  msg.From,
+		ReceiveID: msg.To,
+		Content:   msg.Content,
+		Status:    0, // 0表示未读
+		MessageID: messageID,
+	}
+
+	// 保存到数据库
+	if err := dao.DB.Create(message).Error; err != nil {
+		logger.Error("保存消息到数据库失败",
+			zap.Error(err),
+			zap.String("from", msg.From),
+			zap.String("to", msg.To),
+			zap.String("messageId", msg.MessageId))
+	} else {
+		logger.Info("消息已保存到数据库",
+			zap.String("from", msg.From),
+			zap.String("to", msg.To),
+			zap.Uint("dbMessageId", messageID))
+	}
+}
+
+// isUserOnline 检查用户是否在线
+func (s *Worker) isUserOnline(userUUID string) bool {
+	// 首先检查本地客户端列表
+	if _, ok := s.Clients.Load(userUUID); ok {
+		return true
+	}
+
+	// 检查其他worker的客户端列表
+	for _, worker := range s.WorkerHouse.Workers {
+		if worker.ID != s.ID {
+			if _, ok := worker.Clients.Load(userUUID); ok {
+				return true
+			}
+		}
+	}
+
+	// 最后检查数据库中的用户状态
+	var user model.Users
+	err := dao.DB.Table("users").Where("uuid = ?", userUUID).First(&user).Error
+	if err != nil {
+		logger.Error("查询用户状态失败", zap.Error(err), zap.String("uuid", userUUID))
+		return false
+	}
+
+	return user.Status == 1
+}
+
+// pushOfflineMessages 推送离线消息给刚上线的用户
+func (s *Worker) pushOfflineMessages(client *Client) {
+	// 查询该用户的未读消息
+	var messages []model.Message
+	err := dao.DB.Table("message").Where("receive_id = ? AND status = 0", client.UUID).Order("created_at ASC").Find(&messages).Error
+	if err != nil {
+		logger.Error("查询离线消息失败", zap.Error(err), zap.String("uuid", client.UUID))
+		return
+	}
+
+	if len(messages) == 0 {
+		logger.Info("用户无离线消息", zap.String("uuid", client.UUID))
+		return
+	}
+
+	logger.Info("开始推送离线消息",
+		zap.String("uuid", client.UUID),
+		zap.Int("count", len(messages)))
+
+	// 逐条推送离线消息
+	for _, msg := range messages {
+		// 构造协议消息
+		protocolMsg := &protocol.Message{
+			From:        msg.SenderID,
+			To:          msg.ReceiveID,
+			Content:     msg.Content,
+			ContentType: 1, // 默认为文本消息
+			// Type:        1, // 单聊消息
+			MessageType: 1, // 普通消息
+			MessageId:   strconv.FormatUint(uint64(msg.MessageID), 10),
+			Timestamp:   time.Now().Unix(),
+		}
+
+		// 序列化消息
+		msgByte, err := proto.Marshal(protocolMsg)
+		if err != nil {
+			logger.Error("序列化离线消息失败", zap.Error(err), zap.Uint("messageId", msg.MessageID))
+			continue
+		}
+
+		// 发送消息给客户端
+		s.SendMessageToClient(client, msgByte)
+
+		// 标记消息为已读（可选，也可以等客户端确认后再标记）
+		// 这里先不自动标记为已读，等待客户端确认
+		logger.Debug("推送离线消息",
+			zap.String("from", msg.SenderID),
+			zap.String("to", msg.ReceiveID),
+			zap.Uint("messageId", msg.MessageID))
+	}
+
+	logger.Info("离线消息推送完成",
+		zap.String("uuid", client.UUID),
+		zap.Int("count", len(messages)))
 }
