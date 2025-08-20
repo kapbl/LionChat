@@ -26,8 +26,8 @@ func main() {
 	config := &Config{}
 
 	// 命令行参数
-	flag.StringVar(&config.Host, "host", "localhost", "MySQL主机地址")
-	flag.StringVar(&config.Port, "port", "3306", "MySQL端口")
+	flag.StringVar(&config.Host, "host", "bj-cynosdbmysql-grp-ruts707k.sql.tencentcdb.com", "MySQL主机地址")
+	flag.StringVar(&config.Port, "port", "24612", "MySQL端口")
 	flag.StringVar(&config.Username, "username", "root", "MySQL用户名")
 	flag.StringVar(&config.Password, "password", "0220059cyCY", "MySQL密码")
 	flag.StringVar(&config.Database, "database", "lionchat", "数据库名")

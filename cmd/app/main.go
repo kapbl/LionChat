@@ -20,8 +20,12 @@ import (
 func main() {
 	// 解析命令行参数
 	var env string
-	flag.StringVar(&env, "env", "dev", "运行环境 (dev, prod)")
-	flag.Parse()
+	if envVar := os.Getenv("APP_ENV"); envVar != "" {
+		env = envVar
+	} else {
+		flag.StringVar(&env, "env", "dev", "运行环境 (dev, prod)")
+		flag.Parse()
+	}
 
 	// 初始化日志
 	logger.InitLogger()
