@@ -58,16 +58,21 @@ services:
       # 支持大文件传输 - 设置最大消息大小为 10MB
       KAFKA_MESSAGE_MAX_BYTES: 10485760
       KAFKA_REPLICA_FETCH_MAX_BYTES: 10485760
+      # 内存配置 - 进一步降低内存使用
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
+      # JVM配置优化
+      KAFKA_JVM_PERFORMANCE_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
     volumes:
       - kafka-data:/var/lib/kafka/data
     networks:
       - kafka-network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 60s
+      retries: 3
+      start_period: 40s
 
   # 初始化脚本容器
   kafka-init:
@@ -104,14 +109,10 @@ services:
       dockerfile: Dockerfile
     container_name: chatLion-chat-lion
     depends_on:
-      redis:
-        condition: service_started
-      kafka:
-        condition: service_healthy
-      kafka-init:
-        condition: service_completed_successfully
-      zookeeper:
-        condition: service_started
+      - redis
+      - kafka
+      - kafka-init
+      - zookeeper
     ports:
       - "9922:9922"
     environment:

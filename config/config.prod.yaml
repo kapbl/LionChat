@@ -1,4 +1,4 @@
-# 开发环境配置
+# 生产环境配置
 mysql:
   dsn: "root:0220059cyCY@tcp(bj-cynosdbmysql-grp-ruts707k.sql.tencentcdb.com:24612)/lionchat?charset=utf8mb4&parseTime=True&loc=Local"
   max_idle_conns: 10
