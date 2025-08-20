@@ -3,6 +3,7 @@ package api
 import (
 	"cchat/internal/dao"
 	"cchat/internal/dao/model"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -33,7 +34,7 @@ type MessageInfo struct {
 // GetUnreadMessage 获取用户的未读消息
 func GetUnreadMessage(c *gin.Context) {
 	// 获取用户UUID参数
-	userUUID := c.Query("user_uuid")
+	userUUID := c.GetString("userUuid")
 	if userUUID == "" {
 		c.JSON(http.StatusBadRequest, UnreadMessageResponse{
 			Code:    400,
@@ -116,7 +117,6 @@ func GetUnreadMessage(c *gin.Context) {
 
 // MarkMessageAsReadRequest 标记消息已读请求结构
 type MarkMessageAsReadRequest struct {
-	UserUUID   string `json:"user_uuid" binding:"required"`
 	MessageIDs []uint `json:"message_ids" binding:"required"`
 }
 
@@ -147,10 +147,20 @@ func MarkMessageAsRead(c *gin.Context) {
 		})
 		return
 	}
+	// 获取用户UUID参数
+	userUUID := c.GetString("userUuid")
+	if userUUID == "" {
+		c.JSON(http.StatusBadRequest, MarkMessageAsReadResponse{
+			Code:    400,
+			Message: "用户UUID不能为空",
+		})
+		return
+	}
+	fmt.Println(req.MessageIDs)
 
 	// 更新消息状态为已读
 	result := dao.DB.Table("message").
-		Where("receive_id = ? AND message_id IN ? AND status = 0", req.UserUUID, req.MessageIDs).
+		Where("receive_id = ? AND message_id IN ? AND status = 0", userUUID, req.MessageIDs).
 		Update("status", 1)
 
 	if result.Error != nil {

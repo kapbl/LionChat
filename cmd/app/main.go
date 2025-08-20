@@ -53,7 +53,7 @@ func main() {
 	// 自动迁移表
 	model.Migrate(dao.DB)
 	// 初始化路由
-	router.InitWebEngine()
+	router.InitWebEngine(&appConfig)
 	// 启动Kafka消费者服务
 	if dao.KafkaConsumerInstance != nil {
 		kafkaConsumerService, err := service.NewKafkaConsumerService(&appConfig)

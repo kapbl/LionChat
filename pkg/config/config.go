@@ -26,12 +26,13 @@ type Config struct {
 		RefreshTime int    `mapstructure:"refresh_time" default:"43200"` // 秒
 	}
 	Server struct {
-		Port         int    `mapstructure:"port" default:"8081"`
-		Host         string `mapstructure:"host" default:"127.0.0.1"`
-		Environment  string `mapstructure:"environment" default:"development"`
-		ServiceName  string `mapstructure:"service_name" default:"chat-lion"`
-		ReadTimeout  int    `mapstructure:"read_timeout" default:"60"`  // 秒
-		WriteTimeout int    `mapstructure:"write_timeout" default:"60"` // 秒
+		Port         int      `mapstructure:"port" default:"8081"`
+		Host         string   `mapstructure:"host" default:"127.0.0.1"`
+		Environment  string   `mapstructure:"environment" default:"development"`
+		ServiceName  string   `mapstructure:"service_name" default:"chat-lion"`
+		ReadTimeout  int      `mapstructure:"read_timeout" default:"60"`  // 秒
+		WriteTimeout int      `mapstructure:"write_timeout" default:"60"` // 秒
+		CorsOrigins  []string `mapstructure:"cors_origins"`               // CORS允许的源
 	}
 	Redis struct {
 		Addr         string `mapstructure:"addr" default:"localhost:6379"`

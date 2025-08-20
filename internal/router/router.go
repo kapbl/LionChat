@@ -19,11 +19,11 @@ var webEngine *gin.Engine
 // var AppRouters map[string]func(c *gin.Context)
 var AppRouterGroups map[string]*gin.RouterGroup = map[string]*gin.RouterGroup{}
 
-func InitWebEngine() {
+func InitWebEngine(c *config.Config) {
 	// 初始化路由
 	gin.SetMode(gin.ReleaseMode)
 	webEngine = gin.Default()
-	InitCors()
+	InitCors(c)
 	InitRouterGroups()
 	InitMiddleware()
 	InitRouter()
@@ -74,15 +74,22 @@ func getRouterGroupNames() []string {
 	return names
 }
 
-func InitCors() {
+func InitCors(c *config.Config) {
+	// 从配置文件读取CORS origins，如果为空则使用默认值
+	corsOrigins := c.Server.CorsOrigins
+	if len(corsOrigins) == 0 {
+		corsOrigins = []string{"https://lionchat.online", "https://lionchat.online/"}
+	}
+
 	webEngine.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://lionchat.online", "https://lionchat.online/"},
+		AllowOrigins:     corsOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+	logger.Info("CORS配置完成", zap.Strings("allowed_origins", corsOrigins))
 }
 
 func InitMiddleware() {
@@ -92,6 +99,8 @@ func InitMiddleware() {
 	AppRouterGroups["profile"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["moment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["comment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+	AppRouterGroups["message"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
+
 	logger.Info("JWT中间件配置完成",
 		zap.Strings("protected_groups", []string{"friend", "group", "monitor"}))
 }

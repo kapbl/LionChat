@@ -93,7 +93,7 @@ func (s *Worker) handleDirectMessage(msg *protocol.Message, originalMessage []by
 	}
 
 	// 保存消息到数据库
-	s.saveMessageToDB(msg)
+	// s.saveMessageToDB(msg)
 
 	// 检查目标用户是否在线
 	isOnline := s.isUserOnline(msg.To)
@@ -113,6 +113,9 @@ func (s *Worker) handleDirectMessage(msg *protocol.Message, originalMessage []by
 					logger.Error("发送消息到Kafka失败", zap.Error(err))
 					// Kafka失败时降级到WebSocket
 					s.SendMessageToClient(client.(*Client), msgByte)
+				} else {
+					// Kafka发送成功，不需要再通过WebSocket发送
+					logger.Debug("消息已通过Kafka发送", zap.String("to", msg.To))
 				}
 			} else {
 				s.SendMessageToClient(client.(*Client), msgByte)
@@ -123,6 +126,7 @@ func (s *Worker) handleDirectMessage(msg *protocol.Message, originalMessage []by
 		}
 	} else {
 		// 用户离线，消息已保存到数据库，等待用户上线时推送
+		s.saveMessageToDB(msg)
 		logger.Info("用户离线，消息已保存到数据库",
 			zap.String("to", msg.To),
 			zap.String("from", msg.From),

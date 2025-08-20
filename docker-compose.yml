@@ -98,33 +98,33 @@ services:
     networks:
       - kafka-network
 
-  chat-lion:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: chatLion-chat-lion
-    user: "0:0"  # 以 root 用户运行解决权限问题
-    depends_on:
-      redis:
-        condition: service_started
-      kafka:
-        condition: service_healthy
-      kafka-init:
-        condition: service_completed_successfully
-      zookeeper:
-        condition: service_started
-    ports:
-      - "9922:9922"
-    environment:
-      - CONFIG_PATH=./config/config.prod.yaml
-      - APP_ENV=prod
-      - GIN_MODE=release
-    volumes:
-      - ./config:/app/config:ro
-      - ./logs:/app/logs
-    networks:
-      - kafka-network
-    restart: unless-stopped
+  # chat-lion:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: chatLion-chat-lion
+  #   user: "0:0"  # 以 root 用户运行解决权限问题
+  #   depends_on:
+  #     redis:
+  #       condition: service_started
+  #     kafka:
+  #       condition: service_healthy
+  #     kafka-init:
+  #       condition: service_completed_successfully
+  #     zookeeper:
+  #       condition: service_started
+  #   ports:
+  #     - "9922:9922"
+  #   environment:
+  #     - CONFIG_PATH=./config/config.prod.yaml
+  #     - APP_ENV=prod
+  #     - GIN_MODE=release
+  #   volumes:
+  #     - ./config:/app/config:ro
+  #     - ./logs:/app/logs
+  #   networks:
+  #     - kafka-network
+  #   restart: unless-stopped
 
 
 volumes:
@@ -136,8 +136,8 @@ volumes:
     driver: local
   redis-data:
     driver: local
-  chat-lion-data:
-    driver: local
+  # chat-lion-data:
+  #   driver: local
 
 networks:
   kafka-network:

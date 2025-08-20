@@ -1,2 +1,4 @@
 logs/server/
 .vscode/
+docker-compose.yml
+Dockerfile

@@ -1,0 +1,6 @@
+{"level":"info","time":"2025-08-20T17:56:22.561+0800","caller":"config/config.go:94","msg":"加载配置文件","config_name":"config.prod"}
+{"level":"info","time":"2025-08-20T17:56:22.561+0800","caller":"config/config.go:102","msg":"配置文件搜索路径","paths":["config/","../config/","../../config/"]}
+{"level":"info","time":"2025-08-20T17:56:22.564+0800","caller":"config/config.go:130","msg":"加载配置文件成功","config_file":"c:\\Users\\caoyan\\LionChat\\config\\config.prod.yaml","environment":""}
+{"level":"info","time":"2025-08-20T17:56:22.781+0800","caller":"dao/db.go:44","msg":"数据库连接池配置成功","max_idle_conns":10,"max_open_conns":100,"conn_max_lifetime":0.0000036}
+{"level":"info","time":"2025-08-20T17:56:22.786+0800","caller":"app/main.go:38","msg":"数据库初始化成功"}
+{"level":"fatal","time":"2025-08-20T17:56:27.786+0800","caller":"dao/redis.go:37","msg":"连接Redis失败","error":"context deadline exceeded","addr":"redis:6379","db":0}
