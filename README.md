@@ -60,9 +60,9 @@ docker compose up -d --build
 ![客户端之间的通信过程](resources/logo/客户端之间的通信过程.svg)
 ### 1. 两个好友在聊天
 好友A:
-![聊天1](resources/assest/57d8e366a96b0678301d3c98df8eea4a.png)
+![聊天1](resources/assest/dc778fc6403a8fcf97deaaec40ed4130.png)
 好友B:
-![聊天2](resources/assest/7ee1812a213af185fca6a3a361148511.png)
+![聊天2](resources/assest/a816fad23c13b4a57d21964b62d34a02.png)
 ### 2. 两个好友在语音电话
 ![聊天1](resources/assest/4c20b36be80f9d92ed6b98bfdb1558ab.png)
 ![聊天2](resources/assest/2ca35e8a20cefe905b77c1ba4407d9fb.png)
