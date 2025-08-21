@@ -41,7 +41,7 @@ func CreateComment(c *gin.Context) {
 func LikeComment(c *gin.Context) {
 	var req dto.LikeCommentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, dto.LikeCommentResponse{
+		c.JSON(200, dto.LikeCommentResponse{
 			Code: 1,
 			Msg:  err.Error(),
 		})
@@ -53,7 +53,7 @@ func LikeComment(c *gin.Context) {
 	username := c.GetString("username")
 	commentService := service.NewCommentService(dao.DB, username, uuid, int64(iuserId))
 	if err := commentService.LikeComment(req.MomentID); err != nil {
-		c.JSON(400, dto.LikeCommentResponse{
+		c.JSON(200, dto.LikeCommentResponse{
 			BaseResponse: dto.BaseResponse{
 				RequestID: c.GetString("requestId"),
 			},
@@ -62,7 +62,7 @@ func LikeComment(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(400, dto.LikeCommentResponse{
+	c.JSON(200, dto.LikeCommentResponse{
 		BaseResponse: dto.BaseResponse{
 			RequestID: c.GetString("requestId"),
 		},

@@ -71,6 +71,7 @@ func (s *MomentService) CreateMoment(moment *dto.MomentCreateRequest) *cerror.Co
 				IsOwn:     false,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
+				DeletedAt: nil,
 			}
 			if err := dao.DB.Create(t).Error; err != nil {
 				logger.Error("插入好友Timeline失败", zap.Error(err))
@@ -100,7 +101,7 @@ func (s *MomentService) ListMoment() ([]dto.MomentInfo, *cerror.CodeError) {
 		Select("m.id as moment_id, m.user_id, u.username, m.content, m.created_at").
 		Joins("JOIN moment m ON t.moment_id = m.id").
 		Joins("JOIN users u ON m.user_id = u.id").
-		Where("t.user_id = ? AND m.delete_time IS NULL", s.UserID).
+		Where("t.user_id = ? AND m.deleted_at IS NULL", s.UserID).
 		Order("t.created_at DESC").
 		Scan(&results).Error; err != nil {
 		return nil, cerror.NewCodeError(2222, err.Error())

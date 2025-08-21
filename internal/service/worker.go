@@ -387,17 +387,13 @@ func (s *Worker) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 
 // saveMessageToDB 保存消息到数据库
 func (s *Worker) saveMessageToDB(msg *protocol.Message) {
-	// 生成消息ID（如果没有的话）
-	var messageID uint
+	// 使用消息ID（如果没有的话生成一个）
+	var messageID string
 	if msg.MessageId != "" {
-		// 尝试将字符串转换为uint
-		if id, err := strconv.ParseUint(msg.MessageId, 10, 64); err == nil {
-			messageID = uint(id)
-		} else {
-			messageID = uint(time.Now().UnixNano())
-		}
+		messageID = msg.MessageId
 	} else {
-		messageID = uint(time.Now().UnixNano())
+		// 生成一个基于时间戳的唯一ID
+		messageID = strconv.FormatInt(time.Now().UnixNano(), 10)
 	}
 
 	// 创建消息记录
@@ -420,7 +416,7 @@ func (s *Worker) saveMessageToDB(msg *protocol.Message) {
 		logger.Info("消息已保存到数据库",
 			zap.String("from", msg.From),
 			zap.String("to", msg.To),
-			zap.Uint("dbMessageId", messageID))
+			zap.String("dbMessageId", messageID))
 	}
 }
 
@@ -480,14 +476,14 @@ func (s *Worker) pushOfflineMessages(client *Client) {
 			ContentType: 1, // 默认为文本消息
 			// Type:        1, // 单聊消息
 			MessageType: 1, // 普通消息
-			MessageId:   strconv.FormatUint(uint64(msg.MessageID), 10),
+			MessageId:   msg.MessageID,
 			Timestamp:   time.Now().Unix(),
 		}
 
 		// 序列化消息
 		msgByte, err := proto.Marshal(protocolMsg)
 		if err != nil {
-			logger.Error("序列化离线消息失败", zap.Error(err), zap.Uint("messageId", msg.MessageID))
+			logger.Error("序列化离线消息失败", zap.Error(err), zap.String("messageId", msg.MessageID))
 			continue
 		}
 
@@ -499,7 +495,7 @@ func (s *Worker) pushOfflineMessages(client *Client) {
 		logger.Debug("推送离线消息",
 			zap.String("from", msg.SenderID),
 			zap.String("to", msg.ReceiveID),
-			zap.Uint("messageId", msg.MessageID))
+			zap.String("messageId", msg.MessageID))
 	}
 
 	logger.Info("离线消息推送完成",

@@ -119,11 +119,11 @@ CREATE TABLE `like`  (
 DROP TABLE IF EXISTS `message`;
 CREATE TABLE `message`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
-  `sender_id` bigint NULL DEFAULT NULL COMMENT '发送者ID',
-  `receive_id` bigint NULL DEFAULT NULL COMMENT '接收者ID',
+  `sender_id` varchar(255) NULL DEFAULT NULL COMMENT '发送者ID',
+  `receive_id` varchar(255)int NULL DEFAULT NULL COMMENT '接收者ID',
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息内容',
   `status` tinyint(1) NULL DEFAULT 0 COMMENT '0未读 1已读 2撤回',
-  `message_id` bigint UNSIGNED NOT NULL,
+  `message_id` varchar(255) NOT NULL COMMENT '消息唯一标识符',
   `created_at` datetime(3) NULL DEFAULT NULL,
   `updated_at` datetime(3) NULL DEFAULT NULL,
   `deleted_at` datetime(3) NULL DEFAULT NULL,

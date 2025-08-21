@@ -23,7 +23,7 @@ type UnreadMessageData struct {
 }
 
 type MessageInfo struct {
-	MessageID uint   `json:"message_id"`
+	MessageID string `json:"message_id"`
 	SenderID  string `json:"sender_id"`
 	ReceiveID string `json:"receive_id"`
 	Content   string `json:"content"`
@@ -117,7 +117,7 @@ func GetUnreadMessage(c *gin.Context) {
 
 // MarkMessageAsReadRequest 标记消息已读请求结构
 type MarkMessageAsReadRequest struct {
-	MessageIDs []uint `json:"message_ids" binding:"required"`
+	MessageIDs []string `json:"message_ids" binding:"required"`
 }
 
 // MarkMessageAsReadResponse 标记消息已读响应结构
