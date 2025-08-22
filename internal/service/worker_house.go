@@ -1,7 +1,9 @@
 package service
 
 import (
+	"cchat/pkg/config"
 	"cchat/pkg/logger"
+	"strconv"
 	"sync"
 
 	"go.uber.org/zap"
@@ -99,6 +101,16 @@ func (h *WorkerHouse) shouldExpand() bool {
 // expandWorkerPool 扩容Worker池
 func (h *WorkerHouse) expandWorkerPool() {
 	newWorkerID := len(h.Workers)
+	// 创建DeepSeek客户端配置
+	deepSeekConfig := DeepSeekConfig{
+		APIKey:      config.AppConfig.DeepSeek.APIKey,
+		BaseURL:     config.AppConfig.DeepSeek.BaseURL,
+		Model:       config.AppConfig.DeepSeek.Model,
+		MaxTokens:   config.AppConfig.DeepSeek.MaxTokens,
+		Temperature: config.AppConfig.DeepSeek.Temperature,
+		Timeout:     config.AppConfig.DeepSeek.Timeout,
+	}
+
 	worker := &Worker{
 		ID:              newWorkerID,
 		Clients:         sync.Map{},
@@ -110,6 +122,8 @@ func (h *WorkerHouse) expandWorkerPool() {
 		TaskCount:       0, // 新Worker初始任务数为0
 		WorkerHouse:     h,
 		MessageQueue:    make(chan *MessageTask, 100),
+		BotClient:       NewBotClient("worker:bot:"+strconv.Itoa(newWorkerID), "worker:bot:"+strconv.Itoa(newWorkerID), newWorkerID),
+		DeepSeekClient:  NewDeepSeekClient(deepSeekConfig),
 	}
 
 	h.Workers = append(h.Workers, worker)
@@ -166,6 +180,16 @@ func InitWorkerHouseWithConfig(initialWorkers, maxWorkers, threshold int) *Worke
 	}
 
 	for i := 0; i < initialWorkers; i++ {
+		// 创建DeepSeek客户端配置
+		deepSeekConfig := DeepSeekConfig{
+			APIKey:      config.AppConfig.DeepSeek.APIKey,
+			BaseURL:     config.AppConfig.DeepSeek.BaseURL,
+			Model:       config.AppConfig.DeepSeek.Model,
+			MaxTokens:   config.AppConfig.DeepSeek.MaxTokens,
+			Temperature: config.AppConfig.DeepSeek.Temperature,
+			Timeout:     config.AppConfig.DeepSeek.Timeout,
+		}
+
 		worker := &Worker{
 			ID:              i,
 			Clients:         sync.Map{},
@@ -177,6 +201,9 @@ func InitWorkerHouseWithConfig(initialWorkers, maxWorkers, threshold int) *Worke
 			TaskCount:       0, // 初始任务数量为0
 			WorkerHouse:     workerHouse,
 			MessageQueue:    make(chan *MessageTask, 100),
+			BotClient:       NewBotClient("worker:bot:"+strconv.Itoa(i), "worker:bot:"+strconv.Itoa(i), i),
+
+			DeepSeekClient: NewDeepSeekClient(deepSeekConfig),
 		}
 		workerHouse.Workers = append(workerHouse.Workers, worker)
 	}

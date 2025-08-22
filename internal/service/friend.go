@@ -148,6 +148,19 @@ func (f *FriendService) GetFriendList() ([]dto.FriendInfo, *cerror.CodeError) {
 		}
 		// 设置过期时间（30分钟）
 		dao.REDIS.Expire(ctx, key, 30*time.Minute)
+		// 增加一个机器人助手
+		key = fmt.Sprintf("user:%s:bot", f.UUID)
+		botUUID, err := dao.REDIS.Get(ctx, key).Result()
+		friendList = append(friendList, dto.FriendInfo{
+			UUID:     botUUID,
+			Username: "机器人助手",
+			Email:    "bot@example.com",
+			Nickname: "机器人助手",
+			Avatar:   "https://example.com/bot-avatar.jpg",
+		})
+		if err != nil {
+			return []dto.FriendInfo{}, cerror.NewCodeError(4444, err.Error())
+		}
 		return friendList, nil
 	}
 	logger.Info("缓存命中")
@@ -165,6 +178,18 @@ func (f *FriendService) GetFriendList() ([]dto.FriendInfo, *cerror.CodeError) {
 		}
 		friendList = append(friendList, friend)
 	}
+
+	// 增加一个机器人助手
+	key = fmt.Sprintf("user:%s:bot", f.UUID)
+	botUUID, _ := dao.REDIS.Get(ctx, key).Result()
+	friendList = append(friendList, dto.FriendInfo{
+		UUID:     botUUID,
+		Username: "机器人助手",
+		Email:    "bot@example.com",
+		Nickname: "机器人助手",
+		Avatar:   "https://example.com/bot-avatar.jpg",
+	})
+
 	return friendList, nil
 }
 

@@ -5,6 +5,7 @@ import (
 	"cchat/internal/middlewares"
 	"cchat/pkg/config"
 	"cchat/pkg/logger"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -22,7 +23,19 @@ var AppRouterGroups map[string]*gin.RouterGroup = map[string]*gin.RouterGroup{}
 func InitWebEngine(c *config.Config) {
 	// 初始化路由
 	gin.SetMode(gin.ReleaseMode)
-	webEngine = gin.Default()
+	// 禁用Gin的控制台输出
+	gin.DefaultWriter = io.Discard
+	gin.DefaultErrorWriter = io.Discard
+	// 如果是生产环境，完全禁用日志输出
+	if c.Server.Environment == "prod" {
+		gin.DisableConsoleColor()
+		gin.SetMode(gin.ReleaseMode)
+	}
+	webEngine = gin.New()
+	// 只在开发环境使用Recovery中间件
+	if c.Server.Environment == "dev" || c.Server.Environment == "development" {
+		webEngine.Use(gin.Recovery())
+	}
 	InitCors(c)
 	InitRouterGroups()
 	InitMiddleware()

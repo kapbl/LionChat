@@ -68,6 +68,14 @@ type Config struct {
 			BufferMemory int    `mapstructure:"buffer_memory" default:"33554432"`
 		} `mapstructure:"producer"`
 	}
+	DeepSeek struct {
+		APIKey      string  `mapstructure:"api_key"`
+		BaseURL     string  `mapstructure:"base_url" default:"https://api.deepseek.com"`
+		Model       string  `mapstructure:"model" default:"deepseek-chat"`
+		MaxTokens   int     `mapstructure:"max_tokens" default:"4000"`
+		Temperature float64 `mapstructure:"temperature" default:"0.7"`
+		Timeout     int     `mapstructure:"timeout" default:"30"`
+	}
 }
 
 var (

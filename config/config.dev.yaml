@@ -56,3 +56,13 @@ kafka:
     batch_size: 16384
     linger_ms: 1
     buffer_memory: 33554432
+
+# DeepSeek AI配置
+deepseek:
+  api_key: "sk-f1abce4cf460421e9ecbd46d83c685ca"  # 从环境变量获取
+  base_url: "https://api.deepseek.com"
+  model: "deepseek-chat"
+  max_tokens: 4000
+  temperature: 0.7
+  timeout: 90
+  
