@@ -39,10 +39,9 @@ LionChat is an instant messaging backend system built with Go technology stack, 
 ![Server Architecture](resources/logo/Untitled-2025-08-07-1051.png)
 ### Client Communication Flow
 ![Communication Process between Clients](resources/logo/客户端之间的通信过程.svg)
-### 1. Chat between Friends
-![聊天1](resources/assest/dc778fc6403a8fcf97deaaec40ed4130.png)
-![聊天2](resources/assest/a816fad23c13b4a57d21964b62d34a02.png)
-### 2. Voice Call between Friends
-![Call 1](resources/assest/4c20b36be80f9d92ed6b98bfdb1558ab.png)
-![Call 2](resources/assest/2ca35e8a20cefe905b77c1ba4407d9fb.png)
-![Call Status](resources/assest/de143ed179263b8084b09d438c5db8ce.png)
+### 1. 两个好友在聊天
+![聊天1](resources/assest/28a760b541bf9bf780ec2d505bb93fd8.png)
+![聊天2](resources/assest/9fb730ab9ad37919fd5866f5a0680e75.png)
+### 2. 两个好友在语音电话
+![聊天1](resources/assest/3321f4dcdb4308be48802563425e4d5b.png)
+![聊天2](resources/assest/bf56ca44fdebfb9903c409ae89077c24.png)
