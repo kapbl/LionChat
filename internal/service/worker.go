@@ -348,7 +348,7 @@ func (s *Worker) sendRawMessage(client *Client, msg []byte) {
 	client.Send <- msg
 }
 
-// 发送群聊消息
+// fixme 会重复发消息 发送群聊消息
 func (s *Worker) SendGroupMessage(fromUUID string, groupUUID string, msg []byte) {
 	// 获取该群聊下的所有群成员的UUID
 	s.mutex.Lock()
