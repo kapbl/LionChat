@@ -20,9 +20,9 @@ LionChat is an instant messaging backend system built with Go technology stack, 
 - Distributed Deployment❌
 - Voice Calls✅
 - Video Calls✅
-- AI Chat❌
+- AI Chat✅
 - Moments (similar to WeChat Moments)✅
-- Chat History Backup❌
+- Chat History Backup✅
 - Real-time Speech Transcription + Sentiment Analysis❌
 - Cross-language Communication❌
 - Conversation Summarization❌
