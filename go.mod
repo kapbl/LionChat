@@ -10,6 +10,7 @@ require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gorilla/websocket v1.5.3
+	github.com/panjf2000/ants/v2 v2.11.3
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.20.1
 	go.uber.org/zap v1.27.0
@@ -17,10 +18,7 @@ require (
 	gorm.io/gorm v1.30.0
 )
 
-require (
-	github.com/panjf2000/ants/v2 v2.11.3 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-)
+require golang.org/x/sync v0.16.0 // indirect
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
