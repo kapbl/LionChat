@@ -140,9 +140,9 @@ func (f *FriendService) GetFriendList() ([]dto.FriendInfo, *cerror.CodeError) {
 		}
 		// 序列化每个好友信息并存储
 		for _, friend := range friendList {
-			friendJSON, err := json.Marshal(friend)
-			if err != nil {
-				return []dto.FriendInfo{}, cerror.NewCodeError(4444, err.Error())
+			friendJSON, err2 := json.Marshal(friend)
+			if err2 != nil {
+				return []dto.FriendInfo{}, cerror.NewCodeError(4444, err2.Error())
 			}
 			dao.REDIS.LPush(ctx, key, friendJSON)
 		}

@@ -92,7 +92,7 @@ func JoinGroup(c *gin.Context) {
 		return
 	}
 	// 只能通过组名或组uuid加入群组
-	if req.GroupName == "" && req.GroupUUID == "" {
+	if req.TargetGroup == "" {
 		c.JSON(http.StatusOK, dto.JoinGroupResponse{
 			BaseResponse: dto.BaseResponse{
 				RequestID: c.GetString("requestId"),

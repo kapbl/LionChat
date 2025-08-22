@@ -1,8 +1,7 @@
 package dto
 
 type JoinGroupRequest struct {
-	GroupUUID string `json:"group_uuid"` // 群组id, 可选
-	GroupName string `json:"group_name"` // 群组名称, 可选
+	TargetGroup string `json:"target_group"` // 目标群组, 可选
 }
 
 type JoinGroupResponse struct {

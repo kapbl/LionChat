@@ -81,7 +81,7 @@ func (g *GroupService) CreateGroup(req *dto.CreateGroupRequest) (*dto.GroupInfo,
 // ✅
 func (g *GroupService) JoinGroup(req *dto.JoinGroupRequest) (dto.GroupInfo, *cerror.CodeError) {
 	group := &model.Group{}
-	err := g.DB.Table("group").Where("name = ?", req.GroupName).First(&group).Error
+	err := g.DB.Table("group").Where("name = ?", req.TargetGroup).First(&group).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return dto.GroupInfo{}, cerror.NewCodeError(1122, "组不存在")
 	}
