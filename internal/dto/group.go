@@ -51,3 +51,15 @@ type LeaveGroupResponse struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
 }
+
+type GroupMember struct {
+	Member      []UserInfo `json:"member"`
+	MemberCount int        `json:"member_count"`
+	Description string     `json:"description"`
+}
+type GetGroupMembersResponse struct {
+	BaseResponse
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
+	Data GroupMember `json:"data"`
+}

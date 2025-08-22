@@ -5,9 +5,13 @@ import (
 	"cchat/internal/dao/model"
 	"cchat/internal/dto"
 	"cchat/pkg/cerror"
+	"cchat/pkg/logger"
+	"context"
 	"errors"
+	"fmt"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +20,6 @@ func GetUserIDByUUID(uuid string) (int, error) {
 	if uuid == "" {
 		return 0, errors.New("UUID不能为空")
 	}
-
 	// 查询用户ID
 	var user model.Users
 	err := dao.DB.Table(user.GetTable()).Select("id").Where("uuid = ?", uuid).First(&user).Error
@@ -26,35 +29,71 @@ func GetUserIDByUUID(uuid string) (int, error) {
 		}
 		return 0, errors.New("查询用户ID失败: " + err.Error())
 	}
-
 	return int(user.Id), nil
 }
 
 // GetUserInfor 根据UUID获取用户信息
 func GetUserInfor(uuid string) (*dto.UserInfo, *cerror.CodeError) {
-	if uuid == "" {
-		return nil, cerror.NewCodeError(1021, "UUID不能为空")
-	}
-
-	// 查询用户信息
-	var user model.Users
-	err := dao.DB.Table(user.GetTable()).Where("uuid = ?", uuid).First(&user).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, cerror.NewCodeError(1023, "在数据中查找用户不存在")
+	// 增加Redis缓存
+	// 缓存key = user:info:uuid
+	ctx := context.Background()
+	key := fmt.Sprintf("user:info:%s", uuid)
+	existes := dao.REDIS.Exists(ctx, key).Val()
+	if existes == 0 {
+		logger.Info("缓存不存在，从数据库查询", zap.String("key", key))
+		// 缓存不存在，从数据库查询
+		var user model.Users
+		// 缓存未命中，从数据库中查询用户信息
+		err := dao.DB.Table(user.GetTable()).Where("uuid = ?", uuid).First(&user).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, cerror.NewCodeError(1023, "在数据中查找用户不存在")
+			}
+			return nil, cerror.NewCodeError(1024, "查找失败: "+err.Error())
 		}
-		return nil, cerror.NewCodeError(1024, "查找失败: "+err.Error())
+		// 缓存用户信息
+		// 使用Hash存储用户信息
+		userMap := map[string]interface{}{
+			"id":       user.Id,
+			"uuid":     user.Uuid,
+			"username": user.Username,
+			"nickname": user.Nickname,
+			"email":    user.Email,
+			"avatar":   user.Avatar,
+			"status":   user.Status,
+		}
+
+		// 设置Hash和过期时间
+		dao.REDIS.HMSet(ctx, key, userMap)
+		dao.REDIS.Expire(ctx, key, 30*time.Minute)
+		// 设置映射关系
+		dao.REDIS.Set(ctx, fmt.Sprintf("user:uuid:%s", user.Username), user.Uuid, 30*time.Minute)
+		dao.REDIS.Set(ctx, fmt.Sprintf("user:uuid:email:%s", user.Email), user.Uuid, 30*time.Minute)
+		// 构建返回数据
+		userInfo := &dto.UserInfo{
+			Email:    user.Email,
+			Username: user.Username,
+			Nickname: user.Nickname,
+			Avatar:   user.Avatar,
+			UUID:     user.Uuid,
+		}
+		return userInfo, nil
 	}
 
-	// 构建返回数据
+	// 获取Hash所有字段
+	userMap := dao.REDIS.HGetAll(ctx, key).Val()
+	if len(userMap) == 0 {
+		return nil, cerror.NewCodeError(1024, "缓存数据为空")
+	}
+	// 从缓存中获取用户信息
+	// 转换为DTO
 	userInfo := &dto.UserInfo{
-		Email:    user.Email,
-		Username: user.Username,
-		Nickname: user.Nickname,
-		Avatar:   user.Avatar,
-		UUID:     user.Uuid,
+		Email:    userMap["email"],
+		Username: userMap["username"],
+		Nickname: userMap["nickname"],
+		Avatar:   userMap["avatar"],
+		UUID:     userMap["uuid"],
 	}
-
 	return userInfo, nil
 }
 

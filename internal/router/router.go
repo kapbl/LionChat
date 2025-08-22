@@ -133,7 +133,7 @@ func InitRouter() {
 	AppRouterGroups["group"].GET("/group-list", api.GetGroupList)
 
 	// todo
-	AppRouterGroups["group"].GET("/getGroupInfo", api.GetGroupInfo)
+	AppRouterGroups["group"].GET("/group-members-List", api.GetGroupMembersList)
 	// todo
 	AppRouterGroups["group"].PUT("/changeGroupInfo", api.ChangeGroupInfo)
 

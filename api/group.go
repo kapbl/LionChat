@@ -4,6 +4,7 @@ import (
 	"cchat/internal/dao"
 	"cchat/internal/dto"
 	"cchat/internal/service"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -213,8 +214,45 @@ func GetGroupList(c *gin.Context) {
 	})
 }
 
-func GetGroupInfo(c *gin.Context) {
+func GetGroupMembersList(c *gin.Context) {
+	GroupUUID := c.Query("groupUUID")
+	if GroupUUID == "" {
+		c.JSON(http.StatusBadRequest, dto.GetGroupMembersResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: 1122,
+			Msg:  "参数错误",
+		})
+		fmt.Println("GroupUUID:", GroupUUID)
+		return
+	}
 
+	userId, _ := c.Get("userId")
+	iuserId := userId.(int)
+	uuid := c.GetString("userUuid")
+	username := c.GetString("username")
+	groupService := service.NewGroupService(iuserId, uuid, username, dao.DB)
+	res, err := groupService.GetGroupMembersList(GroupUUID)
+	if err != nil {
+		c.JSON(http.StatusOK, dto.GetGroupMembersResponse{
+			BaseResponse: dto.BaseResponse{
+				RequestID: c.GetString("requestId"),
+			},
+			Code: int(err.Code),
+			Msg:  err.Msg,
+			Data: dto.GroupMember{},
+		})
+		return
+	}
+	c.JSON(http.StatusOK, dto.GetGroupMembersResponse{
+		BaseResponse: dto.BaseResponse{
+			RequestID: c.GetString("requestId"),
+		},
+		Code: 0,
+		Msg:  "获取群组成员成功",
+		Data: res,
+	})
 }
 
 func ChangeGroupInfo(c *gin.Context) {

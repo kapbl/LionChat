@@ -53,7 +53,6 @@ func InitRedis(addr, password string, db, poolSize, minIdleConns int) error {
 func DeleteCache(key string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-
 	err := REDIS.Del(ctx, key).Err()
 	if err != nil {
 		logger.Error("删除Redis缓存失败",

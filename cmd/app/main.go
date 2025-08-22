@@ -5,6 +5,7 @@ import (
 	"cchat/internal/dao/model"
 	"cchat/internal/router"
 	"cchat/internal/service"
+	"cchat/pkg/cgoroutinue"
 	"cchat/pkg/config"
 	"cchat/pkg/logger"
 	"flag"
@@ -64,13 +65,17 @@ func main() {
 			logger.Info("Kafka消费者服务启动成功")
 		}
 	}
-	// 启动服务器
-	go service.ServerInstance.Run()
+	cgoroutinue.InitGoroutinePool(1000)
+	cgoroutinue.GoroutinePool.Submit(func() {
+		service.ServerInstance.Run()
+	})
 	// 关闭处理
 	setupShutdown()
 	// 启动goroutine监控
 	if appConfig.Server.Environment == "dev" {
-		go monitorGoroutines()
+		cgoroutinue.GoroutinePool.Submit(func() {
+			monitorGoroutines()
+		})
 	}
 	// 启动路由
 	router.RunEngine(&appConfig)

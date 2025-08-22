@@ -3,8 +3,11 @@ package service
 import (
 	"cchat/internal/dao"
 	"cchat/internal/dao/model"
+	"cchat/pkg/cgoroutinue"
 	"cchat/pkg/logger"
 	"cchat/pkg/protocol"
+	"context"
+	"fmt"
 	"strconv"
 	"sync"
 	"time"
@@ -37,7 +40,10 @@ type MessageTask struct {
 // 启动多个消息处理协程
 func (s *Worker) startMessageProcessors(count int) {
 	for range count {
-		go s.messageProcessor()
+		// 从goroutine池获取一个goroutine
+		cgoroutinue.GoroutinePool.Submit(func() {
+			s.messageProcessor()
+		})
 	}
 }
 
@@ -94,10 +100,8 @@ func (s *Worker) handleDirectMessage(msg *protocol.Message, originalMessage []by
 
 	// 保存消息到数据库
 	// s.saveMessageToDB(msg)
-
 	// 检查目标用户是否在线
 	isOnline := s.isUserOnline(msg.To)
-
 	if isOnline {
 		// 尝试从本地客户端列表中查找目标客户端
 		if client, ok := s.Clients.Load(msg.To); ok {
@@ -178,7 +182,7 @@ func (s *Worker) Do() {
 		case conn := <-s.Register:
 			logger.Info("注册连接", zap.String("uuid", conn.UUID), zap.Int("workerID", s.ID))
 			s.Clients.Store(conn.UUID, conn)
-			go func() {
+			cgoroutinue.GoroutinePool.Submit(func() {
 				// 发送用户上线事件到Kafka
 				if dao.KafkaProducerInstance != nil {
 					metadata := map[string]interface{}{
@@ -190,22 +194,31 @@ func (s *Worker) Do() {
 						logger.Error("发送用户上线事件到Kafka失败", zap.Error(err))
 					}
 				}
-			}()
-			// 异步更新数据库用户的在线状态并推送离线消息
-			go func() {
-				// 更新用户的在线状态为1
-				err := dao.DB.Table("users").Where("uuid = ?", conn.UUID).Update("status", 1).Error
-				if err != nil {
-					logger.Error("更新用户在线状态失败", zap.Error(err))
-				}
+			})
+			// 直接存储到Redis中表示在线
+			ctx := context.Background()
+			key := fmt.Sprintf("user:online:%s", conn.UUID)
+			dao.REDIS.SetBit(ctx, key, 0, 1)
 
-				// 推送离线消息
-				s.pushOfflineMessages(conn)
-			}()
+			// 异步更新数据库用户的在线状态并推送离线消息
+			// go func() {
+			// 	// 更新用户的在线状态为1
+			// 	err := dao.DB.Table("users").Where("uuid = ?", conn.UUID).Update("status", 1).Error
+			// 	if err != nil {
+			// 		logger.Error("更新用户在线状态失败", zap.Error(err))
+			// 	}
+
+			// 	// 推送离线消息
+			// 	s.pushOfflineMessages(conn)
+			// }()
 			// 启动客户端的读取和写入 goroutine
 			conn.workerID = s.ID
-			go conn.Read()
-			go conn.Write()
+			cgoroutinue.GoroutinePool.Submit(func() {
+				conn.Read()
+			})
+			cgoroutinue.GoroutinePool.Submit(func() {
+				conn.Write()
+			})
 		case conn := <-s.Unregister:
 			s.handleClientDisconnect(conn)
 		case message := <-s.Broadcast:
@@ -294,13 +307,16 @@ func (s *Worker) handleClientDisconnect(client *Client) {
 	}
 	s.TaskCount++
 	// 异步更新数据库用户的在线状态
-	go func() {
-		// 更新用户的在线状态为0
-		err := dao.DB.Table("users").Where("uuid = ?", client.UUID).Update("status", 0).Error
-		if err != nil {
-			logger.Error("更新用户在线状态失败", zap.Error(err))
-		}
-	}()
+	// go func() {
+	// 	// 更新用户的在线状态为0
+	// 	err := dao.DB.Table("users").Where("uuid = ?", client.UUID).Update("status", 0).Error
+	// 	if err != nil {
+	// 		logger.Error("更新用户在线状态失败", zap.Error(err))
+	// 	}
+	// }()
+	ctx := context.Background()
+	key := fmt.Sprintf("user:online:%s", client.UUID)
+	dao.REDIS.SetBit(ctx, key, 0, 0)
 	logger.Info("客户端连接已清理", zap.String("uuid", client.UUID))
 }
 
@@ -422,6 +438,15 @@ func (s *Worker) saveMessageToDB(msg *protocol.Message) {
 
 // isUserOnline 检查用户是否在线
 func (s *Worker) isUserOnline(userUUID string) bool {
+	// 检查Redis中是否存在
+	ctx := context.Background()
+	key := fmt.Sprintf("user:online:%s", userUUID)
+	online := dao.REDIS.GetBit(ctx, key, 0).Val()
+	if online == 1 {
+		return true
+	} else {
+		return false
+	}
 	// 首先检查本地客户端列表
 	if _, ok := s.Clients.Load(userUUID); ok {
 		return true

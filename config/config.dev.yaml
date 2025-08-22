@@ -42,7 +42,7 @@ log:
 
 kafka:
   brokers:
-    - "kafka:29092"
+    - "localhost:9092"
   topics:
     chat_messages: "chat-messages"
     user_events: "user-events"

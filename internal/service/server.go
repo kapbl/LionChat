@@ -1,6 +1,7 @@
 package service
 
 import (
+	"cchat/pkg/cgoroutinue"
 	"sync"
 )
 
@@ -11,7 +12,7 @@ type Server struct {
 	Register        chan *Client     // 注册消息通道
 	Ungister        chan *Client     // 注销消息通道
 	FragmentManager *FragmentManager // 消息分片管理器
-	WorkerHouse     *WorkerHouse
+	WorkerHouse     *WorkerHouse     // 工作者房子
 }
 
 var ServerInstance = &Server{
@@ -31,6 +32,8 @@ func (s *Server) Run() {
 	s.WorkerHouse = InitWorkerHouse(10)
 	// 启动工作者
 	for _, worker := range s.WorkerHouse.Workers {
-		go worker.Do()
+		cgoroutinue.GoroutinePool.Submit(func() {
+			worker.Do()
+		})
 	}
 }

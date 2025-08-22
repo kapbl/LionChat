@@ -266,3 +266,43 @@ func (g *GroupService) GetGroupList() ([]dto.GroupInfo, *cerror.CodeError) {
 	}
 	return groups, nil
 }
+
+func (g *GroupService) GetGroupMembersList(groupUUID string) (dto.GroupMember, *cerror.CodeError) {
+	var group model.Group
+	// 查询群组信息
+	err := g.DB.Table("group").Select("desc").Where("uuid = ?", groupUUID).First(&group).Error
+	if err != nil {
+		return dto.GroupMember{}, cerror.NewCodeError(1122, "查询群组失败")
+	}
+
+	var groupMembers []model.GroupMember
+	// 先查询群组成员
+	err = g.DB.Table("group_member").Select("user_id").Where("group_uuid = ?", groupUUID).Scan(&groupMembers).Error
+	if err != nil {
+		return dto.GroupMember{}, cerror.NewCodeError(1122, "查询群组成员失败")
+	}
+	// 再根据users表查询用户信息
+	var userIDs []int
+	for _, member := range groupMembers {
+		userIDs = append(userIDs, member.UserId)
+	}
+	if len(userIDs) == 0 {
+		return dto.GroupMember{}, cerror.NewCodeError(1122, "查询群组成员失败")
+
+	}
+	// 构建IN查询语句
+	var groupMembersInfo []dto.UserInfo
+	err = g.DB.Table("users").
+		Select("email, username, nickname, uuid, avatar").
+		Where("id IN ?", userIDs).
+		Scan(&groupMembersInfo).Error
+	if err != nil {
+		return dto.GroupMember{}, cerror.NewCodeError(1122, "查询群组成员失败")
+	}
+	res := dto.GroupMember{
+		Member:      groupMembersInfo,
+		MemberCount: len(groupMembersInfo),
+		Description: group.Desc,
+	}
+	return res, nil
+}

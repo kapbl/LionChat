@@ -5,8 +5,12 @@ import (
 	"cchat/internal/dao/model"
 	"cchat/internal/dto"
 	"cchat/pkg/cerror"
+	"cchat/pkg/logger"
 	"cchat/pkg/protocol"
+	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -116,16 +120,50 @@ func (f *FriendService) sendFriendRequest(targetUUID string, content string) err
 
 // ✅
 func (f *FriendService) GetFriendList() ([]dto.FriendInfo, *cerror.CodeError) {
-	friendIDs := []int{}
-	dao.DB.Table("user_friends").Where("user_id = ? AND status = 1", f.UserID).Pluck("friend_id", &friendIDs)
-	if len(friendIDs) == 0 {
-		return []dto.FriendInfo{}, cerror.NewCodeError(4444, "没有好友")
+	// 增加Redis
+	// user:friends:{user_id}
+	ctx := context.Background()
+	key := fmt.Sprintf("user:friends:%d", f.UserID)
+	exists := dao.REDIS.Exists(ctx, key).Val()
+	if exists == 0 {
+		logger.Info("缓存未命中")
+		friendIDs := []int{}
+		dao.DB.Table("user_friends").Where("user_id = ? AND status = 1", f.UserID).Pluck("friend_id", &friendIDs)
+		if len(friendIDs) == 0 {
+			return []dto.FriendInfo{}, cerror.NewCodeError(4444, "没有好友")
+		}
+		// 根据好友ID查询好友信息
+		friendList := []dto.FriendInfo{}
+		err := dao.DB.Table("users").Where("id IN (?)", friendIDs).Find(&friendList).Error
+		if err != nil {
+			return []dto.FriendInfo{}, cerror.NewCodeError(4444, err.Error())
+		}
+		// 序列化每个好友信息并存储
+		for _, friend := range friendList {
+			friendJSON, err := json.Marshal(friend)
+			if err != nil {
+				return []dto.FriendInfo{}, cerror.NewCodeError(4444, err.Error())
+			}
+			dao.REDIS.LPush(ctx, key, friendJSON)
+		}
+		// 设置过期时间（30分钟）
+		dao.REDIS.Expire(ctx, key, 30*time.Minute)
+		return friendList, nil
 	}
-	// 根据好友ID查询好友信息
-	friendList := []dto.FriendInfo{}
-	err := dao.DB.Table("users").Where("id IN (?)", friendIDs).Find(&friendList).Error
+	logger.Info("缓存命中")
+	// 获取所有好友JSON字符串
+	friendJSONList, err := dao.REDIS.LRange(ctx, key, 0, -1).Result()
 	if err != nil {
-		return []dto.FriendInfo{}, cerror.NewCodeError(4444, err.Error())
+		return nil, cerror.NewCodeError(4444, err.Error())
+	}
+	// 反序列化为结构体切片
+	friendList := make([]dto.FriendInfo, 0, len(friendJSONList))
+	for _, friendJSON := range friendJSONList {
+		var friend dto.FriendInfo
+		if err := json.Unmarshal([]byte(friendJSON), &friend); err != nil {
+			return nil, cerror.NewCodeError(4444, err.Error())
+		}
+		friendList = append(friendList, friend)
 	}
 	return friendList, nil
 }
