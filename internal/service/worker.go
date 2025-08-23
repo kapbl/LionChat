@@ -200,8 +200,10 @@ func (s *Worker) Do() {
 func (s *Worker) forwardToOtherWorkers(targetUUID string, message []byte) {
 	for _, worker := range s.WorkerHouse.Workers {
 		if worker.ID != s.ID {
-			if _, ok := worker.Clients.Load(targetUUID); ok {
-				worker.Broadcast <- message
+			if client, ok := worker.Clients.Load(targetUUID); ok {
+				// 这里应该直接转发到目标worker的SendMessageToClient方法
+				// 转发的消息就不需要再通过广播了
+				worker.SendMessageToClient(client.(*Client), message)
 				return
 			}
 		}
@@ -501,101 +503,4 @@ func (s *Worker) pushOfflineMessages(client *Client) {
 	logger.Info("离线消息推送完成",
 		zap.String("uuid", client.UUID),
 		zap.Int("count", len(messages)))
-}
-
-// handleBotMessage 处理机器人消息，调用DeepSeek API
-func (s *Worker) handleBotMessage(msg *protocol.Message) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	// 检查DeepSeek客户端是否已初始化
-	if s.DeepSeekClient == nil {
-		logger.Error("DeepSeek客户端未初始化")
-		return
-	}
-
-	// 构建消息历史（这里简化处理，实际应该维护对话上下文）
-	messages := []Message{
-		{
-			Role:    "system",
-			Content: "You are a helpful assistant.",
-		},
-		{
-			Role:    "user",
-			Content: msg.Content,
-		},
-	}
-
-	// 调用DeepSeek API
-	response, err := s.DeepSeekClient.ChatCompletion(ctx, messages)
-	if err != nil {
-		logger.Error("调用DeepSeek API失败", zap.Error(err))
-		// 发送错误消息给用户
-		s.sendErrorMessageToUser(msg.From, "抱歉，AI助手暂时无法回复，请稍后再试。")
-		return
-	}
-
-	// 检查响应是否有效
-	if len(response.Choices) == 0 {
-		logger.Error("DeepSeek API返回空响应")
-		s.sendErrorMessageToUser(msg.From, "抱歉，AI助手没有返回有效回复。")
-		return
-	}
-
-	// 构建回复消息
-	botReply := &protocol.Message{
-		From:        s.BotClient.UUID,
-		To:          msg.From,
-		Content:     response.Choices[0].Message.Content,
-		ContentType: msg.ContentType,
-		Timestamp:   time.Now().Unix(),
-		Type:        "text",
-		MessageType: 1,
-		MessageId:   fmt.Sprintf("bot_%d", time.Now().UnixNano()),
-	}
-
-	// 序列化回复消息
-	replyByte, err := proto.Marshal(botReply)
-	if err != nil {
-		logger.Error("机器人回复消息序列化失败", zap.Error(err))
-		return
-	}
-
-	// 保存消息到数据库
-	s.saveMessageToDB(botReply)
-
-	// 发送回复给用户
-	if client, ok := s.Clients.Load(msg.From); ok {
-		s.SendMessageToClient(client.(*Client), replyByte)
-		logger.Info("AI助手回复发送成功", zap.String("to", msg.From))
-	} else {
-		// 用户不在线，转发到其他worker或保存为离线消息
-		s.forwardToOtherWorkers(msg.From, replyByte)
-	}
-}
-
-// sendErrorMessageToUser 发送错误消息给用户
-func (s *Worker) sendErrorMessageToUser(userUUID, errorMsg string) {
-	errorMessage := &protocol.Message{
-		From:        s.BotClient.UUID,
-		To:          userUUID,
-		Content:     errorMsg,
-		ContentType: 1, // 文本消息
-		Timestamp:   time.Now().Unix(),
-		Type:        "text",
-		MessageType: 1,
-		MessageId:   fmt.Sprintf("bot_error_%d", time.Now().UnixNano()),
-	}
-
-	errorByte, err := proto.Marshal(errorMessage)
-	if err != nil {
-		logger.Error("错误消息序列化失败", zap.Error(err))
-		return
-	}
-
-	if client, ok := s.Clients.Load(userUUID); ok {
-		s.SendMessageToClient(client.(*Client), errorByte)
-	} else {
-		s.forwardToOtherWorkers(userUUID, errorByte)
-	}
 }
