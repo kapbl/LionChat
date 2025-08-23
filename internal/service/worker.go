@@ -23,6 +23,7 @@ type Worker struct {
 	Register   chan *Client // 客户端注册通道
 	Unregister chan *Client // 客户端注销通道
 	Broadcast  chan []byte  // 客户端广播通道
+	Forward    chan []byte  // 客户端广播通道
 	mutex      sync.RWMutex // 读写锁
 
 	FragmentManager *FragmentManager  // 消息分片管理器
@@ -37,6 +38,7 @@ type Worker struct {
 type MessageTask struct {
 	Message     *protocol.Message
 	RawData     []byte
+	IsForward   bool
 	ProcessTime time.Time
 }
 
@@ -61,11 +63,15 @@ func (s *Worker) messageProcessor() {
 // AddClient 添加一个client到该工作者管理的client列表中
 func (w *Worker) AddClient(client *Client) {
 	w.Clients.Store(client.UUID, client)
+	// 上报给房子
+	w.WorkerHouse.AddClient(client.UUID, w)
 }
 
 // RemoveClient 从该工作者管理的client列表中移除一个client
 func (w *Worker) RemoveClient(client *Client) {
 	w.Clients.Delete(client.UUID)
+	// 从房子里移除
+	w.WorkerHouse.RemoveClient(client.UUID)
 }
 
 func (s *Worker) BotSendMessage(to string, content string) {
@@ -150,6 +156,34 @@ func (s *Worker) handleGroupMessage(msg *protocol.Message, originalMessage []byt
 	}
 }
 
+// 处理转发过来的消息
+func (s *Worker) handleForwardMessage(msg *protocol.Message, originalMessage []byte) {
+	fmt.Println("开始处理转发的消息", msg)
+	// 序列化消息
+	msgByte, err := proto.Marshal(msg)
+	if err != nil {
+		logger.Error("消息序列化失败", zap.Error(err))
+		return
+	}
+	isOnline := s.isUserOnline(msg.To)
+	if isOnline {
+		if client, ok := s.Clients.Load(msg.To); ok {
+			// 优先使用Kafka发送，否则使用WebSocket
+			if dao.KafkaProducerInstance != nil {
+				if err := dao.KafkaProducerInstance.SendChatMessage(msg.To, msgByte, s.ID); err != nil {
+					logger.Error("发送消息到Kafka失败", zap.Error(err))
+					s.SendMessageToClient(client.(*Client), msgByte)
+				}
+			} else {
+				s.SendMessageToClient(client.(*Client), msgByte)
+			}
+		}
+	} else {
+		// 用户离线，消息已保存到数据库，等待用户上线时推送
+		s.saveMessageToDB(msg)
+	}
+}
+
 // 工作者做任务
 func (s *Worker) Do() {
 	// 启动消息处理队列
@@ -170,7 +204,8 @@ func (s *Worker) Do() {
 					}
 				}
 			})
-			s.Clients.Store(conn.UUID, conn)
+			// s.Clients.Store(conn.UUID, conn)
+			s.AddClient(conn)
 			// 直接存储到Redis中表示在线
 			ctx := context.Background()
 			key := fmt.Sprintf("user:online:%s", conn.UUID)
@@ -191,22 +226,28 @@ func (s *Worker) Do() {
 		case conn := <-s.Unregister:
 			s.handleClientDisconnect(conn)
 		case message := <-s.Broadcast:
-			s.queueMessage(message)
+			s.queueMessage(message, false)
+		case forward := <-s.Forward:
+			s.queueMessage(forward, true)
 		}
 	}
 }
 
 // forwardToOtherWorkers 转发消息到其他worker
 func (s *Worker) forwardToOtherWorkers(targetUUID string, message []byte) {
-	for _, worker := range s.WorkerHouse.Workers {
-		if worker.ID != s.ID {
-			if client, ok := worker.Clients.Load(targetUUID); ok {
-				// 这里应该直接转发到目标worker的SendMessageToClient方法
-				// 转发的消息就不需要再通过广播了
-				worker.SendMessageToClient(client.(*Client), message)
-				return
-			}
+	// 从房子处获取该用户的worker
+	worker := s.WorkerHouse.FindWorkerByClientUUID(targetUUID)
+	if worker != nil {
+		fmt.Printf("worker %d 转发给 worker %d，目标用户: %s\n", s.ID, worker.ID, targetUUID)
+		select {
+		case worker.Forward <- message:
+			fmt.Printf("worker %d 成功发送转发消息到 worker %d\n", s.ID, worker.ID)
+		default:
+			fmt.Printf("worker %d 转发消息到 worker %d 失败：Forward通道已满\n", s.ID, worker.ID)
 		}
+		return
+	} else {
+		fmt.Printf("worker %d 找不到目标用户 %s 的worker\n", s.ID, targetUUID)
 	}
 }
 func (s *Worker) processMessageTask(task *MessageTask) {
@@ -220,30 +261,41 @@ func (s *Worker) processMessageTask(task *MessageTask) {
 				zap.String("to", task.Message.To))
 		}
 	}()
-	// 处理消息
-	switch task.Message.ContentType {
-	case 1, 2, 3, 4, 5, 6, 7, 13: // 文本、文件、图片、语音、视频消息
+	fmt.Printf("worker %d 开始处理消息\n", s.ID)
+	// 转发消息不需要有群组类型，因为目的很准确
+	if task.IsForward {
+		fmt.Printf("worker %d 开始处理转发消息\n", s.ID)
+		s.handleForwardMessage(task.Message, task.RawData)
+		return
+	} else {
 		if task.Message.MessageType == 1 {
 			// 单聊消息
+			fmt.Printf("worker %d 开始处理单聊消息\n", s.ID)
 			s.handleSingleMessage(task.Message, task.RawData)
 		} else {
 			// 群聊消息
+			fmt.Printf("worker %d 开始处理群聊消息\n", s.ID)
 			s.handleGroupMessage(task.Message, task.RawData)
 		}
-	case 8: // 好友请求消息
-		if task.Message.MessageType == 1 {
-			// 好友请求消息
-			s.handleSingleMessage(task.Message, task.RawData)
-		}
-	default:
-		logger.Warn("未知的消息内容类型",
-			zap.Int32("contentType", task.Message.ContentType),
-			zap.String("from", task.Message.From),
-			zap.String("to", task.Message.To))
+		// // 处理消息
+		// switch task.Message.ContentType {
+		// case 1, 2, 3, 4, 5, 6, 7, 13: // 文本、文件、图片、语音、视频消息
+
+		// case 8: // 好友请求消息
+		// 	if task.Message.MessageType == 1 {
+		// 		// 好友请求消息
+		// 		s.handleSingleMessage(task.Message, task.RawData)
+		// 	}
+		// default:
+		// 	logger.Warn("未知的消息内容类型",
+		// 		zap.Int32("contentType", task.Message.ContentType),
+		// 		zap.String("from", task.Message.From),
+		// 		zap.String("to", task.Message.To))
+		// }
 	}
 }
 
-func (s *Worker) queueMessage(rawMessage []byte) {
+func (s *Worker) queueMessage(rawMessage []byte, isForward bool) {
 	msg := &protocol.Message{}
 	if err := proto.Unmarshal(rawMessage, msg); err != nil {
 		logger.Error("解析消息失败", zap.Error(err))
@@ -252,16 +304,25 @@ func (s *Worker) queueMessage(rawMessage []byte) {
 	if msg.To == "" {
 		return
 	}
+	if isForward {
+		fmt.Printf("worker %d 收到转发消息，从 %s 到 %s，消息ID: %s\n", s.ID, msg.From, msg.To, msg.MessageId)
+	} else {
+		fmt.Printf("worker %d 收到非转发消息，从 %s 到 %s，消息ID: %s\n", s.ID, msg.From, msg.To, msg.MessageId)
+	}
 	task := &MessageTask{
 		Message:     msg,
 		RawData:     rawMessage,
 		ProcessTime: time.Now(),
+		IsForward:   isForward,
 	}
 	select {
 	case s.MessageQueue <- task:
-		// 成功入队
+		if isForward {
+			fmt.Printf("worker %d 转发消息成功入队，消息ID: %s\n", s.ID, msg.MessageId)
+		}
 	default:
 		logger.Warn("消息队列已满，丢弃消息")
+		fmt.Printf("worker %d 消息队列已满，丢弃消息ID: %s\n", s.ID, msg.MessageId)
 	}
 }
 
@@ -280,7 +341,7 @@ func (s *Worker) handleClientDisconnect(client *Client) {
 	default:
 		close(client.Send)
 	}
-	s.Clients.Delete(client.UUID)
+	s.RemoveClient(client)
 	// 发送Kafka下线事件
 	if dao.KafkaProducerInstance != nil {
 		// ... Kafka事件发送逻辑
@@ -366,10 +427,6 @@ func (s *Worker) SendGroupMessage(fromUUID string, groupUUID string, msg []byte)
 		}
 		// 尝试从本地客户端列表中查找目标客户端
 		if client, ok := s.Clients.Load(clientID); ok {
-			// 找到本地客户端，直接发送
-			logger.Info("发送群聊消息",
-				zap.String("to", clientID),
-				zap.Int("workerID", s.ID))
 			s.SendMessageToClient(client.(*Client), msg)
 		} else {
 			// 本地未找到，转发到其他worker

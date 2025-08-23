@@ -12,9 +12,29 @@ import (
 // 工作者住的房子
 type WorkerHouse struct {
 	Workers    []*Worker
+	ClientMap  map[string]*Worker
 	mutex      sync.RWMutex // 保护Workers切片的读写锁
 	maxWorkers int          // 最大Worker数量限制
 	threshold  int          // 触发扩容的任务数量阈值
+}
+
+func (h *WorkerHouse) AddClient(uuid string, worker *Worker) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.ClientMap[uuid] = worker
+}
+
+func (h *WorkerHouse) RemoveClient(uuid string) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	delete(h.ClientMap, uuid)
+}
+
+func (h *WorkerHouse) FindWorkerByClientUUID(uuid string) *Worker {
+	// 使用读写锁进行并发安全访问
+	h.mutex.RLock()
+	defer h.mutex.RUnlock()
+	return h.ClientMap[uuid]
 }
 
 // 该怎么从房子里取出一个工作者呢？
@@ -117,6 +137,7 @@ func (h *WorkerHouse) expandWorkerPool() {
 		Register:        make(chan *Client, 100),
 		Unregister:      make(chan *Client, 100),
 		Broadcast:       make(chan []byte, 100),
+		Forward:         make(chan []byte, 100),
 		mutex:           sync.RWMutex{},
 		FragmentManager: NewFragmentManager(),
 		TaskCount:       0, // 新Worker初始任务数为0
@@ -163,7 +184,6 @@ func (h *WorkerHouse) GetWorkerStats() map[string]interface{} {
 		workerStats = append(workerStats, workerStat)
 	}
 	stats["workers"] = workerStats
-
 	return stats
 }
 
@@ -175,6 +195,8 @@ func InitWorkerHouse(workerNum int) *WorkerHouse {
 func InitWorkerHouseWithConfig(initialWorkers, maxWorkers, threshold int) *WorkerHouse {
 	workerHouse := &WorkerHouse{
 		Workers:    make([]*Worker, 0, initialWorkers),
+		ClientMap:  make(map[string]*Worker),
+		mutex:      sync.RWMutex{},
 		maxWorkers: maxWorkers,
 		threshold:  threshold,
 	}
@@ -196,22 +218,16 @@ func InitWorkerHouseWithConfig(initialWorkers, maxWorkers, threshold int) *Worke
 			Register:        make(chan *Client, 100),
 			Unregister:      make(chan *Client, 100),
 			Broadcast:       make(chan []byte, 100),
+			Forward:         make(chan []byte, 100),
 			mutex:           sync.RWMutex{},
 			FragmentManager: NewFragmentManager(),
 			TaskCount:       0, // 初始任务数量为0
 			WorkerHouse:     workerHouse,
 			MessageQueue:    make(chan *MessageTask, 100),
 			BotClient:       NewBotClient("worker:bot:"+strconv.Itoa(i), "worker:bot:"+strconv.Itoa(i), i),
-
-			DeepSeekClient: NewDeepSeekClient(deepSeekConfig),
+			DeepSeekClient:  NewDeepSeekClient(deepSeekConfig),
 		}
 		workerHouse.Workers = append(workerHouse.Workers, worker)
 	}
-
-	logger.Info("WorkerHouse初始化完成",
-		zap.Int("initialWorkers", initialWorkers),
-		zap.Int("maxWorkers", maxWorkers),
-		zap.Int("threshold", threshold))
-
 	return workerHouse
 }

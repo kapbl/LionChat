@@ -72,11 +72,11 @@ func main() {
 	// 关闭处理
 	setupShutdown()
 	// 启动goroutine监控
-	if appConfig.Server.Environment == "dev" {
-		cgoroutinue.GoroutinePool.Submit(func() {
-			monitorGoroutines()
-		})
-	}
+	// if appConfig.Server.Environment == "dev" {
+	// 	cgoroutinue.GoroutinePool.Submit(func() {
+	// 		monitorGoroutines()
+	// 	})
+	// }
 	// 启动路由
 	router.RunEngine(&appConfig)
 }

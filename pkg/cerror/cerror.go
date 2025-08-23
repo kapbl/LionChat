@@ -11,3 +11,7 @@ func NewCodeError(code int32, msg string) *CodeError {
 		Msg:  msg,
 	}
 }
+
+func NoError() *CodeError {
+	return nil
+}

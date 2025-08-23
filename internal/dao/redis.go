@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"cchat/pkg/cerror"
 	"cchat/pkg/logger"
 	"context"
 	"time"
@@ -46,6 +47,17 @@ func InitRedis(addr, password string, db, poolSize, minIdleConns int) error {
 		zap.Int("db", db),
 		zap.Int("pool_size", poolSize),
 		zap.Int("min_idle_conns", minIdleConns))
+
+	// 删除所有缓存
+	keys, err := REDIS.Keys(ctx, "*").Result()
+	if err != nil {
+		logger.Error("删除Redis缓存失败",
+			zap.Error(err),
+		)
+	}
+	for _, key := range keys {
+		REDIS.Del(ctx, key)
+	}
 	return nil
 }
 
@@ -61,22 +73,22 @@ func DeleteCache(key string) {
 	}
 }
 
-type Action func() error
+type Action func() *cerror.CodeError
 
 // UpdataUserWithDelayDoubleDelete 使用延迟双删策略更新用户数据
-func UpdataUserWithDelayDoubleDelete(user_uuid string, action Action) error {
+func UpdataUserWithDelayDoubleDelete(key string, action Action) *cerror.CodeError {
 	// 第一次删除缓存
-	DeleteCache(user_uuid)
+	DeleteCache(key)
 
 	// 更新数据库
 	if err := action(); err != nil {
-		return err
+		return cerror.NewCodeError(22221, err.Msg)
 	}
 
 	// 延迟删除，防止缓存双写不一致
 	time.Sleep(500 * time.Millisecond)
 
 	// 第二次删除缓存
-	DeleteCache(user_uuid)
+	DeleteCache(key)
 	return nil
 }

@@ -1,9 +1,7 @@
 package api
 
 import (
-	"cchat/internal/service"
 	"net"
-	"net/http"
 	"runtime"
 	"time"
 
@@ -20,25 +18,7 @@ type ClientInfo struct {
 }
 
 func GetClients(c *gin.Context) {
-	clients := make([]ClientInfo, 0)
 
-	service.ServerInstance.Clients.Range(func(key, value interface{}) bool {
-		client := value.(*service.Client)
-		clients = append(clients, ClientInfo{
-			UUID:       client.UUID,
-			RemoteAddr: client.RemoteAddr,
-			LoginTime:  client.ConnTime,
-			Heartbeat:  client.ConnTime,
-			ConnTime:   client.ConnTime,
-		})
-		return true
-	})
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    clients,
-	})
 }
 
 // ServerInfo 服务器信息结构体
@@ -65,40 +45,7 @@ type InterfaceInfo struct {
 var serverStartTime = time.Now() // 服务器启动时间
 
 func GetServerInfor(c *gin.Context) {
-	// 1. 获取goroutine数量
-	goroutineCount := runtime.NumGoroutine()
 
-	// 2. 获取内存统计信息
-	var memStats runtime.MemStats
-	runtime.ReadMemStats(&memStats)
-
-	// 3. 获取网络接口信息
-	networkInfo := getNetworkInfo()
-
-	// 4. 计算运行时间
-	uptime := int64(time.Since(serverStartTime).Seconds())
-
-	// 5. 获取当前连接的客户端数量
-	clientCount := 0
-	service.ServerInstance.Clients.Range(func(key, value interface{}) bool {
-		clientCount++
-		return true
-	})
-
-	// 构建服务器信息
-	serverInfo := ServerInfo{
-		GoroutineCount: goroutineCount,
-		MemoryStats:    memStats,
-		NetworkInfo:    networkInfo,
-		Uptime:         uptime,
-		ClientCount:    clientCount,
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    serverInfo,
-	})
 }
 
 // getNetworkInfo 获取网络接口信息

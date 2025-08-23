@@ -73,10 +73,6 @@ func InitRouterGroups() {
 	AppRouterGroups["server"] = webEngine.Group("v1/api/server")
 	AppRouterGroups["health"] = webEngine.Group("v1/api/health")
 	AppRouterGroups["stats"] = webEngine.Group("v1/api/stats")
-
-	logger.Info("路由组初始化完成",
-		zap.Int("groupCount", len(AppRouterGroups)),
-		zap.Strings("groups", getRouterGroupNames()))
 }
 
 func getRouterGroupNames() []string {
@@ -102,7 +98,6 @@ func InitCors(c *config.Config) {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-	logger.Info("CORS配置完成", zap.Strings("allowed_origins", corsOrigins))
 }
 
 func InitMiddleware() {
@@ -113,9 +108,6 @@ func InitMiddleware() {
 	AppRouterGroups["moment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["comment"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
 	AppRouterGroups["message"].Use(middlewares.JwtMiddleware()).Use(middlewares.JwtParse)
-
-	logger.Info("JWT中间件配置完成",
-		zap.Strings("protected_groups", []string{"friend", "group", "monitor"}))
 }
 
 func InitRouter() {
@@ -144,10 +136,7 @@ func InitRouter() {
 	AppRouterGroups["group"].POST("/group-memberships", api.JoinGroup)
 	AppRouterGroups["group"].DELETE("/group-memberships", api.LeaveGroup)
 	AppRouterGroups["group"].GET("/group-list", api.GetGroupList)
-
-	// todo
 	AppRouterGroups["group"].GET("/group-members-List", api.GetGroupMembersList)
-	// todo
 	AppRouterGroups["group"].PUT("/changeGroupInfo", api.ChangeGroupInfo)
 
 	// *** 监控相关的路由
@@ -160,5 +149,4 @@ func InitRouter() {
 	AppRouterGroups["comment"].POST("/create", api.CreateComment)
 	AppRouterGroups["comment"].POST("/like", api.LikeComment)
 	AppRouterGroups["comment"].GET("/list", api.GetCommentList)
-	logger.Info("API路由注册完成")
 }

@@ -57,41 +57,46 @@ func (f *FriendService) AddFriend(req *dto.AddFriendRequest) *cerror.CodeError {
 	// 离线用户， 不经过websocket
 	// 在线用户， 经过websocket
 	// 根据信息查询uuid
-	targetUser := model.Users{}
-	err := dao.DB.Table("users").Where("username = ?", req.TargetUsername).First(&targetUser).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return cerror.NewCodeError(4444, "目标用户不存在")
+	// 延迟删除策略
+	key := fmt.Sprintf("user:friends:%d", f.UserID)
+	err := dao.UpdataUserWithDelayDoubleDelete(key, func() *cerror.CodeError {
+		targetUser := model.Users{}
+		err := dao.DB.Table("users").Where("username = ?", req.TargetUsername).First(&targetUser).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return cerror.NewCodeError(4444, "目标用户不存在")
+			}
+			return cerror.NewCodeError(4444, err.Error())
 		}
-		return cerror.NewCodeError(4444, err.Error())
-	}
-	// 在好友表中存入自己的好友信息
-	friendTable := model.UserFriends{}
-	err = dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", f.UserID, targetUser.Id).First(&friendTable).Error
-	if err == nil {
-		if friendTable.Status == 1 {
-			return cerror.NewCodeError(4444, "已经是好友")
+		// 在好友表中存入自己的好友信息
+		friendTable := model.UserFriends{}
+		err = dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", f.UserID, targetUser.Id).First(&friendTable).Error
+		if err == nil {
+			if friendTable.Status == 1 {
+				return cerror.NewCodeError(4444, "已经是好友")
+			}
 		}
-	}
-	// 插入一条好友关系记录
-	friendTable = model.UserFriends{
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		DeletedAt: nil,
-		UserID:    int(f.UserID),
-		FriendID:  int(targetUser.Id),
-		Status:    0,
-	}
-	err = dao.DB.Table(friendTable.GetTable()).Create(&friendTable).Error
-	if err != nil {
-		return cerror.NewCodeError(4444, err.Error())
-	}
-	// 发送好友请求
-	if targetUser.Status == 1 {
-		// 目标用户在线， 发送好友请求
-		f.sendFriendRequest(targetUser.Uuid, req.Content)
-	}
-	return nil
+		// 插入一条好友关系记录
+		friendTable = model.UserFriends{
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			DeletedAt: nil,
+			UserID:    int(f.UserID),
+			FriendID:  int(targetUser.Id),
+			Status:    0,
+		}
+		err = dao.DB.Table(friendTable.GetTable()).Create(&friendTable).Error
+		if err != nil {
+			return cerror.NewCodeError(4444, err.Error())
+		}
+		// 发送好友请求
+		if targetUser.Status == 1 {
+			// 目标用户在线， 发送好友请求
+			f.sendFriendRequest(targetUser.Uuid, req.Content)
+		}
+		return nil
+	})
+	return err
 }
 
 // ✅
@@ -195,40 +200,43 @@ func (f *FriendService) GetFriendList() ([]dto.FriendInfo, *cerror.CodeError) {
 
 // ✅
 func (f *FriendService) HandleFriendRequest(dto *dto.HandleFriendRequest) *cerror.CodeError {
-	// 更新加好友的信息
-	targetUser := model.Users{}
-	err := dao.DB.Table(targetUser.GetTable()).Where("username = ?", dto.TargetUsername).First(&targetUser).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return cerror.NewCodeError(8988, err.Error())
-	}
-	friendTable := model.UserFriends{}
-	err = dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", f.UserID, targetUser.Id).First(&friendTable).Error
-	// 存在这条记录
-	if friendTable.Id != 0 {
-		return cerror.NewCodeError(8989, "好友已存在")
-	}
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		// 创建一个好友Record
-		newFriendRecord := model.UserFriends{
-			UserID:    int(f.UserID),
-			FriendID:  targetUser.Id,
-			Status:    1,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-			DeletedAt: nil,
+	key := fmt.Sprintf("user:friends:%d", f.UserID)
+	err := dao.UpdataUserWithDelayDoubleDelete(key, func() *cerror.CodeError {
+		// 更新加好友的信息
+		targetUser := model.Users{}
+		err := dao.DB.Table(targetUser.GetTable()).Where("username = ?", dto.TargetUsername).First(&targetUser).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return cerror.NewCodeError(8988, err.Error())
 		}
-		err = dao.DB.Table(friendTable.GetTable()).Create(&newFriendRecord).Error
-		if err != nil {
+		friendTable := model.UserFriends{}
+		err = dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", f.UserID, targetUser.Id).First(&friendTable).Error
+		// 存在这条记录
+		if friendTable.Id != 0 {
+			return cerror.NewCodeError(8989, "好友已存在")
+		}
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// 创建一个好友Record
+			newFriendRecord := model.UserFriends{
+				UserID:    int(f.UserID),
+				FriendID:  targetUser.Id,
+				Status:    1,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+				DeletedAt: nil,
+			}
+			err = dao.DB.Table(friendTable.GetTable()).Create(&newFriendRecord).Error
+			if err != nil {
+				return cerror.NewCodeError(8989, err.Error())
+			}
+			// 将好友列表中对方的状态改为1
+			err = dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", targetUser.Id, f.UserID).Update("status", 1).Error
+			if err != nil {
+				return cerror.NewCodeError(8989, err.Error())
+			}
+		} else {
 			return cerror.NewCodeError(8989, err.Error())
 		}
-		// 将好友列表中对方的状态改为1
-		err = dao.DB.Table(friendTable.GetTable()).Where("user_id = ? AND friend_id = ?", targetUser.Id, f.UserID).Update("status", 1).Error
-		if err != nil {
-			return cerror.NewCodeError(8989, err.Error())
-		}
-	} else {
-		return cerror.NewCodeError(8989, err.Error())
-
-	}
-	return nil
+		return nil
+	})
+	return err
 }
