@@ -27,13 +27,7 @@ LionChat is an instant messaging backend system built with Go technology stack, 
 - Cross-language Communication❌
 - Conversation Summarization❌
 - AI Assistant Help Answer Questions✅
-- Docker Deployment✅
-## 🎐 Local Development
-- Go 1.24+
-- Gin
-- GORM
-- Nginx
-- Docker
+- Docker Deployment❌
 ## 🦁 Gallery
 ### Server Architecture
 ![Server Architecture](resources/logo/Untitled-2025-08-07-1051.png)
