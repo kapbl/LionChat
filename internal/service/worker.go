@@ -157,7 +157,7 @@ func (s *Worker) handleGroupMessage(msg *protocol.Message, originalMessage []byt
 }
 
 // 处理转发过来的消息
-func (s *Worker) handleForwardMessage(msg *protocol.Message, originalMessage []byte) {
+func (s *Worker) handleForwardMessage(msg *protocol.Message) {
 	fmt.Println("开始处理转发的消息", msg)
 	// 序列化消息
 	msgByte, err := proto.Marshal(msg)
@@ -265,7 +265,7 @@ func (s *Worker) processMessageTask(task *MessageTask) {
 	// 转发消息不需要有群组类型，因为目的很准确
 	if task.IsForward {
 		fmt.Printf("worker %d 开始处理转发消息\n", s.ID)
-		s.handleForwardMessage(task.Message, task.RawData)
+		s.handleForwardMessage(task.Message)
 		return
 	} else {
 		if task.Message.MessageType == 1 {
@@ -478,86 +478,6 @@ func (s *Worker) isUserOnline(userUUID string) bool {
 	online := dao.REDIS.GetBit(ctx, key, 0).Val()
 	if online == 1 {
 		return true
-	} else {
-		return false
 	}
-	// 首先检查本地客户端列表
-	if _, ok := s.Clients.Load(userUUID); ok {
-		return true
-	}
-
-	// 检查其他worker的客户端列表
-	for _, worker := range s.WorkerHouse.Workers {
-		if worker.ID != s.ID {
-			if _, ok := worker.Clients.Load(userUUID); ok {
-				return true
-			}
-		}
-	}
-
-	// 最后检查数据库中的用户状态
-	var user model.Users
-	err := dao.DB.Table("users").Where("uuid = ?", userUUID).First(&user).Error
-	if err != nil {
-		logger.Error("查询用户状态失败", zap.Error(err), zap.String("uuid", userUUID))
-		return false
-	}
-
-	return user.Status == 1
-}
-
-// pushOfflineMessages 推送离线消息给刚上线的用户
-func (s *Worker) pushOfflineMessages(client *Client) {
-	// 查询该用户的未读消息
-	var messages []model.Message
-	err := dao.DB.Table("message").Where("receive_id = ? AND status = 0", client.UUID).Order("created_at ASC").Find(&messages).Error
-	if err != nil {
-		logger.Error("查询离线消息失败", zap.Error(err), zap.String("uuid", client.UUID))
-		return
-	}
-
-	if len(messages) == 0 {
-		logger.Info("用户无离线消息", zap.String("uuid", client.UUID))
-		return
-	}
-
-	logger.Info("开始推送离线消息",
-		zap.String("uuid", client.UUID),
-		zap.Int("count", len(messages)))
-
-	// 逐条推送离线消息
-	for _, msg := range messages {
-		// 构造协议消息
-		protocolMsg := &protocol.Message{
-			From:        msg.SenderID,
-			To:          msg.ReceiveID,
-			Content:     msg.Content,
-			ContentType: 1, // 默认为文本消息
-			// Type:        1, // 单聊消息
-			MessageType: 1, // 普通消息
-			MessageId:   msg.MessageID,
-			Timestamp:   time.Now().Unix(),
-		}
-
-		// 序列化消息
-		msgByte, err := proto.Marshal(protocolMsg)
-		if err != nil {
-			logger.Error("序列化离线消息失败", zap.Error(err), zap.String("messageId", msg.MessageID))
-			continue
-		}
-
-		// 发送消息给客户端
-		s.SendMessageToClient(client, msgByte)
-
-		// 标记消息为已读（可选，也可以等客户端确认后再标记）
-		// 这里先不自动标记为已读，等待客户端确认
-		logger.Debug("推送离线消息",
-			zap.String("from", msg.SenderID),
-			zap.String("to", msg.ReceiveID),
-			zap.String("messageId", msg.MessageID))
-	}
-
-	logger.Info("离线消息推送完成",
-		zap.String("uuid", client.UUID),
-		zap.Int("count", len(messages)))
+	return false
 }
