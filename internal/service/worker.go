@@ -277,21 +277,6 @@ func (s *Worker) processMessageTask(task *MessageTask) {
 			fmt.Printf("worker %d 开始处理群聊消息\n", s.ID)
 			s.handleGroupMessage(task.Message, task.RawData)
 		}
-		// // 处理消息
-		// switch task.Message.ContentType {
-		// case 1, 2, 3, 4, 5, 6, 7, 13: // 文本、文件、图片、语音、视频消息
-
-		// case 8: // 好友请求消息
-		// 	if task.Message.MessageType == 1 {
-		// 		// 好友请求消息
-		// 		s.handleSingleMessage(task.Message, task.RawData)
-		// 	}
-		// default:
-		// 	logger.Warn("未知的消息内容类型",
-		// 		zap.Int32("contentType", task.Message.ContentType),
-		// 		zap.String("from", task.Message.From),
-		// 		zap.String("to", task.Message.To))
-		// }
 	}
 }
 
