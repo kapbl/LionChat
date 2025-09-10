@@ -28,7 +28,7 @@ func NewGroupService(userID int, userUUID string, username string, db *gorm.DB) 
 	}
 }
 
-// ✅
+// 创建一个群组
 func (g *GroupService) CreateGroup(req *dto.CreateGroupRequest) (*dto.GroupInfo, *cerror.CodeError) {
 	tx := g.DB.Begin()
 	defer func() {
@@ -40,6 +40,9 @@ func (g *GroupService) CreateGroup(req *dto.CreateGroupRequest) (*dto.GroupInfo,
 	}()
 	searchGroup := model.Group{}
 	err := tx.Table("group").Where("name=?", req.GroupName).First(&searchGroup).Error
+	if err != nil {
+		return nil, cerror.NewCodeError(9999, err.Error())
+	}
 	if searchGroup.Id == 0 {
 		newGroup := model.Group{
 			UUID:        token.GenUUID(req.GroupName),
@@ -56,7 +59,7 @@ func (g *GroupService) CreateGroup(req *dto.CreateGroupRequest) (*dto.GroupInfo,
 		if err != nil {
 			return nil, cerror.NewCodeError(1122, "创建组失败")
 		}
-		// 加入组
+		// 创建完然后需要加入组
 		err = tx.Table("group_member").Create(&model.GroupMember{
 			GroupId:   newGroup.Id,
 			GroupUUID: newGroup.UUID,
